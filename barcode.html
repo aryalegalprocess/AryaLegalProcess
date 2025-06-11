@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arya Legal Process</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="./contentstyle.css">
+</head>
+<body>
+   
+  <div class="top-header">
+    <img src="images/aryalogo.jpg" alt="Arya Logo" class="logo" />
+    <div class="contact-info">
+      <span>📞 9246411288</span>
+      <span>✉️ aryalegalprocess@gmail.com</span>
+    </div>
+  </div>
+
+<nav class="navbar">
+  <div class="nav-container">
+  <div class="hamburger" id="hamburger">&#9776;</div> 
+     <ul id="nav-links" class="nav-links">
+  <li><a href="index.html">Home</a></li>
+  <li><a href="barcode.html">Barcodes</a></li>
+  <li><a href="iso.html">ISO</a></li>
+  <li><a href="agmark.html">Agmark</a></li>
+  <li><a href="copyright.html">Copyrights</a></li>
+  <li><a href="patents.html">Patents</a></li>
+  <li><a href="trademark.html">Trademark</a></li>
+  <li><a href="contactus.html">Contact Us</a></li>
+</ul>
+  </div>
+</nav>
+
+<section id="content">
+  <h1>Barcodes</h1>
+  <hr />
+  <div class="content-wrapper">
+    <div class="left-content" id="left-content">
+         <p><strong>Barcode</strong></p>
+           <p>
+        A barcode is “A machine-readable code in the form of numbers and a pattern of parallel lines of varying widths,
+        printed on and identifying a product.” But in truth a barcode is so much more. Barcode systems help businesses
+        and organizations track products, prices, and stock levels for centralized management in a computer software
+        system allowing for incredible increases in productivity and efficiency.
+      </p>
+      <p>
+        The lines and patterns on a barcode are actually representations of numbers and data and their development
+        allowed basic information about a product to be easily read by an optical scanning device, a barcode scanner,
+        and automatically entered into a computer system. This vastly reduced the time it took to record such
+        information and eliminated the potential for human data entry error.
+      </p>
+      <p>
+        Bar codes started out with simple 1-dimensional designs, consisting of basic black lines that could only be read
+        by specially designed bar code scanners. However, today bar codes come in many shapes and sizes and a wide range
+        of designs and many can even be read by mobile phones and other devices.
+      </p>
+    </div>
+    <div class="right-content" id="right-content">
+          <img src="./images/barcode.jpg" alt="Barcode Image" />
+      <a href="./barcode-search.html" class="status-button">View Your Barcode Status</a>
+    </div>
+  </div>
+</section>
+
+
+  <footer>
+    <div class="footer-container">
+      
+      <div class="foot">
+        <h2>Quick Links</h2>
+        <ul>
+        <li><a href="barcode.html">Barcodes</a></li>
+          <li><a href="iso.html">ISO</a></li>
+          <li><a href="agmark.html">Agmark</a></li>
+          <li><a href="copyright.html">Copyrights</a></li>
+          <li><a href="trademark.html">Trademark</a></li>
+        </ul>
+      </div>
+
+      <div class="foot">
+        <h2>Contact Us</h2>
+        <p>
+          D.No: 11-44-21,<br>
+          Kummari Street,<br>
+          Samarangam Chowk,<br>
+          Near Srinu Hotel,<br>
+          Vijayawada – 520001
+        </p>
+      </div>
+
+      <div class="foot">
+        <h2>About Us</h2>
+        <p>
+          Arya legal process believes in making the registrations of Trademarks, barcodes, ISO, Agmark easy. 
+          Our services range from, Registering Trademarks, Barcodes, ISO, Agmark, Patents and Copyrights 
+          registrations etc.
+        </p>
+      </div>
+
+      <div class="foot">
+        <h2>Follow Us On</h2>
+        <div class="social-icons">
+          <a href="#"><i class="fab fa-facebook-f"></i></a>
+          <a href="#"><i class="fab fa-google-plus-g"></i></a>
+          <a href="#"><i class="fab fa-twitter"></i></a>
+        </div>
+      </div>
+
+    </div>
+  </footer>
+
+<script src="content.js"></script>
+<script>
+  const hamburger = document.getElementById('hamburger');
+  const navLinks = document.getElementById('nav-links');
+  const leftContent = document.getElementById('left-content');
+  const rightContent = document.getElementById('right-content');
+
+  // Toggle mobile nav
+  hamburger.addEventListener('click', () => {
+    navLinks.classList.toggle('active');
+    hamburger.classList.toggle('open');
+    hamburger.innerHTML = hamburger.classList.contains('open') ? '&times;' : '&#9776;';
+  });
+</script>
+
+</body>
+</html>

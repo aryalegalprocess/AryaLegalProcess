@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arya Legal Process</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="./contentstyle.css">
+</head>
+<body>
+   
+  <div class="top-header">
+    <img src="images/aryalogo.jpg" alt="Arya Logo" class="logo" />
+    <div class="contact-info">
+      <span>📞 9246411288</span>
+      <span>✉️ aryalegalprocess@gmail.com</span>
+    </div>
+  </div>
+
+<nav class="navbar">
+  <div class="nav-container">
+  <div class="hamburger" id="hamburger">&#9776;</div> 
+    <ul id="nav-links" class="nav-links">
+     <li><a href="barcode.html">Barcodes</a></li>
+  <li><a href="index.html">Home</a></li>
+  <li><a href="iso.html">ISO</a></li>
+  <li><a href="agmark.html">Agmark</a></li>
+  <li><a href="copyright.html">Copyrights</a></li>
+  <li><a href="patents.html">Patents</a></li>
+  <li><a href="trademark.html">Trademark</a></li>
+  <li><a href="contactus.html">Contact Us</a></li>
+    </ul>
+  </div>
+</nav>
+
+<section id="content">
+  <h1>Trademark</h1>
+  <hr />
+  <div class="content-wrapper">
+    <div class="left-content" id="left-content">
+    <p><strong>TRADE MARK</strong></p>
+     <p>
+       “Trade mark” means a mark capable of being represented graphically and which is capable of distinguishing the goods or services of one person from those of others and may include a device, brand, heading, label, ticket, name, word, letter, numeral, shape of goods, packaging or combination of colors or any combination thereof Registering your trademark gives you the exclusive right to use your mark for the goods and/or services.
+      </p>
+
+      <p>If you have a registered trademark you can put the ® symbol next to it to warn others against using it. But, using this symbol for a trademark that is not registered is an offence.</p>
+      <p>
+      A Registered Trade Mark
+      <ul>
+  <li>Identifies the actual physical origin of goods and services. The brand itself is the seal of authenticity.</li>
+  <li>Guarantees the identity of the origin of goods and services.</li>
+  <li>Stimulates further purchase.</li>
+  <li>Serves as a badge of loyalty and affiliation.</li>
+  <li>May enable consumer to make a lifestyle or fashion statement.</li>
+</ul></p>
+    </div>
+    <div class="right-content" id="right-content">
+          <img class="imgmark" src="./images/trademark.png" alt="iso Image" />
+
+<h2>Contact Us</h2>
+
+<div class="contact-section">
+  <div class="zonal">
+    <strong>Zonal Office:</strong>
+    <p>
+      D.No: 11-44-21,<br>
+      Kummari Street,<br>
+      Samarangam Chowk,<br>
+      Near Srinu Hotel,<br>
+      Vijayawada – 520001
+    </p>
+  </div>
+
+  <div class="attorney">
+    <strong>Attorney:</strong>
+    <p>
+      Linghichetty Street,<br>
+      George Town,<br>
+      Chennai – 600001
+    </p>
+  </div>
+</div>      
+  <a href="#" class="status-button">Search Your Brand Name</a> 
+    </div>
+  </div>
+</section>
+
+
+  <footer>
+    <div class="footer-container">
+      
+      <div class="foot">
+        <h2>Quick Links</h2>
+        <ul>
+          <li><a href="barcode.html">Barcodes</a></li>
+          <li><a href="iso.html">ISO</a></li>
+          <li><a href="agmark.html">Agmark</a></li>
+          <li><a href="copyright.html">Copyrights</a></li>
+          <li><a href="trademark.html">Trademark</a></li>
+        </ul>
+      </div>
+
+      <div class="foot">
+        <h2>Contact Us</h2>
+        <p>
+          D.No: 11-44-21,<br>
+          Kummari Street,<br>
+          Samarangam Chowk,<br>
+          Near Srinu Hotel,<br>
+          Vijayawada – 520001
+        </p>
+      </div>
+
+      <div class="foot">
+        <h2>About Us</h2>
+        <p>
+          Arya legal process believes in making the registrations of Trademarks, barcodes, ISO, Agmark easy. 
+          Our services range from, Registering Trademarks, Barcodes, ISO, Agmark, Patents and Copyrights 
+          registrations etc.
+        </p>
+      </div>
+
+      <div class="foot">
+        <h2>Follow Us On</h2>
+        <div class="social-icons">
+          <a href="#"><i class="fab fa-facebook-f"></i></a>
+          <a href="#"><i class="fab fa-google-plus-g"></i></a>
+          <a href="#"><i class="fab fa-twitter"></i></a>
+        </div>
+      </div>
+
+    </div>
+  </footer>
+
+<script src="content.js"></script>
+<script>
+  const hamburger = document.getElementById('hamburger');
+  const navLinks = document.getElementById('nav-links');
+  const leftContent = document.getElementById('left-content');
+  const rightContent = document.getElementById('right-content');
+
+  // Toggle mobile nav
+  hamburger.addEventListener('click', () => {
+    navLinks.classList.toggle('active');
+    hamburger.classList.toggle('open');
+    hamburger.innerHTML = hamburger.classList.contains('open') ? '&times;' : '&#9776;';
+  });
+</script>
+
+</body>
+</html>

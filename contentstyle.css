@@ -1,0 +1,107 @@
+#content {
+  padding: 40px 60px;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+h1 {
+  font-size: 32px;
+  font-weight: bold;
+  color: #2c64b8;
+  margin-bottom: 10px;
+}
+
+hr {
+  margin-bottom: 30px;
+  border: none;
+  border-top: 1px solid #ccc;
+}
+
+.content-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 40px;
+}
+
+.left-content {
+  width: 65%;
+}
+
+.left-content p {
+  margin-bottom: 15px;
+  line-height: 1.6;
+  font-size: 16px;
+  color: #444;
+}
+.right-content {
+  width: 30%;
+  display: flex;
+  flex-direction: column;
+  align-items: center; 
+  gap: 20px;
+}
+
+.right-content img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 5px;
+}
+.right-content .imgmark {
+  width: 50%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 5px;
+}
+.status-button {
+  padding: 12px 24px;
+  background-color: #72c172;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  font-weight: 500;
+  font-size: 16px;
+  text-align: center;
+  transition: background-color 0.3s ease;
+  display: inline-block;
+}
+
+.status-button:hover {
+  background-color: #60b060;
+}
+.contact-section {
+  display: flex;
+  justify-content: space-between; 
+  gap: 20px; 
+}
+
+.zonal, .attorney {
+  width: 95%; 
+  padding: 10px;
+}
+
+ol{
+   padding-left: 12px; 
+}
+ul{
+   padding-left: 14px; 
+}
+@media (max-width: 870px) {
+  .content-wrapper {
+    flex-direction: column;
+  }
+
+  .right-content {
+    align-items: center;
+    width: 100%;
+  }
+
+  .left-content {
+    width: 100%;
+  }
+}
+@media (max-width: 1024px) {
+  .right-content {
+    margin-top: 30px; 
+  }
+}

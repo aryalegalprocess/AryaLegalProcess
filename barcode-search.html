@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Arya Barcode Lookup</title>
+  <link rel="stylesheet" href="barcode-search.css" />
+</head>
+<body>
+  <div class="top-bar">
+    <button class="go-back" onclick="history.back()">Go Back</button>
+  </div>
+
+  <div class="logo-container">
+    <img src="images/aryalogo.jpg" alt="Arya Logo" class="logo" />
+  </div>
+
+  <div class="container">
+    <div class="form-section">
+      <h4><strong>ENTER YOUR BARCODE (GTIN) NUMBER</strong></h4>
+      <input type="number" class="barcode-input" placeholder="Barcode" id="barcodeInput" />
+      <br />
+      <button class="search-button" onclick="redirectToIndex()">Search</button>
+    </div>
+  </div>
+
+  <script>
+    function redirectToIndex() {
+      const barcode = document.getElementById('barcodeInput').value;
+      if (barcode.trim() !== "") {
+        window.location.href = 'index.html'; 
+      } else {
+        alert("Please enter a barcode number.");
+      }
+    }
+  </script>
+</body>
+</html>

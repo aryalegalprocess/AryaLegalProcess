@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Arya Legal Process</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="./contentstyle.css">
+</head>
+<body>
+   
+  <div class="top-header">
+    <img src="images/aryalogo.jpg" alt="Arya Logo" class="logo" />
+    <div class="contact-info">
+      <span>📞 9246411288</span>
+      <span>✉️ aryalegalprocess@gmail.com</span>
+    </div>
+  </div>
+
+<nav class="navbar">
+  <div class="nav-container">
+  <div class="hamburger" id="hamburger">&#9776;</div> 
+    <ul id="nav-links" class="nav-links">
+  <li><a href="index.html">Home</a></li>
+  <li><a href="barcode.html">Barcodes</a></li>
+  <li><a href="iso.html">ISO</a></li>
+  <li><a href="agmark.html">Agmark</a></li>
+  <li><a href="copyright.html">Copyrights</a></li>
+  <li><a href="patents.html">Patents</a></li>
+  <li><a href="trademark.html">Trademark</a></li>
+  <li><a href="contactus.html">Contact Us</a></li>
+</ul>
+  </div>
+</nav>
+
+<section id="content">
+  <h1>Patents</h1>
+  <hr />
+  <div class="content-wrapper">
+    <div class="left-content" id="left-content">
+       <p><strong>PATENTS</strong></p>
+     <p>
+       The term patent usually refers to a right granted to anyone who invents or discovers any new and useful process, machine, article of manufacture, or composition of matter, or any new and useful improvement thereof A patent provides protection for the invention to the owner of the patent for a limited period
+      </p>
+      <p>
+      <ol>
+        <li>Reducing the number of competitors in the market</li>
+        <li>Revenue from licensing</li>
+        <li>Cross-licensing, joint-development, or joint-marketing for needed technology or marketing resources</li>
+        <li>Confidence for venture capitalists or other investors</li>
+        <li>Increase the value of the company</li>
+        <li>In the case of liquidation, can sell the IP portfolio separately</li>
+      </ol>
+      </p>
+    </div>
+    <div class="right-content" id="right-content">
+         <img class=" imgmark"  src="./images/patent.png" alt="iso Image" />
+         <h2>Contact Us</h2>
+        <p>
+          D.No: 11-44-21,<br>
+          Kummari Street,<br>
+          Samarangam Chowk,<br>
+          Near Srinu Hotel,<br>
+          Vijayawada – 520001
+        </p>
+    
+    </div>
+  </div>
+</section>
+
+
+  <footer>
+    <div class="footer-container">
+      
+      <div class="foot">
+        <h2>Quick Links</h2>
+        <ul>
+          <li><a href="barcode.html">Barcodes</a></li>
+          <li><a href="iso.html">ISO</a></li>
+          <li><a href="agmark.html">Agmark</a></li>
+          <li><a href="copyright.html">Copyrights</a></li>
+          <li><a href="trademark.html">Trademark</a></li>
+        </ul>
+      </div>
+
+      <div class="foot">
+        <h2>Contact Us</h2>
+        <p>
+          D.No: 11-44-21,<br>
+          Kummari Street,<br>
+          Samarangam Chowk,<br>
+          Near Srinu Hotel,<br>
+          Vijayawada – 520001
+        </p>
+      </div>
+
+      <div class="foot">
+        <h2>About Us</h2>
+        <p>
+          Arya legal process believes in making the registrations of Trademarks, barcodes, ISO, Agmark easy. 
+          Our services range from, Registering Trademarks, Barcodes, ISO, Agmark, Patents and Copyrights 
+          registrations etc.
+        </p>
+      </div>
+
+      <div class="foot">
+        <h2>Follow Us On</h2>
+        <div class="social-icons">
+          <a href="#"><i class="fab fa-facebook-f"></i></a>
+          <a href="#"><i class="fab fa-google-plus-g"></i></a>
+          <a href="#"><i class="fab fa-twitter"></i></a>
+        </div>
+      </div>
+
+    </div>
+  </footer>
+
+<script src="content.js"></script>
+<script>
+  const hamburger = document.getElementById('hamburger');
+  const navLinks = document.getElementById('nav-links');
+  const leftContent = document.getElementById('left-content');
+  const rightContent = document.getElementById('right-content');
+
+  // Toggle mobile nav
+  hamburger.addEventListener('click', () => {
+    navLinks.classList.toggle('active');
+    hamburger.classList.toggle('open');
+    hamburger.innerHTML = hamburger.classList.contains('open') ? '&times;' : '&#9776;';
+  });
+</script>
+
+</body>
+</html>
