@@ -12,9 +12,14 @@ const PORT = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors({
-  origin: "https://www.aryalegalprocess.com",
-  methods: ["GET", "POST"],
-}));
+    origin: [
+      "https://www.aryalegalprocess.com",
+      "https://aryalegalprocess.com"
+    ],
+    methods: ["GET", "POST"],
+    credentials: true
+  }));
+  
 
 app.use(bodyParser.json());
 
