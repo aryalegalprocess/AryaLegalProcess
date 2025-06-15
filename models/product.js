@@ -14,4 +14,10 @@ const productSchema = new mongoose.Schema({
   price: String
 });
 
-module.exports = mongoose.model("Product", productSchema);
+// 👇 Connect this model to 'productsdb' instead of default mongoose
+const productsConnection = mongoose.createConnection(process.env.MONGO_URI_PRODUCTS, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+});
+
+module.exports = productsConnection.model("Product", productSchema);
