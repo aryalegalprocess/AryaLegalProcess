@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Company List Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="addproduct.css">
+  <link rel="stylesheet" href="email.css">
+    <link rel="stylesheet" href="productlist.css">
+    <link rel="stylesheet" href="company.css">
+
+</head>
+<body>
+  <div class="sidebar">
+    <div class="logo">&#9776; <span class="text">ARYA LEGAL PROCESS</span> </div>
+    <ul class="menu">
+          <li><a href="home.html"><span class="icon">🏠</span><span class="text">Home</span></a></li>
+        <li><a href="company.html"><span class="icon">🛠️</span><span class="text">Manage Companies</span></a></li>
+        <li><a href="addproduct.html"><span class="icon">➕</span><span class="text">Add Products</span></a></li>
+        <li><a href="productlist.html"><span class="icon">📦</span><span class="text">Products List</span></a></li>
+        <li><a href="email.html"><span class="icon">📧</span><span class="text">Send E-Mail</span></a></li>
+    </ul>
+  </div>
+
+  <div class="main-content">
+
+       <div class="navbar">
+  <div class="admin-dropdown">
+    <div class="admin" onclick="toggleDropdown()">ADMIN</div>
+    <div class="dropdown-menu" id="dropdown">
+     <a href="password.html">Change Password</a>
+      <a href="index.html">Logout</a>
+    </div>
+  </div>
+</div>
+
+  <div class="heading">
+    <h2>📦 DASHBOARD - Manage Companies</h2>
+  </div>
+<form id="companyForm">
+ <div class="container">
+    <h1>Manage Companies</h1>
+
+    <section class="section">
+      <h2>BRAND DETAILS</h2>
+      <div class="row">
+        <div class="input-group">
+          <label for="companyName">Company Name</label>
+          <input type="text" id="companyName" placeholder="Company Name">
+        </div>
+        <div class="input-group">
+          <label for="status">Status</label>
+          <select id="status">
+            <option value="active">ACTIVE</option>
+            <option value="inactive">INACTIVE</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="input-group">
+          <label for="startDate">Start Date</label>
+          <input type="date" id="startDate">
+        </div>
+        <div class="input-group">
+          <label for="endDate">End Date</label>
+          <input type="date" id="endDate">
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>CONSUMER CARE DETAILS</h2>
+      <div class="row">
+        <div class="input-group">
+          <label for="contactName">Contact Person Name</label>
+          <input type="text" id="contactName" placeholder="Contact Person Name">
+        </div>
+        <div class="input-group">
+          <label for="contactNumber">Contact Person Number</label>
+          <input type="text" id="contactNumber" placeholder="Contact Person Number">
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="input-group">
+          <label for="contactEmail">Contact Person E-Mail</label>
+          <input type="email" id="contactEmail" placeholder="Contact Person E-Mail">
+        </div>
+        <div class="input-group">
+          <label for="address">Company Address</label>
+          <textarea id="address" placeholder="Address"></textarea>
+        </div>
+      </div>
+    </section>
+
+    <button class="submit-btn">Submit</button>
+  </div>
+</form>
+   <div class="table-container">
+    <h2>Companies List</h2>
+
+    <div class="table-controls">
+     <label>Show 
+    <select id="entriesLimit">
+      <option>10</option>
+      <option>25</option>
+      <option>50</option>
+      <option>100</option>
+      <option>200</option>
+      <option>300</option>
+      <option>400</option>
+    </select> entries
+  </label>
+
+
+     <label class="search-box">
+      Search: <input type="text" id="searchInput" placeholder="Search...">
+    </label>
+
+    </div>
+
+    <div class="table-scroll">
+    <table>
+      <thead>
+        <tr>
+          <th>SNO</th>
+          <th>Company Name</th>
+          <th>Start Date</th>
+          <th>End Date</th>
+          <th>Status</th>
+          <th>Contact Name</th>
+          <th>Contact Number</th>
+          <th>Contact Email</th>
+          <th>Contact Address</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Add more rows as needed -->
+      </tbody>
+    </table>
+<div class="pagination-info">
+  <!-- JS will update this text dynamically -->
+</div>
+
+<div class="pagination">
+  <!-- JS will generate pagination buttons here dynamically -->
+</div>
+
+  </div>
+</div>
+  
+  </div>
+
+  
+ <script>
+  const sidebar = document.querySelector('.sidebar');
+
+  sidebar.addEventListener('click', () => {
+    sidebar.classList.toggle('expanded');
+  });
+
+  function toggleDropdown() {
+    const dropdown = document.getElementById("dropdown");
+    dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+  }
+
+  document.addEventListener("click", function (event) {
+    const dropdown = document.getElementById("dropdown");
+    const admin = document.querySelector(".admin");
+
+    if (!admin.contains(event.target)) {
+      dropdown.style.display = "none";
+    }
+  });
+
+  document.querySelector(".submit-btn").addEventListener("click", function (event) {
+    event.preventDefault();  // Prevent form submission reload
+
+    const companyName = document.getElementById("companyName").value.trim();
+    const status = document.getElementById("status").value;
+    const startDate = document.getElementById("startDate").value;
+    const endDate = document.getElementById("endDate").value;
+    const contactName = document.getElementById("contactName").value.trim();
+    const contactNumber = document.getElementById("contactNumber").value.trim();
+    const contactEmail = document.getElementById("contactEmail").value.trim();
+    const address = document.getElementById("address").value.trim();
+
+    if (!companyName || !contactName || !contactNumber || !contactEmail || !address) {
+      alert("Please fill all required fields.");
+      return;
+    }
+
+    const companyData = {
+      companyName,
+      status,
+      startDate,
+      endDate,
+      contactName,
+      contactNumber,
+      contactEmail,
+      address
+    };
+
+    fetch('https://productslist.onrender.com/api/companies', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(companyData)
+    })
+      .then(res => res.json())
+      .then(savedCompany => {
+        alert("Company added successfully!");
+        allCompanies.push(savedCompany); // Add new company to allCompanies
+        document.getElementById("companyForm").reset();
+        currentPage = totalPages; // Jump to last page to show new entry
+        renderTable();
+        renderPagination();
+      })
+      .catch(err => {
+        console.error(err);
+        alert("Failed to add company.");
+      });
+  });
+
+  // Store all companies data globally
+  let allCompanies = [];
+  let currentPage = 1;
+  let entriesPerPage = 10;
+
+  // Fetch all companies initially
+  window.onload = function () {
+    fetchAndRenderCompanies();
+    setupShowEntries();
+  };
+
+  function fetchAndRenderCompanies() {
+    fetch('https://productslist.onrender.com/api/companies')
+      .then(res => res.json())
+      .then(data => {
+        allCompanies = data;
+        currentPage = 1;
+        renderTable();
+        renderPagination();
+      })
+      .catch(error => {
+        console.error("Failed to load companies:", error);
+        const tbody = document.querySelector("table tbody");
+        tbody.innerHTML = '<tr><td colspan="9">Failed to load companies.</td></tr>';
+      });
+  }
+
+  function setupShowEntries() {
+    const select = document.getElementById("entriesLimit");
+    // Set default value
+    select.value = "10";
+    select.addEventListener("change", () => {
+      entriesPerPage = parseInt(select.value, 10);
+      currentPage = 1; // Reset to first page
+      renderTable();
+      renderPagination();
+    });
+  }
+
+  document.getElementById("searchInput").addEventListener("input", function () {
+    currentPage = 1; // Reset to first page on search
+    renderTable();
+    renderPagination();
+  });
+
+  function renderTable() {
+    const tbody = document.querySelector("table tbody");
+    tbody.innerHTML = '';
+
+    const filter = document.getElementById("searchInput").value.toLowerCase();
+
+    // Filter companies by search
+    const filteredCompanies = allCompanies.filter(company => {
+      return (
+        company.companyName.toLowerCase().includes(filter) ||
+        company.startDate.toLowerCase().includes(filter) ||
+        company.endDate.toLowerCase().includes(filter) ||
+        company.status.toLowerCase().includes(filter) ||
+        company.contactName.toLowerCase().includes(filter) ||
+        company.contactNumber.toLowerCase().includes(filter) ||
+        company.contactEmail.toLowerCase().includes(filter) ||
+        company.address.toLowerCase().includes(filter)
+      );
+    });
+
+    const totalEntries = filteredCompanies.length;
+    totalPages = Math.ceil(totalEntries / entriesPerPage);
+
+    // Correct currentPage if out of bounds
+    if (currentPage > totalPages) currentPage = totalPages;
+    if (currentPage < 1) currentPage = 1;
+
+    // Calculate slice indexes
+    const startIndex = (currentPage - 1) * entriesPerPage;
+    const endIndex = startIndex + entriesPerPage;
+
+    const companiesToShow = filteredCompanies.slice(startIndex, endIndex);
+
+    companiesToShow.forEach((company, index) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${startIndex + index + 1}</td>
+        <td>${company.companyName}</td>
+        <td>${company.startDate}</td>
+        <td>${company.endDate}</td>
+        <td>${company.status}</td>
+        <td>${company.contactName}</td>
+        <td>${company.contactNumber}</td>
+        <td>${company.contactEmail}</td>
+        <td>${company.address}</td>
+      `;
+      tbody.appendChild(row);
+    });
+
+    updatePaginationInfo(startIndex + 1, startIndex + companiesToShow.length, totalEntries);
+  }
+
+  function updatePaginationInfo(from, to, total) {
+    const paginationInfo = document.querySelector(".pagination-info");
+    if(total === 0){
+      paginationInfo.textContent = "Showing 0 to 0 of 0 entries";
+    } else {
+      paginationInfo.textContent = `Showing ${from} to ${to} of ${total} entries`;
+    }
+  }
+
+  function renderPagination() {
+    const paginationContainer = document.querySelector(".pagination");
+    paginationContainer.innerHTML = '';
+
+    if(totalPages <= 1){
+      // No pagination needed
+      return;
+    }
+
+    // Helper to create page link
+    function createPageLink(page) {
+      const a = document.createElement('a');
+      a.href = "#";
+      a.textContent = page;
+      if (page === currentPage) a.classList.add('active');
+      a.addEventListener('click', function (e) {
+        e.preventDefault();
+        if (currentPage === page) return;
+        currentPage = page;
+        renderTable();
+        renderPagination();
+      });
+      return a;
+    }
+
+    // Always show first page
+    paginationContainer.appendChild(createPageLink(1));
+
+    if(totalPages <= 7){
+      // Show all pages if less than 8 total
+      for(let i=2; i<=totalPages; i++){
+        paginationContainer.appendChild(createPageLink(i));
+      }
+    } else {
+      // Show partial with ellipsis
+      let startPage, endPage;
+
+      if(currentPage <= 4){
+        startPage = 2;
+        endPage = 5;
+        for(let i = startPage; i <= endPage; i++){
+          paginationContainer.appendChild(createPageLink(i));
+        }
+        paginationContainer.appendChild(createEllipsis());
+        paginationContainer.appendChild(createPageLink(totalPages));
+      } else if(currentPage > totalPages - 4){
+        paginationContainer.appendChild(createEllipsis());
+        startPage = totalPages - 4;
+        endPage = totalPages - 1;
+        for(let i = startPage; i <= endPage; i++){
+          paginationContainer.appendChild(createPageLink(i));
+        }
+        paginationContainer.appendChild(createPageLink(totalPages));
+      } else {
+        paginationContainer.appendChild(createEllipsis());
+        startPage = currentPage - 1;
+        endPage = currentPage + 1;
+        for(let i = startPage; i <= endPage; i++){
+          paginationContainer.appendChild(createPageLink(i));
+        }
+        paginationContainer.appendChild(createEllipsis());
+        paginationContainer.appendChild(createPageLink(totalPages));
+      }
+    }
+
+    function createEllipsis() {
+      const span = document.createElement('span');
+      span.textContent = '...';
+      span.classList.add('ellipsis');
+      return span;
+    }
+  }
+</script>
+
+
+</body>
+</html>

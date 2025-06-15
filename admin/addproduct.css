@@ -1,0 +1,132 @@
+
+.form-container {
+  max-width: 1100px;
+  width: 100%; 
+  margin: 20px auto;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  padding: 40px;
+  box-sizing: border-box;
+}
+
+.form-header {
+  background: #167293;
+  color: white;
+  padding: 20px;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  margin: -40px -40px 30px -40px;
+}
+
+.form-header h2 {
+  margin: 0;
+  font-size: 24px;
+}
+
+form label {
+  display: block;
+  margin-top: 15px;
+  font-weight: 500;
+  color: #333;
+}
+
+form input[type="text"],
+form input[type="file"],
+form input[type="date"],
+form textarea,
+form select {
+  width: 100%;
+  padding: 12px;
+  margin-top: 6px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 15px;
+  background-color: #f9f9f9;
+  color: #333;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+}
+
+form input:focus,
+form textarea:focus,
+form select:focus {
+  border-color: #167293;
+  outline: none;
+  background-color: #fff;
+}
+
+form button {
+  margin-top: 25px;
+  padding: 12px 20px;
+  background-color: #167293;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+form button:hover {
+  background-color: #105a74;
+}
+
+.heading {
+  max-width: 1100px;
+  width: 100%;
+  margin: 30px auto 0 auto;
+  padding-left: 10px;
+  color: #333;
+  font-family: 'Nunito', sans-serif;
+}
+
+.heading h2 {
+  font-size: 24px;
+  margin: 0;
+}
+@media (max-width: 600px) {
+  .form-container {
+    padding: 20px;
+    margin: 10px;
+    max-width: 100%;
+  }
+
+  .form-header {
+    padding: 15px;
+    margin: -20px -20px 20px -20px;
+  }
+
+  .form-header h2 {
+    font-size: 20px;
+  }
+
+  form label {
+    margin-top: 12px;
+    font-size: 14px;
+  }
+
+  form input[type="text"],
+  form input[type="file"],
+  form input[type="date"],
+  form textarea,
+  form select {
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  form button {
+    padding: 10px 16px;
+    font-size: 14px;
+  }
+
+  .heading {
+    margin: 20px 10px 0 10px;
+    padding-left: 5px;
+  }
+
+  .heading h2 {
+    font-size: 20px;
+  }
+}
+
