@@ -5,10 +5,27 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Arya Barcode Lookup</title>
   <link rel="stylesheet" href="barcode-search.css" />
+  <style>
+    /* Optional styling if not already in your CSS */
+    .result-section {
+      margin-top: 20px;
+      padding: 15px;
+      border: 1px solid #ccc;
+      background-color: #f9f9f9;
+      border-radius: 8px;
+      max-width: 600px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .product-details h3 {
+      margin-bottom: 10px;
+      color: #003366;
+    }
+  </style>
 </head>
 <body>
   <div class="top-bar">
-    <button class="go-back" onclick="history.back()">Go Back</button>
+    <button class="go-back" onclick="goBack()">Go Back</button>
   </div>
 
   <div class="logo-container">
@@ -20,17 +37,47 @@
       <h4><strong>ENTER YOUR BARCODE (GTIN) NUMBER</strong></h4>
       <input type="number" class="barcode-input" placeholder="Barcode" id="barcodeInput" />
       <br />
-      <button class="search-button" onclick="redirectToIndex()">Search</button>
+      <button class="search-button" onclick="searchProduct()">Search</button>
     </div>
+
+    <!-- Result will show here -->
+    <div id="result" class="result-section"></div>
   </div>
 
   <script>
-    function redirectToIndex() {
-      const barcode = document.getElementById('barcodeInput').value;
-      if (barcode.trim() !== "") {
-        window.location.href = 'index.html'; 
-      } else {
+    // Go Back button function
+    function goBack() {
+      history.back();
+    }
+
+    // Barcode search
+    async function searchProduct() {
+      const barcode = document.getElementById('barcodeInput').value.trim();
+      const resultDiv = document.getElementById("result");
+
+      if (!barcode) {
         alert("Please enter a barcode number.");
+        return;
+      }
+
+      try {
+        const res = await fetch(`http://localhost:5000/api/products/${barcode}`);
+        if (!res.ok) throw new Error("Not found");
+
+        const data = await res.json();
+
+        resultDiv.innerHTML = `
+          <div class="product-details">
+            <h3>${data.name}</h3>
+            <p><strong>Details:</strong> ${data.details}</p>
+            <p><strong>Price:</strong> ₹${data.price}</p>
+            <p><strong>Weight:</strong> ${data.weight}</p>
+            <p><strong>Quantity:</strong> ${data.quantity}</p>
+            <p><strong>Company:</strong> ${data.company}</p>
+          </div>
+        `;
+      } catch (err) {
+        resultDiv.innerHTML = `<p style="color:red;">Product not found. Please try again.</p>`;
       }
     }
   </script>
