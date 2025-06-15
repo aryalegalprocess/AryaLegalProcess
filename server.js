@@ -32,7 +32,7 @@ mongoose.connect(process.env.MONGO_URI)
 // ✅ Barcode lookup route
 app.get("/api/products/:barcode", async (req, res) => {
   try {
-    const product = await Product.findOne({ barcode: req.params.barcode });
+const product = await Product.findOne({ barcode: { $eq: req.params.barcode.toString() } });
     if (!product) return res.status(404).json({ error: "Product not found" });
     res.json(product);
   } catch (err) {
