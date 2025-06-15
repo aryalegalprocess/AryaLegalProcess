@@ -25,23 +25,36 @@ app.use(cors({
 app.use(bodyParser.json());
 
 // MongoDB connection
-mongoose.connect(process.env.MONGO_URI)
+mongoose.connect(process.env.MONGO_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
   .then(() => console.log("✅ MongoDB connected"))
   .catch((err) => console.error("❌ MongoDB connection error:", err));
 
 // ✅ Barcode lookup route
 app.get("/api/products/:barcode", async (req, res) => {
   try {
-    const allProducts = await Product.find();
-    const product = allProducts.find(p => p.barcode.toString() === req.params.barcode.toString());
+    const barcode = req.params.barcode;
+    console.log("🔍 Searching for barcode:", barcode);
 
-    if (!product) return res.status(404).json({ error: "Product not found" });
+    const product = await Product.findOne({
+      barcode: { $regex: new RegExp(`^${barcode}$`) }
+    });
+
+    if (!product) {
+      console.log("❌ Product not found for barcode:", barcode);
+      return res.status(404).json({ error: "Product not found" });
+    }
+
+    console.log("✅ Product found:", product.name);
     res.json(product);
   } catch (err) {
-    console.error("Error finding product:", err);
+    console.error("❌ Error finding product:", err);
     res.status(500).json({ error: "Server error" });
   }
 });
+
 
 // ✅ Contact form POST
 app.post("/api/contact", async (req, res) => {
