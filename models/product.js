@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+require("dotenv").config(); // ✅ Make sure environment variables are available
 
 const productSchema = new mongoose.Schema({
   barcode: String,
@@ -14,10 +15,6 @@ const productSchema = new mongoose.Schema({
   price: String
 });
 
-// 👇 Connect this model to 'productsdb' instead of default mongoose
-const productsConnection = mongoose.createConnection(process.env.MONGO_URI_PRODUCTS, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-});
+const productsConnection = mongoose.createConnection(process.env.MONGO_URI_PRODUCTS);
 
 module.exports = productsConnection.model("Product", productSchema);
