@@ -35,7 +35,7 @@
   <div class="container">
     <div class="form-section">
       <h4><strong>ENTER YOUR BARCODE (GTIN) NUMBER</strong></h4>
-      <input type="number" class="barcode-input" placeholder="Barcode" id="barcodeInput" />
+      <input type="text" class="barcode-input" placeholder="Barcode" id="barcodeInput" />
       <br />
       <button class="search-button" onclick="searchProduct()">Search</button>
     </div>
@@ -61,7 +61,8 @@
       }
 
       try {
-        const res = await fetch(`http://localhost:5500/api/products/${barcode}`);
+       const res = await fetch(`http://localhost:5000/api/products/${barcode}`);
+
         if (!res.ok) throw new Error("Not found");
 
         const data = await res.json();
