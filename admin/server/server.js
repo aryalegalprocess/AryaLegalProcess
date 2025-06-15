@@ -12,6 +12,7 @@ app.use(cors({
   origin: [
     "https://www.aryalegalprocess.com",
     "https://aryalegalprocess.com",
+
   ],
   methods: ["GET", "POST"],
   credentials: true
@@ -21,7 +22,7 @@ app.use(express.json({ limit: '100mb' }));
 app.use(express.urlencoded({ extended: true, limit: '100mb' }));
 
 // --- Connect to MongoDB for Products ---
-const productConnection = mongoose.createConnection(process.env.MONGO_URI, {
+const productConnection = mongoose.createConnection(process.env.MONGO_URI_PRODUCTS, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
