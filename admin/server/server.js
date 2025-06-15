@@ -9,11 +9,13 @@ const PORT = process.env.PORT || 5000;
 // --- Middleware ---
 // Allow CORS
 app.use(cors({
-  origin: 'https://sowmyagorrepati.github.io',
-  methods: ['GET', 'POST'],
+  origin: [
+    "https://www.aryalegalprocess.com",
+    "https://aryalegalprocess.com",
+  ],
+  methods: ["GET", "POST"],
   credentials: true
 }));
-
 // Increase payload size limits to handle large Base64 images
 app.use(express.json({ limit: '100mb' }));
 app.use(express.urlencoded({ extended: true, limit: '100mb' }));
