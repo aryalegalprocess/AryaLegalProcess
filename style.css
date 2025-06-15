@@ -200,7 +200,7 @@ body {
 }
 
 .imgcontainer img {
-  width: 200px;
+  width: 150px;
   height: 150px;
   object-fit: cover;
   border-radius: 8px;
@@ -208,8 +208,8 @@ body {
 
 
 .imgcontainer img {
-  width: 200px;
-  height: 200px;
+  width: 150px;
+  height: 150px;
   object-fit: contain;
   border: 1px solid #ddd;
   border-radius: 8px;
