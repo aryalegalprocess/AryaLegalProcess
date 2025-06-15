@@ -5,7 +5,7 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 
 const Contact = require("./models/contact");
-const Product = require("./models/Product"); // ✅ NEW
+const Product = require("./models/product"); // ✅ NEW
 
 dotenv.config();
 const app = express();
