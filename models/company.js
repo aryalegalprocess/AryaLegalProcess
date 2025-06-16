@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+require("dotenv").config(); // Load .env
 
 const companySchema = new mongoose.Schema({
   id: Number,
@@ -12,4 +13,10 @@ const companySchema = new mongoose.Schema({
   caddress: String
 });
 
-module.exports = mongoose.model("Company", companySchema);
+// ✅ Connect to the correct DB (MONGO_URI_COMPANY)
+const companyConnection = mongoose.createConnection(process.env.MONGO_URI_COMPANY, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+});
+
+module.exports = companyConnection.model("Company", companySchema);
