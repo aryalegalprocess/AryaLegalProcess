@@ -1,3 +1,6 @@
+const mongoose = require("mongoose");
+require("dotenv").config(); // ✅ Make sure environment variables are available
+
 const productSchema = new mongoose.Schema({
   barcode: String,
   name: String,
@@ -6,10 +9,12 @@ const productSchema = new mongoose.Schema({
   quantity: String,
   company: String,
   description: String,
-  startDate: String,
-  endDate: String,
-  price: String,
-  image: String,  // Add image field here (string)
+  image: String,
+  startdate: String,
+  enddate: String,
+  price: String
 });
 
-const Product = productConnection.model('Product', productSchema);
+const productsConnection = mongoose.createConnection(process.env.MONGO_URI_PRODUCTS);
+
+module.exports = productsConnection.model("Product", productSchema);
