@@ -1,14 +1,16 @@
-const mongoose = require('mongoose');
+module.exports = function (connection) {
+  const mongoose = require('mongoose');
 
-const companySchema = new mongoose.Schema({
-  companyName: String,
-  status: String,
-  startDate: String,
-  endDate: String,
-  contactName: String,
-  contactNumber: String,
-  contactEmail: String,
-  address: String
-});
+  const companySchema = new mongoose.Schema({
+    name: String,
+    startDate: String,
+    endDate: String,
+    status: String,
+    contactName: String,
+    contactNumber: String,
+    contactEmail: String,
+    contactAddress: String
+  });
 
-module.exports = mongoose.model('Company', companySchema);
+  return connection.model('Company', companySchema);
+};

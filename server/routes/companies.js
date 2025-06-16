@@ -1,15 +1,28 @@
+const express = require('express');
+
 module.exports = function(Company) {
-  const express = require('express');
   const router = express.Router();
 
   // POST: Add new company
   router.post('/', async (req, res) => {
     try {
-      const newCompany = new Company(req.body);
+      const companyData = req.body;
+
+      // Optional: Simple validation
+      if (!companyData.name || !companyData.contactEmail) {
+        return res.status(400).json({ error: "Name and contactEmail are required." });
+      }
+
+      const newCompany = new Company(companyData);
       await newCompany.save();
-      res.status(201).json(newCompany);
+
+      res.status(201).json({
+        message: "Company added successfully.",
+        company: newCompany
+      });
     } catch (err) {
-      res.status(500).json({ error: err.message });
+      console.error("Error adding company:", err.message);
+      res.status(500).json({ error: "Failed to add company." });
     }
   });
 
@@ -17,9 +30,10 @@ module.exports = function(Company) {
   router.get('/', async (req, res) => {
     try {
       const companies = await Company.find();
-      res.json(companies);
+      res.status(200).json(companies);
     } catch (err) {
-      res.status(500).json({ error: err.message });
+      console.error("Error fetching companies:", err.message);
+      res.status(500).json({ error: "Failed to fetch companies." });
     }
   });
 

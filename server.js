@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const cors = require('cors');
 require('dotenv').config();
 
-const Contact = require('./models/contact'); // Uses default connection
+const Contact = require('./models/contact'); // Uses default mongoose connection
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -47,9 +47,9 @@ const companyConnection = mongoose.createConnection(process.env.MONGO_URI_COMPAN
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
-const Company = require('./models/company'); // Should use companyConnection internally
+const Company = require('./models/company')(companyConnection); // ✅ Correctly initialize with connection
 
-// --- Default connection for Contact ---
+// --- Connect default MongoDB for Contacts ---
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
@@ -63,7 +63,7 @@ app.use('/api/products', productRoutes);
 const companyRoutes = require('./routes/companies')(Company);
 app.use('/api/companies', companyRoutes);
 
-// --- Contact form POST ---
+// --- Contact Routes ---
 app.post("/api/contact", async (req, res) => {
   try {
     const { name, email, message } = req.body;
@@ -76,7 +76,6 @@ app.post("/api/contact", async (req, res) => {
   }
 });
 
-// --- Contact form GET ---
 app.get("/api/contact", async (req, res) => {
   try {
     const contacts = await Contact.find();
