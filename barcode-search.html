@@ -7,56 +7,49 @@
   <link rel="stylesheet" href="barcode-search.css" />
   <style>
     /* Optional styling if not already in your CSS */
-    .result-section {
-      margin-top: 20px;
-      padding: 15px;
-      border: 1px solid #ccc;
-      background-color: #f9f9f9;
-      border-radius: 8px;
-      max-width: 600px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    .product-details h3 {
-      margin-bottom: 10px;
-      color: #003366;
-    }
-    .product-card {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  border: 1px solid #ddd;
-  border-radius: 12px;
-  padding: 20px;
-  background: #ffffff;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  max-width: 800px;
-  margin: 20px auto;
-}
-
-.product-image {
-  flex: 1 1 200px;
-  text-align: center;
-}
-
-.product-image img {
-  max-width: 100%;
-  height: auto;
+.result-section {
+  display: none; /* 🔒 Hide initially */
+  margin-top: 20px;
+  padding: 15px;
+  border: 1px solid #ccc;
+  background-color: #f9f9f9;
   border-radius: 8px;
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
+  overflow-x: auto;
 }
 
-.product-info {
-  flex: 2 1 300px;
+    .product-info-table {
+  width: 100%;
+  max-width: 1000px;
+  margin: 30px auto;
+  border-collapse: collapse;
+  text-align: left;
+  font-family: Arial, sans-serif;
+  background: #fff;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  border-radius: 8px;
+  overflow-x: auto;
 }
 
-.product-info h3 {
-  color: #003366;
-  margin-bottom: 15px;
+.product-info-table th,
+.product-info-table td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #ccc;
+  vertical-align: top;
 }
 
-.product-info p {
-  margin: 6px 0;
-  color: #333;
+.product-info-table th {
+  background-color: #003366;
+  color: white;
+  font-weight: bold;
+}
+
+.product-info-table img.product-img {
+  width: 100px;
+  height: auto;
+  border-radius: 4px;
 }
 
   </style>
@@ -105,28 +98,44 @@ const res = await fetch(`https://aryalegalprocess.onrender.com/api/products/${ba
 
         const data = await res.json();
 
-     resultDiv.innerHTML = `
-  <div class="product-card">
-    <div class="product-image">
-      <img src="${data.image}" alt="${data.name}" />
-    </div>
-    <div class="product-info">
-      <h3>${data.name}</h3>
-      <p><strong>Details:</strong> ${data.details}</p>
-      <p><strong>Description:</strong> ${data.description}</p>
-      <p><strong>Price:</strong> ₹${data.price}</p>
-      <p><strong>Weight:</strong> ${data.weight}</p>
-      <p><strong>Quantity:</strong> ${data.quantity}</p>
-      <p><strong>Company:</strong> ${data.company}</p>
-      <p><strong>Start Date:</strong> ${data.startdate}</p>
-      <p><strong>End Date:</strong> ${data.enddate}</p>
-    </div>
-  </div>
+resultDiv.innerHTML = `
+  <table class="product-info-table">
+    <thead>
+      <tr>
+        <th>Image</th>
+        <th>Name</th>
+        <th>Weight</th>
+        <th>Price</th>
+        <th>Description</th>
+        <th>Details</th>
+        <th>Quantity</th>
+        <th>Company</th>
+        <th>Start Date</th>
+        <th>End Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><img src="${data.image}" alt="${data.name}" class="product-img" /></td>
+        <td>${data.name}</td>
+        <td>${data.weight}</td>
+        <td>₹${data.price}</td>
+        <td>${data.description}</td>
+        <td>${data.details}</td>
+        <td>${data.quantity}</td>
+        <td>${data.company}</td>
+        <td>${data.startdate}</td>
+        <td>${data.enddate}</td>
+      </tr>
+    </tbody>
+  </table>
 `;
 
+
       } catch (err) {
-        resultDiv.innerHTML = `<p style="color:red;">Product not found. Please try again.</p>`;
-      }
+  resultDiv.innerHTML = `<p style="color:red;">Product not found. Please try again.</p>`;
+  resultDiv.style.display = "block"; // 👈 Also show error message
+}
     }
   </script>
 </body>
