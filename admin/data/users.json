@@ -1,0 +1,10 @@
+[
+  {
+    "id": 1,
+    "name": "admin",
+    "mobile": "9246466288",
+    "password": "$2y$10$cCkuCrMrEsdf4iRAFZuHd.knDL89VKjfWM58idYSczu3Cu7Vklq4C",
+    "type": "admin",
+    "reg_id": 0
+  }
+]
