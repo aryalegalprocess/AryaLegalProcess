@@ -5,54 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Arya Barcode Lookup</title>
   <link rel="stylesheet" href="barcode-search.css" />
-  <style>
-    /* Optional styling if not already in your CSS */
-.result-section {
-  display: none; /* 🔒 Hide initially */
-  margin-top: 20px;
-  padding: 15px;
-  border: 1px solid #ccc;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  max-width: 1000px;
-  margin-left: auto;
-  margin-right: auto;
-  overflow-x: auto;
-}
-
-    .product-info-table {
-  width: 100%;
-  max-width: 1000px;
-  margin: 30px auto;
-  border-collapse: collapse;
-  text-align: left;
-  font-family: Arial, sans-serif;
-  background: #fff;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-  border-radius: 8px;
-  overflow-x: auto;
-}
-
-.product-info-table th,
-.product-info-table td {
-  padding: 12px 15px;
-  border-bottom: 1px solid #ccc;
-  vertical-align: top;
-}
-
-.product-info-table th {
-  background-color: #003366;
-  color: white;
-  font-weight: bold;
-}
-
-.product-info-table img.product-img {
-  width: 100px;
-  height: auto;
-  border-radius: 4px;
-}
-
-  </style>
 </head>
 <body>
   <div class="top-bar">
@@ -83,60 +35,63 @@
 
     // Barcode search
     async function searchProduct() {
-      const barcode = document.getElementById('barcodeInput').value.trim();
-      const resultDiv = document.getElementById("result");
+  const barcode = document.getElementById('barcodeInput').value.trim();
+  const resultDiv = document.getElementById("result");
 
-      if (!barcode) {
-        alert("Please enter a barcode number.");
-        return;
-      }
+  if (!barcode) {
+    alert("Please enter a barcode number.");
+    return;
+  }
 
-      try {
-const res = await fetch(`https://aryalegalprocess.onrender.com/api/products/${barcode}`);
+  try {
+    const res = await fetch(`https://aryalegalprocess.onrender.com/api/products/${barcode}`);
 
-        if (!res.ok) throw new Error("Not found");
+    if (!res.ok) throw new Error("Not found");
 
-        const data = await res.json();
+    const data = await res.json();
 
-resultDiv.innerHTML = `
-  <table class="product-info-table">
-    <thead>
-      <tr>
-        <th>Image</th>
-        <th>Name</th>
-        <th>Weight</th>
-        <th>Price</th>
-        <th>Description</th>
-        <th>Details</th>
-        <th>Quantity</th>
-        <th>Company</th>
-        <th>Start Date</th>
-        <th>End Date</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td><img src="${data.image}" alt="${data.name}" class="product-img" /></td>
-        <td>${data.name}</td>
-        <td>${data.weight}</td>
-        <td>₹${data.price}</td>
-        <td>${data.description}</td>
-        <td>${data.details}</td>
-        <td>${data.quantity}</td>
-        <td>${data.company}</td>
-        <td>${data.startdate}</td>
-        <td>${data.enddate}</td>
-      </tr>
-    </tbody>
-  </table>
-`;
+    resultDiv.innerHTML = `
+      <table class="product-info-table">
+        <thead>
+          <tr>
+            <th>Image</th>
+            <th>Name</th>
+            <th>Weight</th>
+            <th>Price</th>
+            <th>Description</th>
+            <th>Details</th>
+            <th>Quantity</th>
+            <th>Company</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><img src="${data.image}" alt="${data.name}" class="product-img" /></td>
+            <td>${data.name}</td>
+            <td>${data.weight}</td>
+            <td>₹${data.price}</td>
+            <td>${data.description}</td>
+            <td>${data.details}</td>
+            <td>${data.quantity}</td>
+            <td>${data.company}</td>
+            <td>${data.startdate}</td>
+            <td>${data.enddate}</td>
+          </tr>
+        </tbody>
+      </table>
+    `;
+    
+    resultDiv.style.display = "block"; // ✅ SHOW the result when found
 
-
-      } catch (err) {
-  resultDiv.innerHTML = `<p style="color:red;">Product not found. Please try again.</p>`;
-  resultDiv.style.display = "block"; // 👈 Also show error message
+  } catch (err) {
+    resultDiv.innerHTML = `<p style="color:red;">Product not found. Please try again.</p>`;
+    resultDiv.style.display = "block"; // ✅ SHOW the error message
+  }
 }
-    }
+
+    
   </script>
 </body>
 </html>
