@@ -5,7 +5,9 @@ const cors = require("cors");
 const bodyParser = require("body-parser");
 
 const Contact = require("./models/contact");
-const Product = require("./models/product"); // ✅ NEW
+const Product = require("./models/product");
+const Company = require("./models/company");
+
 
 dotenv.config();
 const app = express();
@@ -36,24 +38,29 @@ mongoose.connect(process.env.MONGO_URI, {
 app.get("/api/products/:barcode", async (req, res) => {
   try {
     const barcode = req.params.barcode;
-    console.log("🔍 Searching for barcode:", barcode);
-
     const product = await Product.findOne({
       barcode: { $regex: new RegExp(`^${barcode}$`) }
     });
 
     if (!product) {
-      console.log("❌ Product not found for barcode:", barcode);
       return res.status(404).json({ error: "Product not found" });
     }
 
-    console.log("✅ Product found:", product.name);
-    res.json(product);
+    // 🔍 Lookup company by `id` field in company collection
+    const company = await Company.findOne({ id: parseInt(product.company) });
+
+    const response = {
+      ...product._doc,
+      companyName: company ? company.name : "Unknown Company"
+    };
+
+    res.json(response);
   } catch (err) {
-    console.error("❌ Error finding product:", err);
+    console.error("❌ Error:", err);
     res.status(500).json({ error: "Server error" });
   }
 });
+
 
 
 // ✅ Contact form POST
