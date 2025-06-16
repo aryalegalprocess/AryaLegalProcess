@@ -96,8 +96,8 @@ app.get('/test', (req, res) => {
   res.send('Backend is alive');
 });
 
-// --- Catch unknown API routes ---
-app.use('/api/*', (req, res) => {
+// --- Catch unknown API routes (fix for path-to-regexp error) ---
+app.all('/api/*', (req, res) => {
   res.status(404).json({ error: 'API route not found' });
 });
 
