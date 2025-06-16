@@ -6,6 +6,62 @@
   <title>Arya Barcode Lookup</title>
   <link rel="stylesheet" href="barcode-search.css" />
 </head>
+<style>
+  
+.result-section {
+  display: none;
+  margin-top: 30px;
+  padding: 20px;
+  border: 1px solid #ccc;
+  background-color: #ffffff;
+  border-radius: 10px;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+  overflow-x: auto;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.product-info-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 17px;
+  text-align: left;
+  background-color: #fefefe;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.product-info-table th,
+.product-info-table td {
+  padding: 16px 20px;
+  border-bottom: 1px solid #ddd;
+}
+
+.product-info-table th {
+  background-color: #003366;
+  color: white;
+  font-weight: 600;
+  font-size: 18px;
+}
+
+.product-info-table td {
+  color: #333;
+}
+
+.product-info-table tr:hover {
+  background-color: #f1f7ff;
+}
+
+.product-info-table img.product-img {
+  width: 140px;
+  height: auto;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+</style>
 <body>
   <div class="top-bar">
     <button class="go-back" onclick="goBack()">Go Back</button>
