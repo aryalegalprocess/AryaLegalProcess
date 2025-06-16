@@ -21,6 +21,44 @@
       margin-bottom: 10px;
       color: #003366;
     }
+    .product-card {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 20px;
+  background: #ffffff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  max-width: 800px;
+  margin: 20px auto;
+}
+
+.product-image {
+  flex: 1 1 200px;
+  text-align: center;
+}
+
+.product-image img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+.product-info {
+  flex: 2 1 300px;
+}
+
+.product-info h3 {
+  color: #003366;
+  margin-bottom: 15px;
+}
+
+.product-info p {
+  margin: 6px 0;
+  color: #333;
+}
+
   </style>
 </head>
 <body>
@@ -67,16 +105,25 @@ const res = await fetch(`https://aryalegalprocess.onrender.com/api/products/${ba
 
         const data = await res.json();
 
-        resultDiv.innerHTML = `
-          <div class="product-details">
-            <h3>${data.name}</h3>
-            <p><strong>Details:</strong> ${data.details}</p>
-            <p><strong>Price:</strong> ₹${data.price}</p>
-            <p><strong>Weight:</strong> ${data.weight}</p>
-            <p><strong>Quantity:</strong> ${data.quantity}</p>
-            <p><strong>Company:</strong> ${data.company}</p>
-          </div>
-        `;
+     resultDiv.innerHTML = `
+  <div class="product-card">
+    <div class="product-image">
+      <img src="${data.image}" alt="${data.name}" />
+    </div>
+    <div class="product-info">
+      <h3>${data.name}</h3>
+      <p><strong>Details:</strong> ${data.details}</p>
+      <p><strong>Description:</strong> ${data.description}</p>
+      <p><strong>Price:</strong> ₹${data.price}</p>
+      <p><strong>Weight:</strong> ${data.weight}</p>
+      <p><strong>Quantity:</strong> ${data.quantity}</p>
+      <p><strong>Company:</strong> ${data.company}</p>
+      <p><strong>Start Date:</strong> ${data.startdate}</p>
+      <p><strong>End Date:</strong> ${data.enddate}</p>
+    </div>
+  </div>
+`;
+
       } catch (err) {
         resultDiv.innerHTML = `<p style="color:red;">Product not found. Please try again.</p>`;
       }
