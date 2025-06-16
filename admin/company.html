@@ -279,18 +279,19 @@
     const filter = document.getElementById("searchInput").value.toLowerCase();
 
     // Filter companies by search
-    const filteredCompanies = allCompanies.filter(company => {
-      return (
-        company.companyName.toLowerCase().includes(filter) ||
-        company.startDate.toLowerCase().includes(filter) ||
-        company.endDate.toLowerCase().includes(filter) ||
-        company.status.toLowerCase().includes(filter) ||
-        company.contactName.toLowerCase().includes(filter) ||
-        company.contactNumber.toLowerCase().includes(filter) ||
-        company.contactEmail.toLowerCase().includes(filter) ||
-        company.address.toLowerCase().includes(filter)
-      );
-    });
+   const filteredCompanies = allCompanies.filter(company => {
+  return (
+    company.name?.toLowerCase().includes(filter) ||
+    company.startdate?.toLowerCase().includes(filter) ||
+    company.enddate?.toLowerCase().includes(filter) ||
+    company.status?.toLowerCase().includes(filter) ||
+    company.cname?.toLowerCase().includes(filter) ||
+    company.cnumber?.toLowerCase().includes(filter) ||
+    company.cemail?.toLowerCase().includes(filter) ||
+    company.caddress?.toLowerCase().includes(filter)
+  );
+});
+
 
     const totalEntries = filteredCompanies.length;
     totalPages = Math.ceil(totalEntries / entriesPerPage);
