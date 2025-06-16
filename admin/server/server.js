@@ -67,18 +67,9 @@ companyConnection.once('open', () => {
 });
 
 // Define Company schema and model on companyConnection
-const companySchema = new mongoose.Schema({
-  companyName: String,
-  status: String,
-  startDate: String,
-  endDate: String,
-  contactName: String,
-  contactNumber: String,
-  contactEmail: String,
-  address: String
-});
+const Company = require('./models/company');  // Already uses companyConnection
 
-const Company = companyConnection.model('Company', companySchema);
+
 
 // --- Routes ---
 const productRoutes = require('./routes/products')(Product);
