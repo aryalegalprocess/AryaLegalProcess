@@ -4,7 +4,7 @@ const cors = require('cors');
 const path = require('path');
 require('dotenv').config();
 
-const Contact = require('./models/contact'); // Uses default connection
+const Contact = require('./models/contact');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -23,10 +23,12 @@ app.use(cors({
 app.use(express.json({ limit: '100mb' }));
 app.use(express.urlencoded({ extended: true, limit: '100mb' }));
 
-// --- Serve static frontend files ---
-app.use(express.static(path.join(__dirname, '/')));
+// ✅ Serve static files from the root directory
+app.use(express.static(path.join(__dirname)));
 
-// --- Connect to MongoDB for Products ---
+// --- MongoDB connections ---
+
+// Products DB
 const productConnection = mongoose.createConnection(process.env.MONGO_URI_PRODUCTS, {
   useNewUrlParser: true,
   useUnifiedTopology: true
@@ -46,28 +48,30 @@ const productSchema = new mongoose.Schema({
 });
 const Product = productConnection.model('Product', productSchema);
 
-// --- Connect to MongoDB for Companies ---
+// Companies DB
 const companyConnection = mongoose.createConnection(process.env.MONGO_URI_COMPANY, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
-const Company = require('./models/company'); // Should use companyConnection internally
+const Company = require('./models/company');
 
-// --- Default connection for Contact ---
+// Default connection for Contact
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
 
-// --- Product Routes ---
+// --- Routes ---
+
+// Products
 const productRoutes = require('./server/routes/products')(Product);
 app.use('/api/products', productRoutes);
 
-// --- Company Routes ---
+// Companies
 const companyRoutes = require('./server/routes/companies')(Company);
 app.use('/api/companies', companyRoutes);
 
-// --- Contact form POST ---
+// Contact POST
 app.post("/api/contact", async (req, res) => {
   try {
     const { name, email, message } = req.body;
@@ -80,7 +84,7 @@ app.post("/api/contact", async (req, res) => {
   }
 });
 
-// --- Contact form GET ---
+// Contact GET
 app.get("/api/contact", async (req, res) => {
   try {
     const contacts = await Contact.find();
@@ -91,22 +95,22 @@ app.get("/api/contact", async (req, res) => {
   }
 });
 
-// --- Health Check ---
+// Health check
 app.get('/test', (req, res) => {
-  res.send('Backend is alive');
+  res.send('✅ Backend is running!');
 });
 
-// --- Catch unknown API routes (fix for path-to-regexp error) ---
-app.all('/api/*', (req, res) => {
+// 404 API fallback
+app.use('/api/*', (req, res) => {
   res.status(404).json({ error: 'API route not found' });
 });
 
-// --- Serve index.html for all other routes (for SPA support) ---
+// ✅ Serve index.html for all non-API routes (for SPA routing)
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-// --- Start server when all DBs are connected ---
+// --- Start server only after DBs are ready ---
 Promise.all([
   new Promise(resolve => productConnection.once('open', resolve)),
   new Promise(resolve => companyConnection.once('open', resolve)),
@@ -116,5 +120,5 @@ Promise.all([
     console.log(`🚀 Server running on port ${PORT}`);
   });
 }).catch(err => {
-  console.error('Error connecting to databases:', err);
+  console.error('❌ Error connecting to databases:', err);
 });
