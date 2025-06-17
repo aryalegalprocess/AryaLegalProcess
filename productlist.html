@@ -161,8 +161,8 @@ window.onload = function () {
             <td>${product.quantity}</td>
             <td>${product.company}</td>
             <td><button class="btn-description" data-desc="${product.description}">Description</button></td>
-            <td>${product.startDate}</td>
-            <td>${product.endDate}</td>
+            <td>${product.startdate || 'N/A'}</td>
+            <td>${product.enddate || 'N/A'}</td>
             <td>₹${product.price}</td>
           `;
           tbody.appendChild(row);
@@ -206,7 +206,7 @@ document.querySelectorAll('.btn-description').forEach(btn => {
 
   }
 
-  fetch('https://productslist.onrender.com/api/products')
+  fetch('https://aryalegalprocess.render.com/api/products')
     .then(res => res.json())
     .then(products => {
       allProducts = products;
