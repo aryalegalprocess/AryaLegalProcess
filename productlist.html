@@ -125,8 +125,8 @@
     .then(res => res.json())
     .then(companies => {
       companies.forEach(company => {
-        companyMap[company._id || company.id] = company.name;
-      });
+  companyMap[company.id] = company.name; // Use `company.id`, not `_id`
+});
 
       return fetch('https://aryalegalprocess.onrender.com/api/products');
     })
