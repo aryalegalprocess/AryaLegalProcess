@@ -16,50 +16,47 @@
         <li><a href="addproduct.html"><span class="icon">➕</span><span class="text">Add Products</span></a></li>
         <li><a href="productlist.html"><span class="icon">📦</span><span class="text">Products List</span></a></li>
         <li><a href="email.html"><span class="icon">📧</span><span class="text">Send E-Mail</span></a></li>
-                
     </ul>
   </div>
 
   <div class="main-content">
-
-     <div class="navbar">
-  <div class="admin-dropdown">
-    <div class="admin" onclick="toggleDropdown()">ADMIN</div>
-    <div class="dropdown-menu" id="dropdown">
-      <a href="password.html">Change Password</a>
-      <a href="index.html">Logout</a>
-    </div>
-  </div>
-</div>
-
-<div class="banner">
-     <h2 class="homedash">DASHBOARD</h2>
-    <div class="card-container">
-      <div class="card">
-        <div class="card-content">
-          <div>
-            <p class="label">TOTAL PRODUCTS</p>
-<h1 id="totalCount">--</h1>
-<button class="btn-view" onclick="window.location.href='productlist.html'">VIEW</button>
-
-          </div>
-          <div class="card-icon">📦</div>
+    <div class="navbar">
+      <div class="admin-dropdown">
+        <div class="admin" onclick="toggleDropdown()">ADMIN</div>
+        <div class="dropdown-menu" id="dropdown">
+          <a href="password.html">Change Password</a>
+          <a href="index.html">Logout</a>
         </div>
       </div>
     </div>
-</div>
-   
+
+    <div class="banner">
+      <h2 class="homedash">DASHBOARD</h2>
+      <div class="card-container">
+        <div class="card">
+          <div class="card-content">
+            <div>
+              <p class="label">TOTAL PRODUCTS</p>
+              <h1 id="totalCount">--</h1>
+              <button class="btn-view" onclick="window.location.href='productlist.html'">VIEW</button>
+            </div>
+            <div class="card-icon">📦</div>
+          </div>
+        </div>
+      </div>
+    </div>
 
     <div class="table-section">
       <h3>RECENTLY ADDED PRODUCTS</h3>
       <div class="table-controls">
         <label>Show 
-          <select>
-            <option>10</option>
-            <option>25</option>
+          <select id="entriesSelect">
+            <option value="10">10</option>
+            <option value="25">25</option>
+            <option value="50">50</option>
           </select> entries
         </label>
-<label>Search: <input type="text" id="homeSearch" /></label>
+        <label>Search: <input type="text" id="homeSearch" /></label>
       </div>
 
       <table>
@@ -79,128 +76,142 @@
             <th>PRICE</th>
           </tr>
         </thead>
-       <tbody id="recentProductsBody">
-  <!-- Recent products will be dynamically inserted here -->
-</tbody>
-
+        <tbody id="recentProductsBody">
+          <!-- Recent products will be dynamically inserted here -->
+        </tbody>
       </table>
     </div>
   </div>
 
-<script>
-  const sidebar = document.querySelector('.sidebar');
-  sidebar.addEventListener('click', () => {
-    sidebar.classList.toggle('expanded');
-  });
+  <div id="descPopup" class="description-popup"></div>
 
-  function toggleDropdown() {
-    const dropdown = document.getElementById("dropdown");
-    dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
-  }
+  <script>
+    const sidebar = document.querySelector('.sidebar');
+    sidebar.addEventListener('click', () => {
+      sidebar.classList.toggle('expanded');
+    });
 
-  document.addEventListener("click", function (event) {
-    const dropdown = document.getElementById("dropdown");
-    const admin = document.querySelector(".admin");
-
-    if (!admin.contains(event.target)) {
-      dropdown.style.display = "none";
+    function toggleDropdown() {
+      const dropdown = document.getElementById("dropdown");
+      dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
     }
-  });
 
-  let allProducts = [];
+    document.addEventListener("click", function (event) {
+      const dropdown = document.getElementById("dropdown");
+      const admin = document.querySelector(".admin");
+      if (!admin.contains(event.target)) {
+        dropdown.style.display = "none";
+      }
+    });
 
-  function renderHomeTable(products) {
-    const tbody = document.getElementById('recentProductsBody');
-    tbody.innerHTML = '';
-    const search = document.getElementById("homeSearch").value.toLowerCase();
+    let allProducts = [];
+    let companyMap = {};
 
-    const filtered = products
-      .slice(-10)  // last 10 entries
-      .reverse()
-      .filter(p => {
-        const rowText = `
-          ${p.barcode}
-          ${p.name}
-          ${p.details}
-          ${p.weight}
-          ${p.quantity}
-          ${p.company}
-          ${p.description}
-          ${p.startDate}
-          ${p.endDate}
-          ${p.price}
-        `.toLowerCase();
-        return rowText.includes(search);
-      });
+    function fetchCompanies() {
+      return fetch('https://aryalegalprocess.onrender.com/api/companies')
+        .then(res => res.json())
+        .then(companies => {
+          companies.forEach(c => {
+            companyMap[c._id] = c.name;
+          });
+        });
+    }
 
-    filtered.forEach((product, index) => {
-      const row = document.createElement('tr');
-      row.innerHTML = `
-        <td><button class="btn-barcode">VIEW BARCODE</button></td>
-        <td>${products.length - index}</td>
+    function formatDate(dateStr) {
+      if (!dateStr) return 'N/A';
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('en-IN', { year: 'numeric', month: 'short', day: 'numeric' });
+    }
+
+    function renderHomeTable(products) {
+      const tbody = document.getElementById('recentProductsBody');
+      tbody.innerHTML = '';
+      const search = document.getElementById("homeSearch").value.toLowerCase();
+      const entriesToShow = parseInt(document.getElementById("entriesSelect").value);
+
+      const filtered = products
+        .filter(p => {
+          const rowText = `
+            ${p.barcode}
+            ${p.name}
+            ${p.details}
+            ${p.weight}
+            ${p.quantity}
+            ${companyMap[p.company] || p.company}
+            ${p.description}
+            ${p.startdate}
+            ${p.enddate}
+            ${p.price}
+          `.toLowerCase();
+          return rowText.includes(search);
+        })
+        .slice(-entriesToShow)
+        .reverse();
+
+      filtered.forEach((product, index) => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td><button class="btn-barcode">VIEW BARCODE</button></td>
+          <td>${products.length - index}</td>
           <td>${product.barcode || ''}</td>
-  <td>${product.name || ''}</td>
-  <td>${product.details || ''}</td>
-  <td>${product.weight || ''}</td>
-  <td>${product.quantity || ''}</td>
-  <td>${companyName}</td>
-  <td><button class="btn-description" data-desc="${product.description || 'No description'}">Description</button></td>
-  <td>${product.startdate || 'N/A'}</td>
-  <td>${product.enddate || 'N/A'}</td>
-  <td>₹${product.price || '0'}</td>
-      `;
-      tbody.appendChild(row);
-    });
-
-    // Attach popup logic after rows are created
-    let popupTimeout;
-    document.querySelectorAll('.btn-description').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const desc = btn.getAttribute('data-desc') || 'No description available';
-        const popup = document.getElementById('descPopup');
-        popup.textContent = desc;
-        popup.style.display = 'block';
-
-        const rect = btn.getBoundingClientRect();
-        const popupWidth = popup.offsetWidth;
-        const spaceRight = window.innerWidth - rect.right;
-
-        popup.style.left = (spaceRight > popupWidth + 20)
-          ? `${rect.right + 10}px`
-          : `${rect.left - popupWidth - 10}px`;
-
-        popup.style.top = `${rect.top + window.scrollY}px`;
-
-        clearTimeout(popupTimeout);
-        popupTimeout = setTimeout(() => {
-          popup.style.display = 'none';
-        }, 6000);
+          <td>${product.name || ''}</td>
+          <td>${product.details || ''}</td>
+          <td>${product.weight || ''}</td>
+          <td>${product.quantity || ''}</td>
+          <td>${companyMap[product.company] || 'Unknown'}</td>
+          <td><button class="btn-description" data-desc="${product.description || 'No description'}">Description</button></td>
+          <td>${formatDate(product.startdate)}</td>
+          <td>${formatDate(product.enddate)}</td>
+          <td>₹${product.price || '0'}</td>
+        `;
+        tbody.appendChild(row);
       });
-    });
-  }
 
-  // Fetch and initialize
-  window.onload = function () {
-    fetch('https://aryalegalprocess.onrender.com/api/products')
-      .then(res => res.json())
-      .then(products => {
-        allProducts = products;
+      let popupTimeout;
+      document.querySelectorAll('.btn-description').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const desc = btn.getAttribute('data-desc') || 'No description available';
+          const popup = document.getElementById('descPopup');
+          popup.textContent = desc;
+          popup.style.display = 'block';
 
-document.getElementById('totalCount').textContent = products.length;
+          const rect = btn.getBoundingClientRect();
+          const popupWidth = popup.offsetWidth;
+          const spaceRight = window.innerWidth - rect.right;
 
-        renderHomeTable(allProducts);
+          popup.style.left = (spaceRight > popupWidth + 20)
+            ? `${rect.right + 10}px`
+            : `${rect.left - popupWidth - 10}px`;
 
-        // Live search
-        const searchInput = document.getElementById("homeSearch");
-        searchInput.addEventListener("input", () => renderHomeTable(allProducts));
-      })
-      .catch(err => {
-        console.error('Failed to load products:', err);
-        document.getElementById('recentProductsBody').innerHTML = '<tr><td colspan="12">Error loading products.</td></tr>';
+          popup.style.top = `${rect.top + window.scrollY}px`;
+
+          clearTimeout(popupTimeout);
+          popupTimeout = setTimeout(() => {
+            popup.style.display = 'none';
+          }, 6000);
+        });
       });
-  };
-</script>
-<div id="descPopup" class="description-popup"></div>
+    }
 
+    window.onload = function () {
+      Promise.all([fetchCompanies()])
+        .then(() => {
+          return fetch('https://aryalegalprocess.onrender.com/api/products')
+            .then(res => res.json())
+            .then(products => {
+              allProducts = products;
+              document.getElementById('totalCount').textContent = products.length;
+              renderHomeTable(allProducts);
+
+              document.getElementById("homeSearch").addEventListener("input", () => renderHomeTable(allProducts));
+              document.getElementById("entriesSelect").addEventListener("change", () => renderHomeTable(allProducts));
+            });
+        })
+        .catch(err => {
+          console.error('Failed to load:', err);
+          document.getElementById('recentProductsBody').innerHTML = '<tr><td colspan="12">Error loading data.</td></tr>';
+        });
+    };
+  </script>
 </body>
 </html>
