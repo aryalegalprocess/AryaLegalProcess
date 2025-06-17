@@ -111,8 +111,8 @@
       return fetch('https://aryalegalprocess.onrender.com/api/companies')
         .then(res => res.json())
         .then(companies => {
-          companies.forEach(c => {
-            companyMap[c._id] = c.name;
+        companies.forEach(company => {
+          companyMap[company.id] = company.name;
           });
         });
     }
@@ -159,7 +159,7 @@
           <td>${product.details || ''}</td>
           <td>${product.weight || ''}</td>
           <td>${product.quantity || ''}</td>
-          <td>${companyMap[product.company] || 'Unknown'}</td>
+          <td>${{companyName}|| 'Unknown'}</td>
           <td><button class="btn-description" data-desc="${product.description || 'No description'}">Description</button></td>
           <td>${formatDate(product.startdate)}</td>
           <td>${formatDate(product.enddate)}</td>
