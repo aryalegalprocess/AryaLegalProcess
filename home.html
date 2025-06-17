@@ -85,9 +85,6 @@
 
   <div id="descPopup" class="description-popup"></div>
 
-  <div class="pagination-info"></div>
-  <div class="pagination"></div>
-
   <script>
     const sidebar = document.querySelector('.sidebar');
     sidebar.addEventListener('click', () => {
@@ -120,11 +117,12 @@
         });
     }
 
-    function formatDate(dateStr) {
-      if (!dateStr) return 'N/A';
-      const date = new Date(dateStr);
-      return date.toISOString().split('T')[0];
-    }
+ function formatDate(dateStr) {
+  if (!dateStr) return 'N/A';
+  const date = new Date(dateStr);
+  return date.toISOString().split('T')[0]; // Gives YYYY-MM-DD
+}
+
 
     function renderHomeTable(products) {
       const tbody = document.getElementById('recentProductsBody');
@@ -195,48 +193,6 @@
         });
       });
     }
-
-    // ✅ Your SAMPLE PAGINATION SNIPPET STARTS HERE
-
-    const totalEntries = filteredCompanies.length;
-    totalPages = Math.ceil(totalEntries / entriesPerPage);
-
-    if (currentPage > totalPages) currentPage = totalPages;
-    if (currentPage < 1) currentPage = 1;
-
-    const startIndex = (currentPage - 1) * entriesPerPage;
-    const endIndex = startIndex + entriesPerPage;
-
-    const companiesToShow = filteredCompanies.slice(startIndex, endIndex);
-
-    companiesToShow.forEach((company, index) => {
-      const row = document.createElement("tr");
-      const serialNumber = (currentPage - 1) * entriesPerPage + index + 1;
-
-      row.innerHTML = `
-        <td>${serialNumber}</td>
-        <td>${company.name}</td>
-        <td>${formatDate(company.startdate)}</td>
-        <td>${formatDate(company.enddate)}</td>
-        <td>${company.status === 'a' ? 'ACTIVE' : 'INACTIVE'}</td>
-        <td>${company.cname}</td>
-        <td>${company.cnumber}</td>
-        <td>${company.cemail}</td>
-        <td>${company.caddress}</td>
-      `;
-      document.querySelector('tbody').appendChild(row);
-    });
-
-    function updatePaginationInfo(from, to, total) {
-      const paginationInfo = document.querySelector(".pagination-info");
-      if(total === 0){
-        paginationInfo.textContent = "Showing 0 to 0 of 0 entries";
-      } else {
-        paginationInfo.textContent = `Showing ${from} to ${to} of ${total} entries`;
-      }
-    }
-
-    // ✅ Your SAMPLE PAGINATION SNIPPET ENDS HERE
 
     window.onload = function () {
       Promise.all([fetchCompanies()])
