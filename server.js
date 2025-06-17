@@ -100,8 +100,8 @@ app.get('/test', (req, res) => {
   res.send('✅ Backend is running!');
 });
 
-// 404 API fallback
-app.use('/api/*', (req, res) => {
+// 404 API fallback (FIXED)
+app.all('/api/*', (req, res) => {
   res.status(404).json({ error: 'API route not found' });
 });
 
