@@ -80,14 +80,15 @@
               <!-- Product rows will be inserted here -->
             </tbody>
           </table>
+          <div class="pagination-info"></div>
+<div class="pagination"></div>
+
         </div>
       </div>
     </div>
   </div>
-
 <script>
   const sidebar = document.querySelector('.sidebar');
-
   sidebar.addEventListener('click', () => {
     sidebar.classList.toggle('expanded');
   });
@@ -100,7 +101,6 @@
   document.addEventListener("click", function (event) {
     const dropdown = document.getElementById("dropdown");
     const admin = document.querySelector(".admin");
-
     if (!admin.contains(event.target)) {
       dropdown.style.display = "none";
     }
@@ -112,104 +112,193 @@
     });
   });
 
- window.onload = function () {
-  const tbody = document.querySelector('tbody');
-  const searchInput = document.getElementById("searchInput");
-  const entriesSelect = document.getElementById("entriesSelect");
+  window.onload = function () {
+    const tbody = document.querySelector('tbody');
+    const searchInput = document.getElementById("searchInput");
+    const entriesSelect = document.getElementById("entriesSelect");
 
-  let allProducts = [];
-  let companyMap = {};
+    let allProducts = [];
+    let companyMap = {};
+    let currentPage = 1;
+    let totalPages = 1;
 
-  // Fetch companies and map them by ID
-  fetch('https://aryalegalprocess.onrender.com/api/companies')
-    .then(res => res.json())
-    .then(companies => {
-      companies.forEach(company => {
-  companyMap[company.id] = company.name; // Use `company.id`, not `_id`
-});
+    fetch('https://aryalegalprocess.onrender.com/api/companies')
+      .then(res => res.json())
+      .then(companies => {
+        companies.forEach(company => {
+          companyMap[company.id] = company.name;
+        });
 
-      return fetch('https://aryalegalprocess.onrender.com/api/products');
-    })
-    .then(res => res.json())
-    .then(products => {
-      allProducts = products;
-      renderTable(allProducts);
+        return fetch('https://aryalegalprocess.onrender.com/api/products');
+      })
+      .then(res => res.json())
+      .then(products => {
+        allProducts = products;
 
-      searchInput.addEventListener("input", () => renderTable(allProducts));
-      entriesSelect.addEventListener("change", () => renderTable(allProducts));
-    })
-    .catch(error => {
-      console.error('Error loading data:', error);
-      tbody.innerHTML = '<tr><td colspan="12">Failed to load products or companies.</td></tr>';
-    });
+        renderTable();
+        renderPagination();
 
-  function renderTable(products) {
-    tbody.innerHTML = "";
-    const filter = searchInput.value.toLowerCase();
-    const limit = parseInt(entriesSelect.value);
-    let count = 0;
+        searchInput.addEventListener("input", () => {
+          currentPage = 1;
+          renderTable();
+          renderPagination();
+        });
 
-    products.forEach((product, index) => {
-      const companyName = companyMap[product.company] || product.company || 'Unknown';
+        entriesSelect.addEventListener("change", () => {
+          currentPage = 1;
+          renderTable();
+          renderPagination();
+        });
+      })
+      .catch(error => {
+        console.error('Error loading data:', error);
+        tbody.innerHTML = '<tr><td colspan="12">Failed to load products or companies.</td></tr>';
+      });
 
-      const rowText = (
-        `${index + 1} ${product.barcode} ${product.name} ${product.details} ${product.weight} ${product.quantity} ${companyName} ${product.description} ${product.startdate} ${product.enddate} ₹${product.price}`
-      ).toLowerCase();
+    function renderTable() {
+      tbody.innerHTML = "";
+      const filter = searchInput.value.toLowerCase();
+      const entriesPerPage = parseInt(entriesSelect.value);
 
-      if (rowText.includes(filter)) {
-        if (count < limit) {
-          const row = document.createElement('tr');
-          row.innerHTML = `
-            <td><button class="barcode-btn">VIEW BARCODE</button></td>
-            <td>${index + 1}</td>
-            <td>${product.barcode || ''}</td>
-            <td>${product.name || ''}</td>
-            <td>${product.details || ''}</td>
-            <td>${product.weight || ''}</td>
-            <td>${product.quantity || ''}</td>
-            <td>${companyName}</td>
-            <td><button class="btn-description" data-desc="${product.description || 'No description'}">Description</button></td>
-            <td>${product.startdate || 'N/A'}</td>
-            <td>${product.enddate || 'N/A'}</td>
-            <td>₹${product.price || '0'}</td>
-          `;
-          tbody.appendChild(row);
-          count++;
+      const filteredProducts = allProducts.filter((product, index) => {
+        const companyName = companyMap[product.company] || product.company || 'Unknown';
+        const rowText = (
+          `${index + 1} ${product.barcode} ${product.name} ${product.details} ${product.weight} ${product.quantity} ${companyName} ${product.description} ${product.startdate} ${product.enddate} ₹${product.price}`
+        ).toLowerCase();
+        return rowText.includes(filter);
+      });
+
+      const totalEntries = filteredProducts.length;
+      totalPages = Math.ceil(totalEntries / entriesPerPage);
+      if (currentPage > totalPages) currentPage = totalPages;
+      if (currentPage < 1) currentPage = 1;
+
+      const startIndex = (currentPage - 1) * entriesPerPage;
+      const endIndex = startIndex + entriesPerPage;
+      const productsToShow = filteredProducts.slice(startIndex, endIndex);
+
+      productsToShow.forEach((product, i) => {
+        const companyName = companyMap[product.company] || product.company || 'Unknown';
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td><button class="barcode-btn">VIEW BARCODE</button></td>
+          <td>${startIndex + i + 1}</td>
+          <td>${product.barcode || ''}</td>
+          <td>${product.name || ''}</td>
+          <td>${product.details || ''}</td>
+          <td>${product.weight || ''}</td>
+          <td>${product.quantity || ''}</td>
+          <td>${companyName}</td>
+          <td><button class="btn-description" data-desc="${product.description || 'No description'}">Description</button></td>
+          <td>${product.startdate || 'N/A'}</td>
+          <td>${product.enddate || 'N/A'}</td>
+          <td>₹${product.price || '0'}</td>
+        `;
+        tbody.appendChild(row);
+      });
+
+      updatePaginationInfo(startIndex + 1, startIndex + productsToShow.length, totalEntries);
+
+      document.querySelectorAll('.btn-description').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const desc = btn.getAttribute('data-desc') || 'No description available';
+          const popup = document.getElementById('descPopup');
+          popup.textContent = desc;
+          popup.style.display = 'block';
+
+          const rect = btn.getBoundingClientRect();
+          const popupWidth = popup.offsetWidth;
+          const spaceRight = window.innerWidth - rect.right;
+          const spaceLeft = rect.left;
+
+          popup.style.left = spaceRight > popupWidth + 20
+            ? `${rect.right + 10}px`
+            : `${rect.left - popupWidth - 10}px`;
+
+          popup.style.top = `${rect.top + window.scrollY}px`;
+
+          clearTimeout(popupTimeout);
+          popupTimeout = setTimeout(() => {
+            popup.style.display = 'none';
+          }, 6000);
+        });
+      });
+    }
+
+    function updatePaginationInfo(from, to, total) {
+      const paginationInfo = document.querySelector(".pagination-info");
+      if (total === 0) {
+        paginationInfo.textContent = "Showing 0 to 0 of 0 entries";
+      } else {
+        paginationInfo.textContent = `Showing ${from} to ${to} of ${total} entries`;
+      }
+    }
+
+    function renderPagination() {
+      const paginationContainer = document.querySelector(".pagination");
+      paginationContainer.innerHTML = '';
+
+      if (totalPages <= 1) return;
+
+      function createPageLink(page) {
+        const a = document.createElement('a');
+        a.href = "#";
+        a.textContent = page;
+        if (page === currentPage) a.classList.add('active');
+        a.addEventListener('click', function (e) {
+          e.preventDefault();
+          if (currentPage === page) return;
+          currentPage = page;
+          renderTable();
+          renderPagination();
+        });
+        return a;
+      }
+
+      paginationContainer.appendChild(createPageLink(1));
+
+      if (totalPages <= 7) {
+        for (let i = 2; i <= totalPages; i++) {
+          paginationContainer.appendChild(createPageLink(i));
+        }
+      } else {
+        let startPage, endPage;
+        if (currentPage <= 4) {
+          startPage = 2;
+          endPage = 5;
+          for (let i = startPage; i <= endPage; i++) {
+            paginationContainer.appendChild(createPageLink(i));
+          }
+          paginationContainer.appendChild(createEllipsis());
+          paginationContainer.appendChild(createPageLink(totalPages));
+        } else if (currentPage > totalPages - 4) {
+          paginationContainer.appendChild(createEllipsis());
+          startPage = totalPages - 4;
+          endPage = totalPages - 1;
+          for (let i = startPage; i <= endPage; i++) {
+            paginationContainer.appendChild(createPageLink(i));
+          }
+          paginationContainer.appendChild(createPageLink(totalPages));
+        } else {
+          paginationContainer.appendChild(createEllipsis());
+          startPage = currentPage - 1;
+          endPage = currentPage + 1;
+          for (let i = startPage; i <= endPage; i++) {
+            paginationContainer.appendChild(createPageLink(i));
+          }
+          paginationContainer.appendChild(createEllipsis());
+          paginationContainer.appendChild(createPageLink(totalPages));
         }
       }
-    });
 
-    let popupTimeout;
-
-    document.querySelectorAll('.btn-description').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const desc = btn.getAttribute('data-desc') || 'No description available';
-        const popup = document.getElementById('descPopup');
-        popup.textContent = desc;
-        popup.style.display = 'block';
-
-        const rect = btn.getBoundingClientRect();
-        const popupWidth = popup.offsetWidth;
-        const spaceRight = window.innerWidth - rect.right;
-        const spaceLeft = rect.left;
-
-        if (spaceRight > popupWidth + 20) {
-          popup.style.left = `${rect.right + 10}px`;
-        } else {
-          popup.style.left = `${rect.left - popupWidth - 10}px`;
-        }
-
-        popup.style.top = `${rect.top + window.scrollY}px`;
-
-        clearTimeout(popupTimeout);
-        popupTimeout = setTimeout(() => {
-          popup.style.display = 'none';
-        }, 6000);
-      });
-    });
-  }
-};
-
+      function createEllipsis() {
+        const span = document.createElement('span');
+        span.textContent = '...';
+        span.classList.add('ellipsis');
+        return span;
+      }
+    }
+  };
 </script>
 
 <div id="descPopup" class="description-popup"></div>
