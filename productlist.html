@@ -5,225 +5,193 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Product List Dashboard</title>
   <link rel="stylesheet" href="style2.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Nunito&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="addproduct.css">
   <link rel="stylesheet" href="email.css">
-    <link rel="stylesheet" href="productlist.css">
-
+  <link rel="stylesheet" href="productlist.css">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito&display=swap" rel="stylesheet">
 </head>
 <body>
   <div class="sidebar">
-    <div class="logo">&#9776; <span class="text">ARYA LEGAL PROCESS</span> </div>
+    <div class="logo">&#9776; <span class="text">ARYA LEGAL PROCESS</span></div>
     <ul class="menu">
-        <li><a href="home.html"><span class="icon">🏠</span><span class="text">Home</span></a></li>
-        <li><a href="company.html"><span class="icon">🛠️</span><span class="text">Manage Companies</span></a></li>
-        <li><a href="addproduct.html"><span class="icon">➕</span><span class="text">Add Products</span></a></li>
-        <li><a href="productlist.html"><span class="icon">📦</span><span class="text">Products List</span></a></li>
-        <li><a href="email.html"><span class="icon">📧</span><span class="text">Send E-Mail</span></a></li>
+        <li><a href="home.html">🏠 Home</a></li>
+        <li><a href="company.html">🛠️ Manage Companies</a></li>
+        <li><a href="addproduct.html">➕ Add Products</a></li>
+        <li><a href="productlist.html">📦 Products List</a></li>
+        <li><a href="email.html">📧 Send E-Mail</a></li>
     </ul>
   </div>
 
   <div class="main-content">
-
-        <div class="navbar">
-  <div class="admin-dropdown">
-    <div class="admin" onclick="toggleDropdown()">ADMIN</div>
-    <div class="dropdown-menu" id="dropdown">
-       <a href="password.html">Change Password</a>
-      <a href="index.html">Logout</a>
-    </div>
-  </div>
-</div>
-
-  <div class="heading">
-    <h2>📦 DASHBOARD - Product List</h2>
-  </div>
-
-<div class="container">
-    <div class="card">
-      <h3 class="sub-heading">Product List</h3>
-
-      <div class="controls">
-        <div class="entries-control">
-  Show
-  <select id="entriesSelect">
-    <option value="10">10</option>
-    <option value="25">25</option>
-    <option value="50">50</option>
-    <option value="100">100</option>
-  </select>
-  entries
-</div>
-
-      <div class="search-box">
-  Search: <input type="text" id="searchInput">
-</div>
-
+    <div class="navbar">
+      <div class="admin-dropdown">
+        <div class="admin" onclick="toggleDropdown()">ADMIN</div>
+        <div class="dropdown-menu" id="dropdown">
+          <a href="password.html">Change Password</a>
+          <a href="index.html">Logout</a>
+        </div>
       </div>
-<div class="table-scroll">
+    </div>
+
+    <div class="heading">
+      <h2>📦 DASHBOARD - Product List</h2>
+    </div>
+
+    <div class="container">
+      <div class="card">
+        <h3 class="sub-heading">Product List</h3>
+
+        <div class="controls">
+          <div class="entries-control">
+            Show
+            <select id="entriesSelect">
+              <option value="10">10</option>
+              <option value="25">25</option>
+              <option value="50">50</option>
+              <option value="100">100</option>
+            </select>
+            entries
+          </div>
+
+          <div class="search-box">
+            Search: <input type="text" id="searchInput">
+          </div>
+        </div>
+
+        <div class="table-scroll">
           <table>
-        <thead>
-          <tr>
-            <th>ACTIONS</th>
-            <th>ID</th>
-            <th>BAR CODE</th>
-            <th>NAME</th>
-            <th>DETAILS</th>
-            <th>WEIGHT</th>
-            <th>QUANTITY</th>
-            <th>COMPANY</th>
-            <th>DESCRIPTION</th>
-            <th>START DATE</th>
-            <th>END DATE</th>
-            <th>PRICE</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Add more rows as needed -->
-        </tbody>
-      </table>
-
-</div>
-
+            <thead>
+              <tr>
+                <th>ACTIONS</th>
+                <th>ID</th>
+                <th>BAR CODE</th>
+                <th>NAME</th>
+                <th>DETAILS</th>
+                <th>WEIGHT</th>
+                <th>QUANTITY</th>
+                <th>COMPANY</th>
+                <th>DESCRIPTION</th>
+                <th>START DATE</th>
+                <th>END DATE</th>
+                <th>PRICE</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 
-  
-  </div>
-  
-<script>
-  const sidebar = document.querySelector('.sidebar');
+  <div id="descPopup" class="description-popup" style="position:absolute; display:none; background:#fff; padding:10px; border:1px solid #ccc; z-index:1000;"></div>
 
-  sidebar.addEventListener('click', () => {
-    sidebar.classList.toggle('expanded');
-  });
+  <script>
+    const sidebar = document.querySelector('.sidebar');
+    sidebar.addEventListener('click', () => {
+      sidebar.classList.toggle('expanded');
+    });
 
-  function toggleDropdown() {
-    const dropdown = document.getElementById("dropdown");
-    dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
-  }
-
-  document.addEventListener("click", function (event) {
-    const dropdown = document.getElementById("dropdown");
-    const admin = document.querySelector(".admin");
-
-    if (!admin.contains(event.target)) {
-      dropdown.style.display = "none";
+    function toggleDropdown() {
+      const dropdown = document.getElementById("dropdown");
+      dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
     }
-  });
 
-document.querySelectorAll('.barcode-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    alert('Show barcode here');
-  });
-});
-
-
-window.onload = function () {
-  const tbody = document.querySelector('tbody');
-  const searchInput = document.getElementById("searchInput");
-  const entriesSelect = document.getElementById("entriesSelect");
-
-  let allProducts = [];
-
-  function renderTable(products) {
-    tbody.innerHTML = "";
-    const filter = searchInput.value.toLowerCase();
-    const limit = parseInt(entriesSelect.value);
-
-    let count = 0;
-
-    products.forEach((product, index) => {
-      const rowText = `
-        ${index + 1}
-        ${product.barcode}
-        ${product.name}
-        ${product.details}
-        ${product.weight}
-        ${product.quantity}
-        ${product.company}
-        ${product.description}
-        ${product.startDate}
-        ${product.endDate}
-        ₹${product.price}
-      `.toLowerCase();
-
-      if (rowText.includes(filter)) {
-        if (count < limit) {
-          const row = document.createElement('tr');
-          row.innerHTML = `
-            <td><button class="barcode-btn">VIEW BARCODE</button></td>
-            <td>${index + 1}</td>
-            <td>${product.barcode}</td>
-            <td>${product.name}</td>
-            <td>${product.details}</td>
-            <td>${product.weight}</td>
-            <td>${product.quantity}</td>
-            <td>${product.company}</td>
-            <td><button class="btn-description" data-desc="${product.description}">Description</button></td>
-            <td>${product.startDate}</td>
-            <td>${product.endDate}</td>
-            <td>₹${product.price}</td>
-          `;
-          tbody.appendChild(row);
-          count++;
-        }
+    document.addEventListener("click", function (event) {
+      const dropdown = document.getElementById("dropdown");
+      const admin = document.querySelector(".admin");
+      if (!admin.contains(event.target)) {
+        dropdown.style.display = "none";
       }
     });
 
- let popupTimeout; // global timeout reference
+    window.onload = function () {
+      const tbody = document.querySelector('tbody');
+      const searchInput = document.getElementById("searchInput");
+      const entriesSelect = document.getElementById("entriesSelect");
+      let allProducts = [];
+      let popupTimeout;
 
-document.querySelectorAll('.btn-description').forEach(btn => {
-  btn.addEventListener('click', () => {
-    const desc = btn.getAttribute('data-desc') || 'No description available';
-    const popup = document.getElementById('descPopup');
-    popup.textContent = desc;
-    popup.style.display = 'block';
+      function renderTable(products) {
+        tbody.innerHTML = "";
+        const filter = searchInput.value.toLowerCase();
+        const limit = parseInt(entriesSelect.value);
+        let count = 0;
 
-    const rect = btn.getBoundingClientRect();
-    const popupWidth = popup.offsetWidth;
-    const spaceRight = window.innerWidth - rect.right;
-    const spaceLeft = rect.left;
+        products.forEach((product, index) => {
+          const rowText = `
+            ${index + 1}
+            ${product.barcode}
+            ${product.name}
+            ${product.details}
+            ${product.weight}
+            ${product.quantity}
+            ${product.company}
+            ${product.description}
+            ${product.startDate}
+            ${product.endDate}
+            ₹${product.price}
+          `.toLowerCase();
 
-    // Calculate position: Prefer right, fallback to left
-    if (spaceRight > popupWidth + 20) {
-      // Show on right
-      popup.style.left = `${rect.right + 10}px`;
-    } else {
-      // Show on left
-      popup.style.left = `${rect.left - popupWidth - 10}px`;
-    }
+          if (rowText.includes(filter)) {
+            if (count < limit) {
+              const row = document.createElement('tr');
+              row.innerHTML = `
+                <td><button class="barcode-btn">VIEW BARCODE</button></td>
+                <td>${index + 1}</td>
+                <td>${product.barcode || ''}</td>
+                <td>${product.name || ''}</td>
+                <td>${product.details || ''}</td>
+                <td>${product.weight || ''}</td>
+                <td>${product.quantity || ''}</td>
+                <td>${product.company || ''}</td>
+                <td><button class="btn-description" data-desc="${product.description || 'No description'}">Description</button></td>
+                <td>${product.startDate || 'N/A'}</td>
+                <td>${product.endDate || 'N/A'}</td>
+                <td>₹${product.price || '0'}</td>
+              `;
+              tbody.appendChild(row);
+              count++;
+            }
+          }
+        });
 
-    popup.style.top = `${rect.top + window.scrollY}px`;
+        document.querySelectorAll('.btn-description').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const desc = btn.getAttribute('data-desc') || 'No description available';
+            const popup = document.getElementById('descPopup');
+            popup.textContent = desc;
+            popup.style.display = 'block';
 
-    clearTimeout(popupTimeout);
-    popupTimeout = setTimeout(() => {
-      popup.style.display = 'none';
-    }, 6000);
-  });
-});
+            const rect = btn.getBoundingClientRect();
+            const popupWidth = popup.offsetWidth;
+            const spaceRight = window.innerWidth - rect.right;
+            popup.style.left = (spaceRight > popupWidth + 20)
+              ? `${rect.right + 10}px`
+              : `${rect.left - popupWidth - 10}px`;
+            popup.style.top = `${rect.top + window.scrollY}px`;
 
+            clearTimeout(popupTimeout);
+            popupTimeout = setTimeout(() => {
+              popup.style.display = 'none';
+            }, 6000);
+          });
+        });
+      }
 
-  }
-
-  fetch('https://aryalegalprocess.onrender.com/api/products')
-    .then(res => res.json())
-    .then(products => {
-      allProducts = products;
-      renderTable(allProducts);
-
-      searchInput.addEventListener("input", () => renderTable(allProducts));
-      entriesSelect.addEventListener("change", () => renderTable(allProducts));
-    })
-    .catch(error => {
-      console.error('Error loading products:', error);
-      tbody.innerHTML = '<tr><td colspan="12">Failed to load products.</td></tr>';
-    });
-};
-
-
-</script>
-
-<div id="descPopup" class="description-popup"></div>
+      fetch('https://aryalegalprocess.onrender.com/api/products')
+        .then(res => res.json())
+        .then(products => {
+          console.log("Fetched Products:", products); // Debug log
+          allProducts = products;
+          renderTable(allProducts);
+          searchInput.addEventListener("input", () => renderTable(allProducts));
+          entriesSelect.addEventListener("change", () => renderTable(allProducts));
+        })
+        .catch(error => {
+          console.error('Error loading products:', error);
+          tbody.innerHTML = '<tr><td colspan="12">Failed to load products.</td></tr>';
+        });
+    };
+  </script>
 </body>
 </html>
