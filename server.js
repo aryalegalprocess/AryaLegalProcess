@@ -101,7 +101,7 @@ app.get('/test', (req, res) => {
 });
 
 // 404 API fallback (FIXED)
-app.all('/api/*', (req, res) => {
+app.all('/*splat', (req, res) => {
   res.status(404).json({ error: 'API route not found' });
 });
 
