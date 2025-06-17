@@ -106,7 +106,7 @@ app.all('/*splat', (req, res) => {
 });
 
 // ✅ Serve index.html for all non-API routes (for SPA routing)
-app.get('*', (req, res) => {
+app.get('/*splat', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
