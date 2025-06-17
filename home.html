@@ -138,16 +138,16 @@
       row.innerHTML = `
         <td><button class="btn-barcode">VIEW BARCODE</button></td>
         <td>${products.length - index}</td>
-        <td>${product.barcode}</td>
-        <td>${product.name}</td>
-        <td>${product.details}</td>
-        <td>${product.weight}</td>
-        <td>${product.quantity}</td>
-        <td>${product.company}</td>
-        <td><button class="btn-description" data-desc="${product.description || 'No description available'}">Description</button></td>
-        <td>${product.startDate}</td>
-        <td>${product.endDate}</td>
-        <td>₹${product.price}</td>
+          <td>${product.barcode || ''}</td>
+  <td>${product.name || ''}</td>
+  <td>${product.details || ''}</td>
+  <td>${product.weight || ''}</td>
+  <td>${product.quantity || ''}</td>
+  <td>${companyName}</td>
+  <td><button class="btn-description" data-desc="${product.description || 'No description'}">Description</button></td>
+  <td>${product.startdate || 'N/A'}</td>
+  <td>${product.enddate || 'N/A'}</td>
+  <td>₹${product.price || '0'}</td>
       `;
       tbody.appendChild(row);
     });
