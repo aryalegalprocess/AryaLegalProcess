@@ -145,8 +145,9 @@
                 <td>${product.quantity || ''}</td>
                 <td>${product.company || ''}</td>
                 <td><button class="btn-description" data-desc="${product.description || 'No description'}">Description</button></td>
-                <td>${product.startDate || 'N/A'}</td>
-                <td>${product.endDate || 'N/A'}</td>
+               <td>${product.startdate || 'N/A'}</td>
+<td>${product.enddate || 'N/A'}</td>
+
                 <td>₹${product.price || '0'}</td>
               `;
               tbody.appendChild(row);
