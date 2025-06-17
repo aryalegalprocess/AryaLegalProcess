@@ -193,16 +193,16 @@
       return;
     }
 
-    const companyData = {
-      companyName,
-      status,
-      startDate,
-      endDate,
-      contactName,
-      contactNumber,
-      contactEmail,
-      address
-    };
+   const companyData = {
+  name: companyName,
+  status: status === "active" ? "a" : "i",
+  startdate: startDate,
+  enddate: endDate,
+  cname: contactName,
+  cnumber: contactNumber,
+  cemail: contactEmail,
+  caddress: address
+};
 
     fetch('https://aryalegalprocess.onrender.com/api/companies', {
       method: 'POST',
@@ -278,18 +278,19 @@
     const filter = document.getElementById("searchInput").value.toLowerCase();
 
     // Filter companies by search
-    const filteredCompanies = allCompanies.filter(company => {
-      return (
-        company.companyName.toLowerCase().includes(filter) ||
-        company.startDate.toLowerCase().includes(filter) ||
-        company.endDate.toLowerCase().includes(filter) ||
-        company.status.toLowerCase().includes(filter) ||
-        company.contactName.toLowerCase().includes(filter) ||
-        company.contactNumber.toLowerCase().includes(filter) ||
-        company.contactEmail.toLowerCase().includes(filter) ||
-        company.address.toLowerCase().includes(filter)
-      );
-    });
+   const filteredCompanies = allCompanies.filter(company => {
+  return (
+    company.name.toLowerCase().includes(filter) ||
+    company.startdate.toLowerCase().includes(filter) ||
+    company.enddate.toLowerCase().includes(filter) ||
+    (company.status === "a" ? "active" : "inactive").includes(filter) ||
+    company.cname.toLowerCase().includes(filter) ||
+    company.cnumber.toLowerCase().includes(filter) ||
+    company.cemail.toLowerCase().includes(filter) ||
+    company.caddress.toLowerCase().includes(filter)
+  );
+});
+
 
     const totalEntries = filteredCompanies.length;
     totalPages = Math.ceil(totalEntries / entriesPerPage);
@@ -307,15 +308,15 @@
     companiesToShow.forEach((company, index) => {
       const row = document.createElement("tr");
       row.innerHTML = `
-        <td>${startIndex + index + 1}</td>
-        <td>${company.companyName}</td>
-        <td>${company.startDate}</td>
-        <td>${company.endDate}</td>
-        <td>${company.status}</td>
-        <td>${company.contactName}</td>
-        <td>${company.contactNumber}</td>
-        <td>${company.contactEmail}</td>
-        <td>${company.address}</td>
+        <td>${company.name}</td>
+<td>${company.startdate}</td>
+<td>${company.enddate}</td>
+<td>${company.status === 'a' ? 'ACTIVE' : 'INACTIVE'}</td>
+<td>${company.cname}</td>
+<td>${company.cnumber}</td>
+<td>${company.cemail}</td>
+<td>${company.caddress}</td>
+
       `;
       tbody.appendChild(row);
     });
