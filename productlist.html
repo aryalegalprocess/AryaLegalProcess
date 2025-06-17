@@ -112,90 +112,104 @@
     });
   });
 
-  window.onload = function () {
-    const tbody = document.querySelector('tbody');
-    const searchInput = document.getElementById("searchInput");
-    const entriesSelect = document.getElementById("entriesSelect");
+ window.onload = function () {
+  const tbody = document.querySelector('tbody');
+  const searchInput = document.getElementById("searchInput");
+  const entriesSelect = document.getElementById("entriesSelect");
 
-    let allProducts = [];
+  let allProducts = [];
+  let companyMap = {};
 
-    function renderTable(products) {
-      tbody.innerHTML = "";
-      const filter = searchInput.value.toLowerCase();
-      const limit = parseInt(entriesSelect.value);
-      let count = 0;
+  // Fetch companies and map them by ID
+  fetch('https://aryalegalprocess.onrender.com/api/companies')
+    .then(res => res.json())
+    .then(companies => {
+      companies.forEach(company => {
+        companyMap[company._id || company.id] = company.name;
+      });
 
-      products.forEach((product, index) => {
-        const rowText = (
-          `${index + 1} ${product.barcode} ${product.name} ${product.details} ${product.weight} ${product.quantity} ${product.company} ${product.description} ${product.startDate} ${product.endDate} ₹${product.price}`
-        ).toLowerCase();
+      return fetch('https://aryalegalprocess.onrender.com/api/products');
+    })
+    .then(res => res.json())
+    .then(products => {
+      allProducts = products;
+      renderTable(allProducts);
 
-        if (rowText.includes(filter)) {
-          if (count < limit) {
-            const row = document.createElement('tr');
-            row.innerHTML = `
-              <td><button class="barcode-btn">VIEW BARCODE</button></td>
-              <td>${index + 1}</td>
-                <td>${product.barcode || ''}</td>
-                <td>${product.name || ''}</td>
-                <td>${product.details || ''}</td>
-                <td>${product.weight || ''}</td>
-                <td>${product.quantity || ''}</td>
-                <td>${product.company || ''}</td>
-                <td><button class="btn-description" data-desc="${product.description || 'No description'}">Description</button></td>
-                <td>${product.startdate || 'N/A'}</td>
-                <td>${product.enddate || 'N/A'}</td>
-                <td>₹${product.price || '0'}</td>
-            `;
-            tbody.appendChild(row);
-            count++;
-          }
+      searchInput.addEventListener("input", () => renderTable(allProducts));
+      entriesSelect.addEventListener("change", () => renderTable(allProducts));
+    })
+    .catch(error => {
+      console.error('Error loading data:', error);
+      tbody.innerHTML = '<tr><td colspan="12">Failed to load products or companies.</td></tr>';
+    });
+
+  function renderTable(products) {
+    tbody.innerHTML = "";
+    const filter = searchInput.value.toLowerCase();
+    const limit = parseInt(entriesSelect.value);
+    let count = 0;
+
+    products.forEach((product, index) => {
+      const companyName = companyMap[product.company] || product.company || 'Unknown';
+
+      const rowText = (
+        `${index + 1} ${product.barcode} ${product.name} ${product.details} ${product.weight} ${product.quantity} ${companyName} ${product.description} ${product.startdate} ${product.enddate} ₹${product.price}`
+      ).toLowerCase();
+
+      if (rowText.includes(filter)) {
+        if (count < limit) {
+          const row = document.createElement('tr');
+          row.innerHTML = `
+            <td><button class="barcode-btn">VIEW BARCODE</button></td>
+            <td>${index + 1}</td>
+            <td>${product.barcode || ''}</td>
+            <td>${product.name || ''}</td>
+            <td>${product.details || ''}</td>
+            <td>${product.weight || ''}</td>
+            <td>${product.quantity || ''}</td>
+            <td>${companyName}</td>
+            <td><button class="btn-description" data-desc="${product.description || 'No description'}">Description</button></td>
+            <td>${product.startdate || 'N/A'}</td>
+            <td>${product.enddate || 'N/A'}</td>
+            <td>₹${product.price || '0'}</td>
+          `;
+          tbody.appendChild(row);
+          count++;
         }
+      }
+    });
+
+    let popupTimeout;
+
+    document.querySelectorAll('.btn-description').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const desc = btn.getAttribute('data-desc') || 'No description available';
+        const popup = document.getElementById('descPopup');
+        popup.textContent = desc;
+        popup.style.display = 'block';
+
+        const rect = btn.getBoundingClientRect();
+        const popupWidth = popup.offsetWidth;
+        const spaceRight = window.innerWidth - rect.right;
+        const spaceLeft = rect.left;
+
+        if (spaceRight > popupWidth + 20) {
+          popup.style.left = `${rect.right + 10}px`;
+        } else {
+          popup.style.left = `${rect.left - popupWidth - 10}px`;
+        }
+
+        popup.style.top = `${rect.top + window.scrollY}px`;
+
+        clearTimeout(popupTimeout);
+        popupTimeout = setTimeout(() => {
+          popup.style.display = 'none';
+        }, 6000);
       });
+    });
+  }
+};
 
-      let popupTimeout;
-
-      document.querySelectorAll('.btn-description').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const desc = btn.getAttribute('data-desc') || 'No description available';
-          const popup = document.getElementById('descPopup');
-          popup.textContent = desc;
-          popup.style.display = 'block';
-
-          const rect = btn.getBoundingClientRect();
-          const popupWidth = popup.offsetWidth;
-          const spaceRight = window.innerWidth - rect.right;
-          const spaceLeft = rect.left;
-
-          if (spaceRight > popupWidth + 20) {
-            popup.style.left = `${rect.right + 10}px`;
-          } else {
-            popup.style.left = `${rect.left - popupWidth - 10}px`;
-          }
-
-          popup.style.top = `${rect.top + window.scrollY}px`;
-
-          clearTimeout(popupTimeout);
-          popupTimeout = setTimeout(() => {
-            popup.style.display = 'none';
-          }, 6000);
-        });
-      });
-    }
-
-    fetch('https://aryalegalprocess.onrender.com/api/products')
-      .then(res => res.json())
-      .then(products => {
-        allProducts = products;
-        renderTable(allProducts);
-        searchInput.addEventListener("input", () => renderTable(allProducts));
-        entriesSelect.addEventListener("change", () => renderTable(allProducts));
-      })
-      .catch(error => {
-        console.error('Error loading products:', error);
-        tbody.innerHTML = '<tr><td colspan="12">Failed to load products.</td></tr>';
-      });
-  };
 </script>
 
 <div id="descPopup" class="description-popup"></div>
