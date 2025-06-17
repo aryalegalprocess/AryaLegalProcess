@@ -106,16 +106,16 @@
 
     let allProducts = [];
     let companyMap = {};
+function fetchCompanies() {
+  return fetch('https://aryalegalprocess.onrender.com/api/companies')
+    .then(res => res.json())
+    .then(companies => {
+      companies.forEach(c => {
+        companyMap[c.id] = c.name; // Use 'id' not '_id'
+      });
+    });
+}
 
-    function fetchCompanies() {
-      return fetch('https://aryalegalprocess.onrender.com/api/companies')
-        .then(res => res.json())
-        .then(companies => {
-          companies.forEach(c => {
-            companyMap[c._id] = c.name;
-          });
-        });
-    }
 
  function formatDate(dateStr) {
   if (!dateStr) return 'N/A';
