@@ -1,4 +1,5 @@
 const productSchema = new mongoose.Schema({
+  id: String, // Add this
   barcode: String,
   name: String,
   details: String,

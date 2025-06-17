@@ -181,19 +181,20 @@
         const companyName = companyMap[product.company] || product.company || 'Unknown';
         const row = document.createElement('tr');
         row.innerHTML = `
-          <td><button class="barcode-btn">VIEW BARCODE</button></td>
-          <td>${startIndex + i + 1}</td>
-          <td>${product.barcode || ''}</td>
-          <td>${product.name || ''}</td>
-          <td>${product.details || ''}</td>
-          <td>${product.weight || ''}</td>
-          <td>${product.quantity || ''}</td>
-          <td>${companyName}</td>
-          <td><button class="btn-description" data-desc="${product.description || 'No description'}">Description</button></td>
-          <td>${product.startdate || 'N/A'}</td>
-          <td>${product.enddate || 'N/A'}</td>
-          <td>₹${product.price || '0'}</td>
-        `;
+  <td><button class="barcode-btn">VIEW BARCODE</button></td>
+  <td>${product.id || 'N/A'}</td> <!-- Updated line -->
+  <td>${product.barcode || ''}</td>
+  <td>${product.name || ''}</td>
+  <td>${product.details || ''}</td>
+  <td>${product.weight || ''}</td>
+  <td>${product.quantity || ''}</td>
+  <td>${companyName}</td>
+  <td><button class="btn-description" data-desc="${product.description || 'No description'}">Description</button></td>
+  <td>${product.startdate || 'N/A'}</td>
+  <td>${product.enddate || 'N/A'}</td>
+  <td>₹${product.price || '0'}</td>
+`;
+
         tbody.appendChild(row);
       });
 
