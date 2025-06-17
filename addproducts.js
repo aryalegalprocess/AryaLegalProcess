@@ -1,6 +1,6 @@
 // Fetch companies and populate select on page load
 window.addEventListener("DOMContentLoaded", () => {
-  fetch('https://productslist.onrender.com/api/companies')
+  fetch('https://aryalegalprocess.onrender.com/api/companies')
     .then(res => res.json())
     .then(companies => {
       const select = document.getElementById("company");  // Make sure this matches your HTML ID
@@ -98,7 +98,7 @@ document.getElementById('productForm').addEventListener('submit', function(e) {
         image: base64Image
       };
 
-      fetch("https://productslist.onrender.com/api/products", {
+      fetch("https://aryalegalprocess.onrender.com/api/products", {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

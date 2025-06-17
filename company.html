@@ -204,7 +204,7 @@
       address
     };
 
-    fetch('https://productslist.onrender.com/api/companies', {
+    fetch('https://aryalegalprocess.onrender.com/api/companies', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -238,7 +238,7 @@
   };
 
   function fetchAndRenderCompanies() {
-    fetch('https://productslist.onrender.com/api/companies')
+    fetch('https://aryalegalprocess.onrender.com/api/companies')
       .then(res => res.json())
       .then(data => {
         allCompanies = data;
