@@ -5,7 +5,7 @@ const path = require('path');
 require('dotenv').config();
 
 const Contact = require('./models/contact');
-const sendEmail = require('./utils/sendEmail'); // ✅ Email utility
+const sendEmail = require('./server/utils/sendemail'); // ✅ Email utility
 
 const app = express();
 const PORT = process.env.PORT || 5000;
