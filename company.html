@@ -275,60 +275,55 @@
   });
 
   function renderTable() {
-    const tbody = document.querySelector("table tbody");
-    tbody.innerHTML = '';
+  const tbody = document.querySelector("table tbody");
+  tbody.innerHTML = '';
 
-    const filter = document.getElementById("searchInput").value.toLowerCase();
+  const filter = document.getElementById("searchInput").value.toLowerCase();
 
-    // Filter companies by search
-   const filteredCompanies = allCompanies.filter(company => {
-  return (
-    company.name.toLowerCase().includes(filter) ||
-    company.startdate.toLowerCase().includes(filter) ||
-    company.enddate.toLowerCase().includes(filter) ||
-    (company.status === "a" ? "active" : "inactive").includes(filter) ||
-    company.cname.toLowerCase().includes(filter) ||
-    company.cnumber.toLowerCase().includes(filter) ||
-    company.cemail.toLowerCase().includes(filter) ||
-    company.caddress.toLowerCase().includes(filter)
-  );
-});
+  const filteredCompanies = allCompanies.filter(company => {
+    return (
+      (company.name || '').toLowerCase().includes(filter) ||
+      (company.startDate || '').toLowerCase().includes(filter) ||
+      (company.endDate || '').toLowerCase().includes(filter) ||
+      (company.status || '').toLowerCase().includes(filter) ||
+      (company.contactName || '').toLowerCase().includes(filter) ||
+      (company.contactNumber || '').toLowerCase().includes(filter) ||
+      (company.contactEmail || '').toLowerCase().includes(filter) ||
+      (company.contactAddress || '').toLowerCase().includes(filter)
+    );
+  });
 
+  const totalEntries = filteredCompanies.length;
+  totalPages = Math.ceil(totalEntries / entriesPerPage);
 
-    const totalEntries = filteredCompanies.length;
-    totalPages = Math.ceil(totalEntries / entriesPerPage);
+  if (currentPage > totalPages) currentPage = totalPages;
+  if (currentPage < 1) currentPage = 1;
 
-    // Correct currentPage if out of bounds
-    if (currentPage > totalPages) currentPage = totalPages;
-    if (currentPage < 1) currentPage = 1;
+  const startIndex = (currentPage - 1) * entriesPerPage;
+  const endIndex = startIndex + entriesPerPage;
 
-    // Calculate slice indexes
-    const startIndex = (currentPage - 1) * entriesPerPage;
-    const endIndex = startIndex + entriesPerPage;
+  const companiesToShow = filteredCompanies.slice(startIndex, endIndex);
 
-    const companiesToShow = filteredCompanies.slice(startIndex, endIndex);
+  companiesToShow.forEach((company, index) => {
+    const row = document.createElement("tr");
+    const serialNumber = (currentPage - 1) * entriesPerPage + index + 1;
 
-    companiesToShow.forEach((company, index) => {
-  const row = document.createElement("tr");
-  const serialNumber = (currentPage - 1) * entriesPerPage + index + 1;
+    row.innerHTML = `
+      <td>${serialNumber}</td>
+      <td>${company.name || ''}</td>
+      <td>${company.startDate || ''}</td>
+      <td>${company.endDate || ''}</td>
+      <td>${(company.status || '').toUpperCase()}</td>
+      <td>${company.contactName || ''}</td>
+      <td>${company.contactNumber || ''}</td>
+      <td>${company.contactEmail || ''}</td>
+      <td>${company.contactAddress || ''}</td>
+    `;
+    tbody.appendChild(row);
+  });
 
-  row.innerHTML = `
-    <td>${serialNumber}</td>
-    <td>${company.name}</td>
-    <td>${company.startdate}</td>
-    <td>${company.enddate}</td>
-    <td>${company.status === 'a' ? 'ACTIVE' : 'INACTIVE'}</td>
-    <td>${company.cname}</td>
-    <td>${company.cnumber}</td>
-    <td>${company.cemail}</td>
-    <td>${company.caddress}</td>
-  `;
-  tbody.appendChild(row);
-});
-
-
-    updatePaginationInfo(startIndex + 1, startIndex + companiesToShow.length, totalEntries);
-  }
+  updatePaginationInfo(startIndex + 1, startIndex + companiesToShow.length, totalEntries);
+}
 
   function updatePaginationInfo(from, to, total) {
     const paginationInfo = document.querySelector(".pagination-info");
