@@ -109,6 +109,7 @@
     let currentPage = 1;
     let totalPages = 1;
     let popupTimeout;
+    let lastClickedDescriptionButton = null;
 
     function fetchCompanies() {
       return fetch('https://aryalegalprocess.onrender.com/api/companies')
@@ -175,9 +176,16 @@
       renderPagination();
 
       document.querySelectorAll('.btn-description').forEach(btn => {
-        btn.addEventListener('click', () => {
+        btn.addEventListener('click', (e) => {
           const desc = btn.getAttribute('data-desc') || 'No description available';
           const popup = document.getElementById('descPopup');
+
+          if (popup.style.display === 'block' && lastClickedDescriptionButton === btn) {
+            popup.style.display = 'none';
+            lastClickedDescriptionButton = null;
+            return;
+          }
+
           popup.textContent = desc;
           popup.style.display = 'block';
 
@@ -194,7 +202,10 @@
           clearTimeout(popupTimeout);
           popupTimeout = setTimeout(() => {
             popup.style.display = 'none';
+            lastClickedDescriptionButton = null;
           }, 6000);
+
+          lastClickedDescriptionButton = btn;
         });
       });
     }
@@ -258,6 +269,15 @@
         }
       }
     }
+
+    document.addEventListener("click", function (event) {
+      const popup = document.getElementById('descPopup');
+      const isDescButton = event.target.classList.contains('btn-description');
+      if (!isDescButton && popup.style.display === 'block') {
+        popup.style.display = 'none';
+        lastClickedDescriptionButton = null;
+      }
+    });
 
     window.onload = function () {
       Promise.all([fetchCompanies()])
