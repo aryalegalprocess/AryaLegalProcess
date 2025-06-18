@@ -84,29 +84,105 @@
 
   
   
- <script>
+<script>
   const sidebar = document.querySelector('.sidebar');
-
-  sidebar.addEventListener('click', () => {
-    sidebar.classList.toggle('expanded');
-  });
+  sidebar.addEventListener('click', () => sidebar.classList.toggle('expanded'));
 
   function toggleDropdown() {
     const dropdown = document.getElementById("dropdown");
     dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
   }
 
-  // Optional: Close dropdown when clicking outside
   document.addEventListener("click", function (event) {
     const dropdown = document.getElementById("dropdown");
     const admin = document.querySelector(".admin");
-
     if (!admin.contains(event.target)) {
       dropdown.style.display = "none";
     }
   });
 
+  // ---------------- CUSTOM CODE BELOW -------------------
+
+  let allProducts = [];
+  let companyMap = {};
+
+  async function fetchCompanies() {
+    const res = await fetch('https://aryalegalprocess.onrender.com/api/companies');
+    const companies = await res.json();
+    companies.forEach(c => {
+      companyMap[c.id] = c.name;
+    });
+  }
+
+  async function fetchProducts() {
+    const res = await fetch('https://aryalegalprocess.onrender.com/api/products');
+    allProducts = await res.json();
+  }
+
+  function formatDate(dateStr) {
+    if (!dateStr) return '';
+    return new Date(dateStr).toISOString().split('T')[0];
+  }
+
+  function renderTable(filteredProducts) {
+    const tbody = document.querySelector("table tbody");
+    tbody.innerHTML = '';
+
+    filteredProducts.forEach((p, index) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${index + 1}</td>
+        <td>${p.barcode || ''}</td>
+        <td>${p.name || ''}</td>
+        <td>${p.details || ''}</td>
+        <td>${p.weight || ''}</td>
+        <td>${p.quantity || ''}</td>
+        <td>${companyMap[p.company] || 'Unknown'}</td>
+        <td>${p.description || ''}</td>
+        <td>${formatDate(p.startdate)}</td>
+        <td>${formatDate(p.enddate)}</td>
+        <td>₹${p.price || '0'}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function getFilteredProducts() {
+    const from = document.getElementById("fromDate").value;
+    const to = document.getElementById("toDate").value;
+
+    const fromDate = from ? new Date(from) : null;
+    const toDate = to ? new Date(to) : null;
+
+    return allProducts.filter(p => {
+      const start = new Date(p.startdate);
+      return (!fromDate || start >= fromDate) && (!toDate || start <= toDate);
+    });
+  }
+
+  document.querySelector(".btn-search").addEventListener("click", () => {
+    const filtered = getFilteredProducts();
+    renderTable(filtered);
+  });
+
+  document.querySelector(".btn-send").addEventListener("click", () => {
+    const filtered = getFilteredProducts();
+    const companyIds = new Set(filtered.map(p => p.company));
+    const companyNames = Array.from(companyIds).map(id => companyMap[id]);
+
+    alert(`Email would be sent to companies:\n\n${companyNames.join('\n')}`);
+    
+    // OPTIONAL: Replace the above `alert()` with your actual API call
+    // fetch('/api/send-email', { method: 'POST', body: JSON.stringify({ companies: companyNames }) })
+  });
+
+  // Fetch on load
+  window.onload = async function () {
+    await fetchCompanies();
+    await fetchProducts();
+  };
 </script>
+
 
 
 </body>
