@@ -106,6 +106,18 @@
 
     const data = await res.json();
 
+    // Fallback values for missing or empty fields
+    const imgSrc = data.image || 'images/default.jpg'; // fallback image if needed
+    const name = data.name || '-';
+    const weight = data.weight || '-';
+    const price = data.price && data.price !== "" ? `₹${data.price}` : '₹0';
+    const description = data.description || '-';
+    const details = data.details || '-';
+    const quantity = data.quantity || '-';
+    const company = data.companyName || '-';
+    const startdate = data.startdate || '-';
+    const enddate = data.enddate || '-';
+
     resultDiv.innerHTML = `
       <table class="product-info-table">
         <thead>
@@ -124,26 +136,26 @@
         </thead>
         <tbody>
           <tr>
-            <td><img src="${data.image}" alt="${data.name}" class="product-img" /></td>
-            <td>${data.name}</td>
-            <td>${data.weight}</td>
-            <td>₹${data.price}</td>
-            <td>${data.description}</td>
-            <td>${data.details}</td>
-            <td>${data.quantity}</td>
-           <td>${data.companyName}</td>
-            <td>${data.startdate}</td>
-            <td>${data.enddate}</td>
+            <td><img src="${imgSrc}" alt="${name}" class="product-img" /></td>
+            <td>${name}</td>
+            <td>${weight}</td>
+            <td>${price}</td>
+            <td>${description}</td>
+            <td>${details}</td>
+            <td>${quantity}</td>
+            <td>${company}</td>
+            <td>${startdate}</td>
+            <td>${enddate}</td>
           </tr>
         </tbody>
       </table>
     `;
-    
-    resultDiv.style.display = "block"; // ✅ SHOW the result when found
+
+    resultDiv.style.display = "block";
 
   } catch (err) {
     resultDiv.innerHTML = `<p style="color:red;">Product not found. Please try again.</p>`;
-    resultDiv.style.display = "block"; // ✅ SHOW the error message
+    resultDiv.style.display = "block";
   }
 }
 
