@@ -107,7 +107,7 @@
     const data = await res.json();
 
     // Fallback values for missing or empty fields
-    const imgSrc = data.image || 'images/default.jpg'; // fallback image if needed
+   const imgSrc = data.image ? `https://aryalegalprocess.onrender.com/images/${encodeURIComponent(data.image)}` : 'images/default.jpg';
     const name = data.name || '-';
     const weight = data.weight || '-';
     const price = data.price && data.price !== "" ? `₹${data.price}` : '₹0';
