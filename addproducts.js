@@ -19,7 +19,6 @@ window.addEventListener("DOMContentLoaded", () => {
     })
     .catch(err => {
       console.error("Failed to fetch companies:", err);
-      alert("Could not load company names. Please try again later.");
     });
 });
 
