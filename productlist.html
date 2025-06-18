@@ -5,20 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Product List Dashboard</title>
   <link rel="stylesheet" href="style2.css" />
-  <link href="https://fonts.googleapis.com/css2?family=Nunito&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="addproduct.css">
   <link rel="stylesheet" href="email.css">
   <link rel="stylesheet" href="productlist.css">
+  <link href="https://fonts.googleapis.com/css2?family=Nunito&display=swap" rel="stylesheet">
 </head>
 <body>
   <div class="sidebar">
-    <div class="logo">&#9776; <span class="text">ARYA LEGAL PROCESS</span> </div>
+    <div class="logo">&#9776; <span class="text">ARYA LEGAL PROCESS</span></div>
     <ul class="menu">
-        <li><a href="home.html"><span class="icon">🏠</span><span class="text">Home</span></a></li>
-        <li><a href="company.html"><span class="icon">🛠️</span><span class="text">Manage Companies</span></a></li>
-        <li><a href="addproduct.html"><span class="icon">➕</span><span class="text">Add Products</span></a></li>
-        <li><a href="productlist.html"><span class="icon">📦</span><span class="text">Products List</span></a></li>
-        <li><a href="email.html"><span class="icon">📧</span><span class="text">Send E-Mail</span></a></li>
+      <li><a href="home.html"><span class="icon">🏠</span><span class="text">Home</span></a></li>
+      <li><a href="company.html"><span class="icon">🛠️</span><span class="text">Manage Companies</span></a></li>
+      <li><a href="addproduct.html"><span class="icon">➕</span><span class="text">Add Products</span></a></li>
+      <li><a href="productlist.html"><span class="icon">📦</span><span class="text">Products List</span></a></li>
+      <li><a href="email.html"><span class="icon">📧</span><span class="text">Send E-Mail</span></a></li>
     </ul>
   </div>
 
@@ -40,7 +40,6 @@
     <div class="container">
       <div class="card">
         <h3 class="sub-heading">Product List</h3>
-
         <div class="controls">
           <div class="entries-control">
             Show
@@ -52,7 +51,6 @@
             </select>
             entries
           </div>
-
           <div class="search-box">
             Search: <input type="text" id="searchInput">
           </div>
@@ -76,9 +74,7 @@
                 <th>PRICE</th>
               </tr>
             </thead>
-            <tbody>
-              <!-- Product rows will be inserted here -->
-            </tbody>
+            <tbody></tbody>
           </table>
           <div class="pagination-info"></div>
           <div class="pagination"></div>
@@ -87,11 +83,61 @@
     </div>
   </div>
 
+  <div id="descPopup" class="description-popup"></div>
+
   <script>
-    const sidebar = document.querySelector('.sidebar');
-    sidebar.addEventListener('click', () => {
-      sidebar.classList.toggle('expanded');
-    });
+    // Global variables
+    let allProducts = [];
+    let companyMap = {};
+    let currentPage = 1;
+    let totalPages = 1;
+    let popupTimeout;
+    let activeButton = null;
+
+    let sortState = {
+      id: true,
+      startdate: true,
+      enddate: true,
+    };
+
+    function sortTable(key) {
+      const isDateField = (key === 'startdate' || key === 'enddate');
+      const isAsc = sortState[key];
+
+      allProducts.sort((a, b) => {
+        let valA = a[key] || '';
+        let valB = b[key] || '';
+
+        if (isDateField) {
+          valA = new Date(valA);
+          valB = new Date(valB);
+        } else {
+          valA = parseInt(valA) || 0;
+          valB = parseInt(valB) || 0;
+        }
+
+        return isAsc ? valA - valB : valB - valA;
+      });
+
+      sortState[key] = !isAsc;
+      updateSortIcons(key, !isAsc);
+      renderTable();
+      renderPagination();
+    }
+
+    function updateSortIcons(activeKey, isAsc) {
+      const icons = {
+        id: document.getElementById('idSortIcon'),
+        startdate: document.getElementById('startSortIcon'),
+        enddate: document.getElementById('endSortIcon'),
+      };
+
+      Object.keys(icons).forEach(key => {
+        icons[key].textContent = (key === activeKey)
+          ? (isAsc ? '⬆' : '⬇')
+          : '⬍';
+      });
+    }
 
     function toggleDropdown() {
       const dropdown = document.getElementById("dropdown");
@@ -110,58 +156,6 @@
       const tbody = document.querySelector('tbody');
       const searchInput = document.getElementById("searchInput");
       const entriesSelect = document.getElementById("entriesSelect");
-
-      let allProducts = [];
-      let companyMap = {};
-      let currentPage = 1;
-      let totalPages = 1;
-      let popupTimeout;
-      let activeButton = null;
-
-      let sortState = {
-        id: true,
-        startdate: true,
-        enddate: true,
-      };
-
-      function sortTable(key) {
-        const isDateField = (key === 'startdate' || key === 'enddate');
-        const isAsc = sortState[key];
-
-        allProducts.sort((a, b) => {
-          let valA = a[key] || '';
-          let valB = b[key] || '';
-
-          if (isDateField) {
-            valA = new Date(valA);
-            valB = new Date(valB);
-          } else {
-            valA = parseInt(valA) || 0;
-            valB = parseInt(valB) || 0;
-          }
-
-          return isAsc ? valA - valB : valB - valA;
-        });
-
-        sortState[key] = !isAsc;
-        updateSortIcons(key, !isAsc);
-        renderTable();
-        renderPagination();
-      }
-
-      function updateSortIcons(activeKey, isAsc) {
-        const icons = {
-          id: document.getElementById('idSortIcon'),
-          startdate: document.getElementById('startSortIcon'),
-          enddate: document.getElementById('endSortIcon'),
-        };
-
-        Object.keys(icons).forEach(key => {
-          icons[key].textContent = (key === activeKey)
-            ? (isAsc ? '⬆' : '⬇')
-            : '⬍';
-        });
-      }
 
       fetch('https://aryalegalprocess.onrender.com/api/companies')
         .then(res => res.json())
@@ -210,14 +204,13 @@
 
         const totalEntries = filteredProducts.length;
         totalPages = Math.ceil(totalEntries / entriesPerPage);
-        if (currentPage > totalPages) currentPage = totalPages;
-        if (currentPage < 1) currentPage = 1;
+        currentPage = Math.max(1, Math.min(currentPage, totalPages));
 
         const startIndex = (currentPage - 1) * entriesPerPage;
         const endIndex = startIndex + entriesPerPage;
         const productsToShow = filteredProducts.slice(startIndex, endIndex);
 
-        productsToShow.forEach((product, i) => {
+        productsToShow.forEach((product) => {
           const companyName = companyMap[product.company] || product.company || 'Unknown';
           const row = document.createElement('tr');
           row.innerHTML = `
@@ -237,44 +230,33 @@
           tbody.appendChild(row);
         });
 
-        // Add barcode button click handler
+        // Barcode buttons
         document.querySelectorAll('.barcode-btn').forEach(btn => {
           btn.addEventListener('click', () => {
             alert('Show barcode here');
           });
         });
 
-        // Description popup handling
+        // Description popup
         document.querySelectorAll('.btn-description').forEach(btn => {
           btn.addEventListener('click', (event) => {
             const popup = document.getElementById('descPopup');
-
             if (activeButton === btn && popup.style.display === 'block') {
               popup.style.display = 'none';
               activeButton = null;
               return;
             }
-
-            const desc = btn.getAttribute('data-desc') || 'No description available';
+            const desc = btn.getAttribute('data-desc') || 'No description';
             popup.textContent = desc;
             popup.style.display = 'block';
-
             const rect = btn.getBoundingClientRect();
-            const popupWidth = popup.offsetWidth;
-            const spaceRight = window.innerWidth - rect.right;
-
-            popup.style.left = spaceRight > popupWidth + 20
-              ? `${rect.right + 10}px`
-              : `${rect.left - popupWidth - 10}px`;
-
+            popup.style.left = `${rect.right + 10}px`;
             popup.style.top = `${rect.top + window.scrollY}px`;
-
             clearTimeout(popupTimeout);
             popupTimeout = setTimeout(() => {
               popup.style.display = 'none';
               activeButton = null;
             }, 6000);
-
             activeButton = btn;
           });
         });
@@ -284,92 +266,59 @@
 
       function updatePaginationInfo(from, to, total) {
         const paginationInfo = document.querySelector(".pagination-info");
-        if (total === 0) {
-          paginationInfo.textContent = "Showing 0 to 0 of 0 entries";
-        } else {
-          paginationInfo.textContent = `Showing ${from} to ${to} of ${total} entries`;
-        }
+        paginationInfo.textContent = total === 0
+          ? "Showing 0 to 0 of 0 entries"
+          : `Showing ${from} to ${to} of ${total} entries`;
       }
 
       function renderPagination() {
-        const paginationContainer = document.querySelector(".pagination");
-        paginationContainer.innerHTML = '';
-
+        const container = document.querySelector(".pagination");
+        container.innerHTML = '';
         if (totalPages <= 1) return;
 
-        function createPageLink(page) {
+        function createLink(page) {
           const a = document.createElement('a');
           a.href = "#";
           a.textContent = page;
           if (page === currentPage) a.classList.add('active');
-          a.addEventListener('click', function (e) {
+          a.onclick = (e) => {
             e.preventDefault();
-            if (currentPage === page) return;
             currentPage = page;
             renderTable();
             renderPagination();
-          });
+          };
           return a;
         }
 
-        function createEllipsis() {
-          const span = document.createElement('span');
-          span.textContent = '...';
-          span.classList.add('ellipsis');
-          return span;
-        }
-
-        paginationContainer.appendChild(createPageLink(1));
-
+        container.appendChild(createLink(1));
         if (totalPages <= 7) {
-          for (let i = 2; i <= totalPages; i++) {
-            paginationContainer.appendChild(createPageLink(i));
-          }
+          for (let i = 2; i <= totalPages; i++) container.appendChild(createLink(i));
         } else {
-          let startPage, endPage;
           if (currentPage <= 4) {
-            startPage = 2;
-            endPage = 5;
-            for (let i = startPage; i <= endPage; i++) {
-              paginationContainer.appendChild(createPageLink(i));
-            }
-            paginationContainer.appendChild(createEllipsis());
-            paginationContainer.appendChild(createPageLink(totalPages));
-          } else if (currentPage > totalPages - 4) {
-            paginationContainer.appendChild(createEllipsis());
-            startPage = totalPages - 4;
-            endPage = totalPages - 1;
-            for (let i = startPage; i <= endPage; i++) {
-              paginationContainer.appendChild(createPageLink(i));
-            }
-            paginationContainer.appendChild(createPageLink(totalPages));
+            for (let i = 2; i <= 5; i++) container.appendChild(createLink(i));
+            container.appendChild(document.createTextNode('...'));
+            container.appendChild(createLink(totalPages));
+          } else if (currentPage >= totalPages - 3) {
+            container.appendChild(document.createTextNode('...'));
+            for (let i = totalPages - 4; i < totalPages; i++) container.appendChild(createLink(i));
+            container.appendChild(createLink(totalPages));
           } else {
-            paginationContainer.appendChild(createEllipsis());
-            startPage = currentPage - 1;
-            endPage = currentPage + 1;
-            for (let i = startPage; i <= endPage; i++) {
-              paginationContainer.appendChild(createPageLink(i));
-            }
-            paginationContainer.appendChild(createEllipsis());
-            paginationContainer.appendChild(createPageLink(totalPages));
+            container.appendChild(document.createTextNode('...'));
+            for (let i = currentPage - 1; i <= currentPage + 1; i++) container.appendChild(createLink(i));
+            container.appendChild(document.createTextNode('...'));
+            container.appendChild(createLink(totalPages));
           }
         }
       }
 
-      // Hide description popup on outside click
-      document.addEventListener('click', function (event) {
+      document.addEventListener('click', function (e) {
         const popup = document.getElementById('descPopup');
-        const isDescButton = event.target.classList.contains('btn-description');
-        const isInsidePopup = popup.contains(event.target);
-
-        if (!isDescButton && !isInsidePopup) {
+        if (!e.target.classList.contains('btn-description') && !popup.contains(e.target)) {
           popup.style.display = 'none';
           activeButton = null;
         }
       });
     };
   </script>
-
-  <div id="descPopup" class="description-popup"></div>
 </body>
 </html>
