@@ -100,13 +100,15 @@
       enddate: true,
     };
 
-    function sortTable(key) {
-      lastSortKey = key;
-      sortState[key] = !sortState[key]; // Toggle sort direction
-      updateSortIcons(key, sortState[key]);
-      renderTable();
-      renderPagination();
-    }
+   function sortTable(key) {
+  lastSortKey = key;
+  sortState[key] = !sortState[key]; // Toggle sort direction
+  currentPage = 1; // reset to first page after sorting
+  updateSortIcons(key, sortState[key]);
+  renderTable();       // redraw table with new sort
+  renderPagination();  // redraw pagination too
+}
+
 
     function updateSortIcons(activeKey, isAsc) {
       const icons = {
