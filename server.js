@@ -5,7 +5,7 @@ const path = require('path');
 require('dotenv').config();
 
 const Contact = require('./models/contact');
-const sendEmail = require('./utils/sendEmail'); // ✅ Added
+const sendEmail = require('./utils/sendEmail'); // ✅ Email utility
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -23,10 +23,14 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '100mb' }));
 app.use(express.urlencoded({ extended: true, limit: '100mb' }));
-app.use('/images', express.static('images'));
 
+// ✅ Fix: Enable CORS headers for images explicitly
+app.use('/images', (req, res, next) => {
+  res.setHeader("Access-Control-Allow-Origin", "*"); // Or set to your domain if needed
+  next();
+}, express.static(path.join(__dirname, 'images')));
 
-// ✅ Serve static files from the root directory
+// ✅ Serve other static files from root directory
 app.use(express.static(path.join(__dirname)));
 
 // --- MongoDB connections ---
@@ -147,7 +151,6 @@ app.post('/api/send-expiry-emails', async (req, res) => {
     res.status(500).json({ message: 'Failed to send emails' });
   }
 });
-
 
 // Health check
 app.get('/test', (req, res) => {
