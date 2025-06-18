@@ -100,7 +100,48 @@ app.get('/test', (req, res) => {
   res.send('✅ Backend is running!');
 });
 
-// 404 API fallback (FIXED)
+// --- Start server only after DBs are ready ---
+Promise.all([
+  new Promise(resolve => productConnection.once('open', resolve)),
+  new Promise(resolve => companyConnection.once('open', resolve)),
+  new Promise(resolve => mongoose.connection.once('open', resolve))
+]).then(() => {
+  // ✅ Custom route for fetching product by barcode (with company name)
+  app.get('/api/products/:barcode', async (req, res) => {
+    try {
+      const barcode = req.params.barcode;
+      console.log("Looking for product with barcode:", barcode);
+
+      const product = await Product.findOne({ barcode });
+      console.log("Product found:", product);
+
+      if (!product) {
+        return res.status(404).json({ message: 'Product not found' });
+      }
+
+      const company = await Company(companyConnection).findOne({ id: product.company });
+      console.log("Company found:", company);
+
+      const responseData = {
+        ...product.toObject(),
+        companyName: company ? company.name : "Unknown"
+      };
+
+      res.json(responseData);
+    } catch (err) {
+      console.error("Error fetching product by barcode:", err);
+      res.status(500).json({ message: 'Server error' });
+    }
+  });
+
+  app.listen(PORT, () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+  });
+}).catch(err => {
+  console.error('❌ Error connecting to databases:', err);
+});
+
+// 404 API fallback (after all routes)
 app.all('/*splat', (req, res) => {
   res.status(404).json({ error: 'API route not found' });
 });
@@ -108,17 +149,4 @@ app.all('/*splat', (req, res) => {
 // ✅ Serve index.html for all non-API routes (for SPA routing)
 app.get('/*splat', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
-});
-
-// --- Start server only after DBs are ready ---
-Promise.all([
-  new Promise(resolve => productConnection.once('open', resolve)),
-  new Promise(resolve => companyConnection.once('open', resolve)),
-  new Promise(resolve => mongoose.connection.once('open', resolve))
-]).then(() => {
-  app.listen(PORT, () => {
-    console.log(`🚀 Server running on port ${PORT}`);
-  });
-}).catch(err => {
-  console.error('❌ Error connecting to databases:', err);
 });
