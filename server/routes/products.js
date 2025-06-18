@@ -1,4 +1,4 @@
-module.exports = function(Product) {
+module.exports = function(Product, Company) {
   const express = require('express');
   const router = express.Router();
 
@@ -14,10 +14,10 @@ module.exports = function(Product) {
     }
   });
 
-  // Get all products
+  // Get all products (list view)
   router.get('/', async (req, res) => {
     try {
-      const products = await Product.find({}, { image: 0 }); // exclude image for list
+      const products = await Product.find({}, { image: 0 }); // Exclude image
       res.json(products);
     } catch (err) {
       res.status(500).json({ error: err.message });
@@ -28,17 +28,20 @@ module.exports = function(Product) {
   router.get('/:barcode', async (req, res) => {
     try {
       const barcode = req.params.barcode.trim();
-      console.log("🔍 Searching for product with barcode:", barcode);
-
       const product = await Product.findOne({ barcode });
-      if (!product) {
-        console.log("❌ Product not found");
-        return res.status(404).json({ message: 'Product not found' });
-      }
 
-      res.json(product);
+      if (!product) return res.status(404).json({ message: 'Product not found' });
+
+      const company = await Company.findOne({ id: product.company });
+
+      const responseData = {
+        ...product.toObject(),
+        companyName: company ? company.name : 'Unknown'
+      };
+
+      res.json(responseData);
     } catch (err) {
-      console.error("Error in GET /:barcode:", err);
+      console.error("Error fetching product by barcode:", err);
       res.status(500).json({ message: 'Server error' });
     }
   });

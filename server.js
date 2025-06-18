@@ -64,7 +64,7 @@ mongoose.connect(process.env.MONGO_URI, {
 // --- Routes ---
 
 // Products
-const productRoutes = require('./server/routes/products')(Product);
+const productRoutes = require('./server/routes/products')(Product, Company);
 app.use('/api/products', productRoutes);
 
 // Companies
