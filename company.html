@@ -177,57 +177,56 @@
   });
 
   document.querySelector(".submit-btn").addEventListener("click", function (event) {
-  event.preventDefault();
+    event.preventDefault();
 
-  const companyName = document.getElementById("companyName").value.trim();
-  const status = document.getElementById("status").value;
-  const startDate = document.getElementById("startDate").value;
-  const endDate = document.getElementById("endDate").value;
-  const contactName = document.getElementById("contactName").value.trim();
-  const contactNumber = document.getElementById("contactNumber").value.trim();
-  const contactEmail = document.getElementById("contactEmail").value.trim();
-  const address = document.getElementById("address").value.trim();
+    const companyName = document.getElementById("companyName").value.trim();
+    const status = document.getElementById("status").value;
+    const startDate = document.getElementById("startDate").value;
+    const endDate = document.getElementById("endDate").value;
+    const contactName = document.getElementById("contactName").value.trim();
+    const contactNumber = document.getElementById("contactNumber").value.trim();
+    const contactEmail = document.getElementById("contactEmail").value.trim();
+    const address = document.getElementById("address").value.trim();
 
-  if (!companyName || !contactName || !contactNumber || !contactEmail || !address) {
-    alert("Please fill all required fields.");
-    return;
-  }
+    if (!companyName || !contactName || !contactNumber || !contactEmail || !address) {
+      alert("Please fill all required fields.");
+      return;
+    }
 
-  // Use correct field names as expected by backend
-  const companyData = {
-    name: companyName,
-    status: status,
-    startDate: startDate,
-    endDate: endDate,
-    contactName: contactName,
-    contactNumber: contactNumber,
-    contactEmail: contactEmail,
-    contactAddress: address
-  };
+    // Use correct field names as expected by backend
+    const companyData = {
+      name: companyName,
+      status: status,
+      startDate: startDate,
+      endDate: endDate,
+      contactName: contactName,
+      contactNumber: contactNumber,
+      contactEmail: contactEmail,
+      contactAddress: address
+    };
 
-  fetch('https://aryalegalprocess.onrender.com/api/companies', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(companyData)
-  })
-    .then(res => res.json())
-    .then(savedCompany => {
-      if (savedCompany && savedCompany.company) {
-        alert("Company added successfully!");
-        document.getElementById("companyForm").reset();
-        // Fetch the updated list from DB so the table is always in sync
-        fetchAndRenderCompanies();
-      } else {
-        alert("Failed to add company.");
-      }
+    fetch('https://aryalegalprocess.onrender.com/api/companies', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(companyData)
     })
-    .catch(err => {
-      console.error(err);
-      alert("Failed to add company.");
-    });
-});
+      .then(res => res.json())
+      .then(savedCompany => {
+        if (savedCompany && savedCompany.company) {
+          alert("Company added successfully!");
+          document.getElementById("companyForm").reset();
+          fetchAndRenderCompanies();
+        } else {
+          alert("Failed to add company.");
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        alert("Failed to add company.");
+      });
+  });
 
   // Store all companies data globally
   let allCompanies = [];
@@ -258,72 +257,72 @@
 
   function setupShowEntries() {
     const select = document.getElementById("entriesLimit");
-    // Set default value
     select.value = "10";
     select.addEventListener("change", () => {
       entriesPerPage = parseInt(select.value, 10);
-      currentPage = 1; // Reset to first page
+      currentPage = 1;
       renderTable();
       renderPagination();
     });
   }
 
   document.getElementById("searchInput").addEventListener("input", function () {
-    currentPage = 1; // Reset to first page on search
+    currentPage = 1;
     renderTable();
     renderPagination();
   });
 
   function renderTable() {
-  const tbody = document.querySelector("table tbody");
-  tbody.innerHTML = '';
+    const tbody = document.querySelector("table tbody");
+    tbody.innerHTML = '';
 
-  const filter = document.getElementById("searchInput").value.toLowerCase();
+    const filter = document.getElementById("searchInput").value.toLowerCase();
 
-  const filteredCompanies = allCompanies.filter(company => {
-    return (
-      (company.name || '').toLowerCase().includes(filter) ||
-      (company.startDate || '').toLowerCase().includes(filter) ||
-      (company.endDate || '').toLowerCase().includes(filter) ||
-      (company.status || '').toLowerCase().includes(filter) ||
-      (company.contactName || '').toLowerCase().includes(filter) ||
-      (company.contactNumber || '').toLowerCase().includes(filter) ||
-      (company.contactEmail || '').toLowerCase().includes(filter) ||
-      (company.contactAddress || '').toLowerCase().includes(filter)
-    );
-  });
+    // Use correct backend field names for filtering and displaying
+    const filteredCompanies = allCompanies.filter(company => {
+      return (
+        (company.name || '').toLowerCase().includes(filter) ||
+        (company.startDate || '').toLowerCase().includes(filter) ||
+        (company.endDate || '').toLowerCase().includes(filter) ||
+        (company.status || '').toLowerCase().includes(filter) ||
+        (company.contactName || '').toLowerCase().includes(filter) ||
+        (company.contactNumber || '').toLowerCase().includes(filter) ||
+        (company.contactEmail || '').toLowerCase().includes(filter) ||
+        (company.contactAddress || '').toLowerCase().includes(filter)
+      );
+    });
 
-  const totalEntries = filteredCompanies.length;
-  totalPages = Math.ceil(totalEntries / entriesPerPage);
+    const totalEntries = filteredCompanies.length;
+    totalPages = Math.ceil(totalEntries / entriesPerPage);
 
-  if (currentPage > totalPages) currentPage = totalPages;
-  if (currentPage < 1) currentPage = 1;
+    if (currentPage > totalPages) currentPage = totalPages;
+    if (currentPage < 1) currentPage = 1;
 
-  const startIndex = (currentPage - 1) * entriesPerPage;
-  const endIndex = startIndex + entriesPerPage;
+    const startIndex = (currentPage - 1) * entriesPerPage;
+    const endIndex = startIndex + entriesPerPage;
 
-  const companiesToShow = filteredCompanies.slice(startIndex, endIndex);
+    const companiesToShow = filteredCompanies.slice(startIndex, endIndex);
 
-  companiesToShow.forEach((company, index) => {
-    const row = document.createElement("tr");
-    const serialNumber = (currentPage - 1) * entriesPerPage + index + 1;
+    companiesToShow.forEach((company, index) => {
+      const row = document.createElement("tr");
+      const serialNumber = (currentPage - 1) * entriesPerPage + index + 1;
 
-    row.innerHTML = `
-      <td>${serialNumber}</td>
-      <td>${company.name || ''}</td>
-      <td>${company.startDate || ''}</td>
-      <td>${company.endDate || ''}</td>
-      <td>${(company.status || '').toUpperCase()}</td>
-      <td>${company.contactName || ''}</td>
-      <td>${company.contactNumber || ''}</td>
-      <td>${company.contactEmail || ''}</td>
-      <td>${company.contactAddress || ''}</td>
-    `;
-    tbody.appendChild(row);
-  });
+      row.innerHTML = `
+        <td>${serialNumber}</td>
+        <td>${company.name || ''}</td>
+        <td>${company.startDate || ''}</td>
+        <td>${company.endDate || ''}</td>
+        <td>${(company.status || '').toUpperCase()}</td>
+        <td>${company.contactName || ''}</td>
+        <td>${company.contactNumber || ''}</td>
+        <td>${company.contactEmail || ''}</td>
+        <td>${company.contactAddress || ''}</td>
+      `;
+      tbody.appendChild(row);
+    });
 
-  updatePaginationInfo(startIndex + 1, startIndex + companiesToShow.length, totalEntries);
-}
+    updatePaginationInfo(startIndex + 1, startIndex + companiesToShow.length, totalEntries);
+  }
 
   function updatePaginationInfo(from, to, total) {
     const paginationInfo = document.querySelector(".pagination-info");
@@ -338,12 +337,10 @@
     const paginationContainer = document.querySelector(".pagination");
     paginationContainer.innerHTML = '';
 
-    if(totalPages <= 1){
-      // No pagination needed
+    if(typeof totalPages === 'undefined' || totalPages <= 1){
       return;
     }
 
-    // Helper to create page link
     function createPageLink(page) {
       const a = document.createElement('a');
       a.href = "#";
@@ -359,16 +356,13 @@
       return a;
     }
 
-    // Always show first page
     paginationContainer.appendChild(createPageLink(1));
 
     if(totalPages <= 7){
-      // Show all pages if less than 8 total
       for(let i=2; i<=totalPages; i++){
         paginationContainer.appendChild(createPageLink(i));
       }
     } else {
-      // Show partial with ellipsis
       let startPage, endPage;
 
       if(currentPage <= 4){
