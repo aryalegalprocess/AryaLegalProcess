@@ -63,7 +63,7 @@
             <thead>
               <tr>
                 <th>ACTIONS</th>
-                <th>ID</th>
+<th onclick="sortTable('id')">ID <span id="idSortIcon">⬍</span></th>
                 <th>BAR CODE</th>
                 <th>NAME</th>
                 <th>DETAILS</th>
@@ -71,8 +71,9 @@
                 <th>QUANTITY</th>
                 <th>COMPANY</th>
                 <th>DESCRIPTION</th>
-                <th>START DATE</th>
-                <th>END DATE</th>
+<th onclick="sortTable('startdate')">START DATE <span id="startSortIcon">⬍</span></th>
+<th onclick="sortTable('enddate')">END DATE <span id="endSortIcon">⬍</span></th>
+
                 <th>PRICE</th>
               </tr>
             </thead>
@@ -81,12 +82,12 @@
             </tbody>
           </table>
           <div class="pagination-info"></div>
-<div class="pagination"></div>
-
+          <div class="pagination"></div>
         </div>
       </div>
     </div>
   </div>
+
 <script>
   const sidebar = document.querySelector('.sidebar');
   sidebar.addEventListener('click', () => {
@@ -121,6 +122,8 @@
     let companyMap = {};
     let currentPage = 1;
     let totalPages = 1;
+    let popupTimeout;
+    let activeButton = null;
 
     fetch('https://aryalegalprocess.onrender.com/api/companies')
       .then(res => res.json())
@@ -181,36 +184,41 @@
         const companyName = companyMap[product.company] || product.company || 'Unknown';
         const row = document.createElement('tr');
         row.innerHTML = `
-  <td><button class="barcode-btn">VIEW BARCODE</button></td>
-  <td>${product.id || 'N/A'}</td> <!-- Updated line -->
-  <td>${product.barcode || ''}</td>
-  <td>${product.name || ''}</td>
-  <td>${product.details || ''}</td>
-  <td>${product.weight || ''}</td>
-  <td>${product.quantity || ''}</td>
-  <td>${companyName}</td>
-  <td><button class="btn-description" data-desc="${product.description || 'No description'}">Description</button></td>
-  <td>${product.startdate || 'N/A'}</td>
-  <td>${product.enddate || 'N/A'}</td>
-  <td>₹${product.price || '0'}</td>
-`;
-
+          <td><button class="barcode-btn">VIEW BARCODE</button></td>
+          <td>${product.id || 'N/A'}</td>
+          <td>${product.barcode || ''}</td>
+          <td>${product.name || ''}</td>
+          <td>${product.details || ''}</td>
+          <td>${product.weight || ''}</td>
+          <td>${product.quantity || ''}</td>
+          <td>${companyName}</td>
+          <td><button class="btn-description" data-desc="${product.description || 'No description'}">Description</button></td>
+          <td>${product.startdate || 'N/A'}</td>
+          <td>${product.enddate || 'N/A'}</td>
+          <td>₹${product.price || '0'}</td>
+        `;
         tbody.appendChild(row);
       });
 
       updatePaginationInfo(startIndex + 1, startIndex + productsToShow.length, totalEntries);
 
       document.querySelectorAll('.btn-description').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const desc = btn.getAttribute('data-desc') || 'No description available';
+        btn.addEventListener('click', (event) => {
           const popup = document.getElementById('descPopup');
+
+          if (activeButton === btn && popup.style.display === 'block') {
+            popup.style.display = 'none';
+            activeButton = null;
+            return;
+          }
+
+          const desc = btn.getAttribute('data-desc') || 'No description available';
           popup.textContent = desc;
           popup.style.display = 'block';
 
           const rect = btn.getBoundingClientRect();
           const popupWidth = popup.offsetWidth;
           const spaceRight = window.innerWidth - rect.right;
-          const spaceLeft = rect.left;
 
           popup.style.left = spaceRight > popupWidth + 20
             ? `${rect.right + 10}px`
@@ -221,7 +229,10 @@
           clearTimeout(popupTimeout);
           popupTimeout = setTimeout(() => {
             popup.style.display = 'none';
+            activeButton = null;
           }, 6000);
+
+          activeButton = btn;
         });
       });
     }
@@ -299,6 +310,19 @@
         return span;
       }
     }
+
+    // Hide description popup on outside click
+    document.addEventListener('click', function (event) {
+      const popup = document.getElementById('descPopup');
+      const isDescButton = event.target.classList.contains('btn-description');
+      const isInsidePopup = popup.contains(event.target);
+
+      if (!isDescButton && !isInsidePopup) {
+        popup.style.display = 'none';
+        activeButton = null;
+      }
+    });
+    
   };
 </script>
 
