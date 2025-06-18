@@ -86,13 +86,13 @@
   <div id="descPopup" class="description-popup"></div>
 
   <script>
-    // Global variables
     let allProducts = [];
     let companyMap = {};
     let currentPage = 1;
     let totalPages = 1;
     let popupTimeout;
     let activeButton = null;
+    let lastSortKey = null;
 
     let sortState = {
       id: true,
@@ -101,26 +101,9 @@
     };
 
     function sortTable(key) {
-      const isDateField = (key === 'startdate' || key === 'enddate');
-      const isAsc = sortState[key];
-
-      allProducts.sort((a, b) => {
-        let valA = a[key] || '';
-        let valB = b[key] || '';
-
-        if (isDateField) {
-          valA = new Date(valA);
-          valB = new Date(valB);
-        } else {
-          valA = parseInt(valA) || 0;
-          valB = parseInt(valB) || 0;
-        }
-
-        return isAsc ? valA - valB : valB - valA;
-      });
-
-      sortState[key] = !isAsc;
-      updateSortIcons(key, !isAsc);
+      lastSortKey = key;
+      sortState[key] = !sortState[key]; // Toggle sort direction
+      updateSortIcons(key, sortState[key]);
       renderTable();
       renderPagination();
     }
@@ -208,7 +191,27 @@
 
         const startIndex = (currentPage - 1) * entriesPerPage;
         const endIndex = startIndex + entriesPerPage;
-        const productsToShow = filteredProducts.slice(startIndex, endIndex);
+
+        let sortedProducts = [...filteredProducts];
+
+        if (lastSortKey) {
+          sortedProducts.sort((a, b) => {
+            let valA = a[lastSortKey] || '';
+            let valB = b[lastSortKey] || '';
+
+            if (lastSortKey === 'startdate' || lastSortKey === 'enddate') {
+              valA = new Date(valA);
+              valB = new Date(valB);
+            } else {
+              valA = parseInt(valA) || 0;
+              valB = parseInt(valB) || 0;
+            }
+
+            return sortState[lastSortKey] ? valA - valB : valB - valA;
+          });
+        }
+
+        const productsToShow = sortedProducts.slice(startIndex, endIndex);
 
         productsToShow.forEach((product) => {
           const companyName = companyMap[product.company] || product.company || 'Unknown';
@@ -230,14 +233,12 @@
           tbody.appendChild(row);
         });
 
-        // Barcode buttons
         document.querySelectorAll('.barcode-btn').forEach(btn => {
           btn.addEventListener('click', () => {
             alert('Show barcode here');
           });
         });
 
-        // Description popup
         document.querySelectorAll('.btn-description').forEach(btn => {
           btn.addEventListener('click', (event) => {
             const popup = document.getElementById('descPopup');
