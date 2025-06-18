@@ -160,30 +160,54 @@
   
   </div>
  <script src="addproducts.js"></script>
-  <script>
-  const sidebar = document.querySelector('.sidebar');
+ <script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Sidebar toggle
+    const sidebar = document.querySelector('.sidebar');
+    if (sidebar) {
+      sidebar.addEventListener('click', () => {
+        sidebar.classList.toggle('expanded');
+      });
+    }
 
-  sidebar.addEventListener('click', () => {
-    sidebar.classList.toggle('expanded');
-  });
+    // Admin dropdown
+    function toggleDropdown() {
+      const dropdown = document.getElementById("dropdown");
+      dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+    }
+    window.toggleDropdown = toggleDropdown; // Make available globally if needed
 
-  function toggleDropdown() {
-    const dropdown = document.getElementById("dropdown");
-    dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
-  }
+    // Close dropdown when clicking outside
+    document.addEventListener("click", function (event) {
+      const dropdown = document.getElementById("dropdown");
+      const admin = document.querySelector(".admin");
+      if (dropdown && admin && !admin.contains(event.target)) {
+        dropdown.style.display = "none";
+      }
+    });
 
-  // Optional: Close dropdown when clicking outside
-  document.addEventListener("click", function (event) {
-    const dropdown = document.getElementById("dropdown");
-    const admin = document.querySelector(".admin");
-
-    if (!admin.contains(event.target)) {
-      dropdown.style.display = "none";
+    // Populate company dropdown
+    const companySelect = document.getElementById("company");
+    if (companySelect) {
+      fetch("https://productslist.onrender.com/api/companies")
+        .then(res => res.json())
+        .then(companies => {
+          companies.forEach(company => {
+            const option = document.createElement("option");
+            option.value = company.id || company._id || company.name;
+            option.textContent = company.name;
+            companySelect.appendChild(option);
+          });
+        })
+        .catch(err => {
+          console.error("Failed to load companies:", err);
+          const option = document.createElement("option");
+          option.value = "";
+          option.textContent = "Failed to load companies";
+          companySelect.appendChild(option);
+        });
     }
   });
-
 </script>
-
-
 </body>
 </html>
