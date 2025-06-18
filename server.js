@@ -5,7 +5,7 @@ const path = require('path');
 require('dotenv').config();
 
 const Contact = require('./models/contact');
-const sendEmail = require('./utils/sendEmail'); // ✅ Email utility
+const sendEmail = require('./utils/sendEmail');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -24,19 +24,17 @@ app.use(cors({
 app.use(express.json({ limit: '100mb' }));
 app.use(express.urlencoded({ extended: true, limit: '100mb' }));
 
-// ✅ Fix: Enable CORS headers for images explicitly
-// ✅ Serve images with proper CORS and Cross-Origin-Resource-Policy to fix ORB error
+// ✅ Serve images with correct CORS headers (fix ORB issue)
 app.use('/images', (req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
   next();
 }, express.static(path.join(__dirname, 'images')));
 
-
-// ✅ Serve other static files from root directory
+// ✅ Serve other static files (e.g., index.html, CSS, JS)
 app.use(express.static(path.join(__dirname)));
 
-// --- MongoDB connections ---
+// --- MongoDB Connections ---
 
 // Products DB
 const productConnection = mongoose.createConnection(process.env.MONGO_URI_PRODUCTS, {
@@ -65,7 +63,7 @@ const companyConnection = mongoose.createConnection(process.env.MONGO_URI_COMPAN
 });
 const Company = require('./models/company');
 
-// Default connection for Contact
+// Contact DB (default)
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
@@ -73,15 +71,15 @@ mongoose.connect(process.env.MONGO_URI, {
 
 // --- Routes ---
 
-// Products
+// Product routes
 const productRoutes = require('./server/routes/products')(Product, Company);
 app.use('/api/products', productRoutes);
 
-// Companies
+// Company routes
 const companyRoutes = require('./server/routes/companies')(Company);
 app.use('/api/companies', companyRoutes);
 
-// Contact POST
+// Contact form POST
 app.post("/api/contact", async (req, res) => {
   try {
     const { name, email, message } = req.body;
@@ -94,7 +92,7 @@ app.post("/api/contact", async (req, res) => {
   }
 });
 
-// Contact GET
+// Contact form GET
 app.get("/api/contact", async (req, res) => {
   try {
     const contacts = await Contact.find();
@@ -105,11 +103,10 @@ app.get("/api/contact", async (req, res) => {
   }
 });
 
-// ✅ NEW: Send Expiry Emails Route
+// Send Expiry Emails
 app.post('/api/send-expiry-emails', async (req, res) => {
   try {
     const { products } = req.body;
-
     if (!products || !Array.isArray(products) || products.length === 0) {
       return res.status(400).json({ message: 'No products provided' });
     }
@@ -118,7 +115,6 @@ app.post('/api/send-expiry-emails', async (req, res) => {
 
     for (const companyId of companyIds) {
       const company = await Company(companyConnection).findOne({ id: companyId });
-
       if (!company || !company.cemail) continue;
 
       const productsForCompany = products.filter(p => p.company === companyId);
@@ -160,33 +156,25 @@ app.get('/test', (req, res) => {
   res.send('✅ Backend is running!');
 });
 
-// --- Start server only after DBs are ready ---
+// --- DB connections ready → Start server ---
 Promise.all([
   new Promise(resolve => productConnection.once('open', resolve)),
   new Promise(resolve => companyConnection.once('open', resolve)),
   new Promise(resolve => mongoose.connection.once('open', resolve))
 ]).then(() => {
-  // ✅ Custom route for fetching product by barcode (with company name)
+  // ✅ Barcode fetch with company name
   app.get('/api/products/:barcode', async (req, res) => {
     try {
       const barcode = req.params.barcode;
-      console.log("Looking for product with barcode:", barcode);
-
       const product = await Product.findOne({ barcode });
-      console.log("Product found:", product);
-
       if (!product) {
         return res.status(404).json({ message: 'Product not found' });
       }
-
       const company = await Company(companyConnection).findOne({ id: product.company });
-      console.log("Company found:", company);
-
       const responseData = {
         ...product.toObject(),
         companyName: company ? company.name : "Unknown"
       };
-
       res.json(responseData);
     } catch (err) {
       console.error("Error fetching product by barcode:", err);
@@ -201,12 +189,12 @@ Promise.all([
   console.error('❌ Error connecting to databases:', err);
 });
 
-// 404 API fallback (after all routes)
-app.all('/*splat', (req, res) => {
+// ✅ Only catch missing **API** routes (e.g., /api/xyz)
+app.all('/api/*', (req, res) => {
   res.status(404).json({ error: 'API route not found' });
 });
 
-// ✅ Serve index.html for all non-API routes (for SPA routing)
-app.get('/*splat', (req, res) => {
+// ✅ Serve index.html for all other (frontend) routes
+app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
