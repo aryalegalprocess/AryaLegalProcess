@@ -132,13 +132,13 @@
       const tr = document.createElement('tr');
       tr.innerHTML = `
         <td>${index + 1}</td>
-        <td>${p.barcode || ''}</td>
-        <td>${p.name || ''}</td>
-        <td>${p.details || ''}</td>
-        <td>${p.weight || ''}</td>
-        <td>${p.quantity || ''}</td>
+        <td>${p.barcode || '-'}</td>
+        <td>${p.name || '-'}</td>
+        <td>${p.details || '-'}</td>
+        <td>${p.weight || '-'}</td>
+        <td>${p.quantity || '-'}</td>
         <td>${companyMap[p.company] || 'Unknown'}</td>
-        <td>${p.description || ''}</td>
+        <td>${p.description || '-'}</td>
         <td>${formatDate(p.startdate)}</td>
         <td>${formatDate(p.enddate)}</td>
         <td>₹${p.price || '0'}</td>

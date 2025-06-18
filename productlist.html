@@ -179,25 +179,25 @@
       const endIndex = startIndex + entriesPerPage;
       const productsToShow = filteredProducts.slice(startIndex, endIndex);
 
-      productsToShow.forEach((product, i) => {
-        const companyName = companyMap[product.company] || product.company || 'Unknown';
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td><button class="barcode-btn">VIEW BARCODE</button></td>
-          <td>${product.id || 'N/A'}</td>
-          <td>${product.barcode || ''}</td>
-          <td>${product.name || ''}</td>
-          <td>${product.details || ''}</td>
-          <td>${product.weight || ''}</td>
-          <td>${product.quantity || ''}</td>
-          <td>${companyName}</td>
-          <td><button class="btn-description" data-desc="${product.description || 'No description'}">Description</button></td>
-          <td>${product.startdate || 'N/A'}</td>
-          <td>${product.enddate || 'N/A'}</td>
-          <td>₹${product.price || '0'}</td>
-        `;
-        tbody.appendChild(row);
-      });
+    productsToShow.forEach((product, i) => {
+  const companyName = companyMap[product.company] || product.company || '-';
+  const row = document.createElement('tr');
+  row.innerHTML = `
+    <td><button class="barcode-btn">VIEW BARCODE</button></td>
+    <td>${product.id || '-'}</td>
+    <td>${product.barcode || '-'}</td>
+    <td>${product.name || '-'}</td>
+    <td>${product.details && product.details.trim() !== '' ? product.details : '-'}</td>
+    <td>${product.weight && product.weight.trim() !== '' ? product.weight : '-'}</td>
+    <td>${product.quantity || '-'}</td>
+    <td>${companyName}</td>
+    <td><button class="btn-description" data-desc="${product.description && product.description.trim() !== '' ? product.description : 'No description'}">Description</button></td>
+    <td>${product.startdate || '-'}</td>
+    <td>${product.enddate || '-'}</td>
+    <td>₹${product.price && product.price !== '' ? product.price : '0'}</td>
+  `;
+  tbody.appendChild(row);
+});
 
       updatePaginationInfo(startIndex + 1, startIndex + productsToShow.length, totalEntries);
 
