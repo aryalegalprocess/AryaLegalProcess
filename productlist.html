@@ -106,6 +106,50 @@
       dropdown.style.display = "none";
     }
   });
+    let sortState = {
+    id: true,          // true = ascending, false = descending
+    startdate: true,
+    enddate: true,
+  };
+
+  function sortTable(key) {
+    const isDateField = (key === 'startdate' || key === 'enddate');
+    const isAsc = sortState[key];
+
+    allProducts.sort((a, b) => {
+      let valA = a[key] || '';
+      let valB = b[key] || '';
+
+      if (isDateField) {
+        valA = new Date(valA);
+        valB = new Date(valB);
+      } else {
+        valA = parseInt(valA) || 0;
+        valB = parseInt(valB) || 0;
+      }
+
+      return isAsc ? valA - valB : valB - valA;
+    });
+
+    sortState[key] = !isAsc;
+    updateSortIcons(key, !isAsc);
+    renderTable();
+    renderPagination();
+  }
+
+  function updateSortIcons(activeKey, isAsc) {
+    const icons = {
+      id: document.getElementById('idSortIcon'),
+      startdate: document.getElementById('startSortIcon'),
+      enddate: document.getElementById('endSortIcon'),
+    };
+
+    Object.keys(icons).forEach(key => {
+      icons[key].textContent = (key === activeKey)
+        ? (isAsc ? '⬆' : '⬇')
+        : '⬍'; // Reset others
+    });
+  }
 
   document.querySelectorAll('.barcode-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -323,51 +367,7 @@
       }
     });
 
-    let sortState = {
-  id: true,          // true = ascending, false = descending
-  startdate: true,
-  enddate: true,
-};
-
-function sortTable(key) {
-  const isDateField = (key === 'startdate' || key === 'enddate');
-  const isAsc = sortState[key];
-
-  allProducts.sort((a, b) => {
-    let valA = a[key] || '';
-    let valB = b[key] || '';
-
-    if (isDateField) {
-      valA = new Date(valA);
-      valB = new Date(valB);
-    } else {
-      valA = parseInt(valA) || 0;
-      valB = parseInt(valB) || 0;
-    }
-
-    return isAsc ? valA - valB : valB - valA;
-  });
-
-  sortState[key] = !isAsc;
-  updateSortIcons(key, !isAsc);
-  renderTable();
-  renderPagination();
-}
-
-function updateSortIcons(activeKey, isAsc) {
-  const icons = {
-    id: document.getElementById('idSortIcon'),
-    startdate: document.getElementById('startSortIcon'),
-    enddate: document.getElementById('endSortIcon'),
-  };
-
-  Object.keys(icons).forEach(key => {
-    icons[key].textContent = (key === activeKey)
-      ? (isAsc ? '⬆' : '⬇')
-      : '⬍'; // Reset others
-  });
-}
-
+    
   };
 </script>
 
