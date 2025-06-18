@@ -5,6 +5,7 @@ const path = require('path');
 require('dotenv').config();
 
 const Contact = require('./models/contact');
+const sendEmail = require('./utils/sendEmail'); // ✅ Added
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -94,6 +95,57 @@ app.get("/api/contact", async (req, res) => {
     res.status(500).json({ error: "Failed to fetch contacts." });
   }
 });
+
+// ✅ NEW: Send Expiry Emails Route
+app.post('/api/send-expiry-emails', async (req, res) => {
+  try {
+    const { products } = req.body;
+
+    if (!products || !Array.isArray(products) || products.length === 0) {
+      return res.status(400).json({ message: 'No products provided' });
+    }
+
+    const companyIds = [...new Set(products.map(p => p.company))];
+
+    for (const companyId of companyIds) {
+      const company = await Company(companyConnection).findOne({ id: companyId });
+
+      if (!company || !company.cemail) continue;
+
+      const productsForCompany = products.filter(p => p.company === companyId);
+
+      const productListHtml = productsForCompany.map(p => `
+        <li>
+          <strong>${p.name || '-'}</strong><br/>
+          Barcode: ${p.barcode || '-'}<br/>
+          Weight: ${p.weight || '-'}, Quantity: ${p.quantity || '-'}<br/>
+          Details: ${p.details || '-'}<br/>
+          Description: ${p.description || '-'}<br/>
+          Start Date: ${p.startdate || '-'}, 
+          End Date: <span style="color:red">${p.enddate || '-'}</span><br/>
+          Price: ₹${p.price || '-'}
+        </li>
+      `).join("<br/><br/>");
+
+      const emailContent = `
+        <p>Dear ${company.cname || 'Partner'},</p>
+        <p>This is a reminder that your product(s) listed below have partnerships ending soon:</p>
+        <ul>${productListHtml}</ul>
+        <p>Please take appropriate action.</p>
+        <p>Regards,<br/>ARYA LEGAL PROCESS</p>
+      `;
+
+      await sendEmail(company.cemail, '⚠️ Product Partnership Expiry Alert', emailContent);
+    }
+
+    res.status(200).json({ message: `Expiry emails sent to ${companyIds.length} company(ies)` });
+
+  } catch (error) {
+    console.error('Error sending expiry emails:', error);
+    res.status(500).json({ message: 'Failed to send emails' });
+  }
+});
+
 
 // Health check
 app.get('/test', (req, res) => {
