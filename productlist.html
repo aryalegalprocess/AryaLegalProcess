@@ -63,7 +63,7 @@
             <thead>
               <tr>
                 <th>ACTIONS</th>
-                <th>ID</th>
+<th onclick="sortTable('id')">ID <span id="idSortIcon">⬍</span></th>
                 <th>BAR CODE</th>
                 <th>NAME</th>
                 <th>DETAILS</th>
@@ -71,8 +71,9 @@
                 <th>QUANTITY</th>
                 <th>COMPANY</th>
                 <th>DESCRIPTION</th>
-                <th>START DATE</th>
-                <th>END DATE</th>
+<th onclick="sortTable('startdate')">START DATE <span id="startSortIcon">⬍</span></th>
+<th onclick="sortTable('enddate')">END DATE <span id="endSortIcon">⬍</span></th>
+
                 <th>PRICE</th>
               </tr>
             </thead>
@@ -321,6 +322,52 @@
         activeButton = null;
       }
     });
+
+    let sortState = {
+  id: true,          // true = ascending, false = descending
+  startdate: true,
+  enddate: true,
+};
+
+function sortTable(key) {
+  const isDateField = (key === 'startdate' || key === 'enddate');
+  const isAsc = sortState[key];
+
+  allProducts.sort((a, b) => {
+    let valA = a[key] || '';
+    let valB = b[key] || '';
+
+    if (isDateField) {
+      valA = new Date(valA);
+      valB = new Date(valB);
+    } else {
+      valA = parseInt(valA) || 0;
+      valB = parseInt(valB) || 0;
+    }
+
+    return isAsc ? valA - valB : valB - valA;
+  });
+
+  sortState[key] = !isAsc;
+  updateSortIcons(key, !isAsc);
+  renderTable();
+  renderPagination();
+}
+
+function updateSortIcons(activeKey, isAsc) {
+  const icons = {
+    id: document.getElementById('idSortIcon'),
+    startdate: document.getElementById('startSortIcon'),
+    enddate: document.getElementById('endSortIcon'),
+  };
+
+  Object.keys(icons).forEach(key => {
+    icons[key].textContent = (key === activeKey)
+      ? (isAsc ? '⬆' : '⬇')
+      : '⬍'; // Reset others
+  });
+}
+
   };
 </script>
 
