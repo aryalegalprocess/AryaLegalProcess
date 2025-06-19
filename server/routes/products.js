@@ -3,46 +3,16 @@ module.exports = function(Product, Company) {
   const router = express.Router();
 
   // Add a new product
- router.post('/', async (req, res) => {
-  try {
-    const {
-      id,
-      barcode,
-      name,
-      details,
-      weight,
-      quantity,
-      company,
-      description,
-      startdate,
-      enddate,
-      price,
-      image
-    } = req.body;
-
-    const newProduct = new Product({
-      id,
-      barcode,
-      name,
-      details,
-      weight,
-      quantity,
-      company,
-      description,
-      startdate,  // ✅ lowercase (as defined in schema)
-      enddate,    // ✅ lowercase (as defined in schema)
-      price,
-      image
-    });
-
-    await newProduct.save();
-    res.status(201).json({ message: 'Product added!' });
-  } catch (err) {
-    console.error('Error saving product:', err);
-    res.status(500).json({ error: err.message });
-  }
-});
-
+  router.post('/', async (req, res) => {
+    try {
+      const newProduct = new Product(req.body);
+      await newProduct.save();
+      res.status(201).json({ message: 'Product added!' });
+    } catch (err) {
+      console.error('Error saving product:', err);
+      res.status(500).json({ error: err.message });
+    }
+  });
 
   // Get all products (list view)
   router.get('/', async (req, res) => {
