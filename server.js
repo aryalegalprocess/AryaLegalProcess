@@ -44,6 +44,7 @@ const productConnection = mongoose.createConnection(process.env.MONGO_URI_PRODUC
   useUnifiedTopology: true
 });
 const productSchema = new mongoose.Schema({
+  id: Number, // ✅ added this line
   barcode: String,
   name: String,
   details: String,
