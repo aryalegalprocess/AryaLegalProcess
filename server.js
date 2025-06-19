@@ -24,31 +24,6 @@ app.use(cors({
 app.use(express.json({ limit: '100mb' }));
 app.use(express.urlencoded({ extended: true, limit: '100mb' }));
 
-const Counter = require('./models/counter'); // ✅ Already present
-const CompanyModel = require('./models/company'); // Use this for counter init
-
-async function initializeCompanyCounter() {
-  try {
-    const lastCompany = await CompanyModel(companyConnection).findOne().sort({ id: -1 }).lean();
-    if (!lastCompany) {
-      console.log("ℹ️ No existing companies found to initialize counter.");
-      return;
-    }
-
-    const currentSeq = parseInt(lastCompany.id);
-    if (!isNaN(currentSeq)) {
-      await Counter.findByIdAndUpdate(
-        { _id: 'companyId' },
-        { $set: { seq: currentSeq } },
-        { upsert: true }
-      );
-      console.log(`🔄 Counter initialized to ${currentSeq}`);
-    }
-  } catch (err) {
-    console.error("❌ Failed to initialize company counter:", err);
-  }
-}
-
 // ✅ Fix: Enable CORS headers for images explicitly
 // ✅ Serve images with proper CORS and Cross-Origin-Resource-Policy to fix ORB error
 app.use('/images', (req, res, next) => {
