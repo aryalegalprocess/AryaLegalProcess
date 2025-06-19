@@ -124,18 +124,27 @@ for (const companyId of companyIds) {
 
       const productsForCompany = products.filter(p => p.company === companyId);
 
-      const productListHtml = productsForCompany.map(p => `
-        <li>
-          <strong>${p.name || '-'}</strong><br/>
-          Barcode: ${p.barcode || '-'}<br/>
-          Weight: ${p.weight || '-'}, Quantity: ${p.quantity || '-'}<br/>
-          Details: ${p.details || '-'}<br/>
-          Description: ${p.description || '-'}<br/>
-          Start Date: ${p.startdate || p.startDate || '-'}, 
-          End Date: <span style="color:red">${p.enddate || p.endDate || '-'}</span><br/>
-          Price: ₹${p.price || '-'}
-        </li>
-      `).join("<br/><br/>");
+     function formatDate(date) {
+  if (!date) return '-';
+  const d = new Date(date);
+  if (isNaN(d)) return '-';
+  return d.toISOString().split('T')[0];
+}
+
+const productListHtml = productsForCompany.map(p => `
+  <li>
+    <strong>${p.name || '-'}</strong><br/>
+    Barcode: ${p.barcode || '-'}<br/>
+    Weight: ${p.weight || '-'}<br/>
+    Quantity: ${p.quantity || '-'}<br/>
+    Details: ${p.details || '-'}<br/>
+    Description: ${p.description || '-'}<br/>
+    Start Date: ${formatDate(p.startdate || p.startDate)}<br/>
+    End Date: ${formatDate(p.enddate || p.endDate)}<br/>
+    Price: ₹${p.price || '-'}
+  </li>
+`).join("<br/><br/>");
+
 
       const emailContent = `
         <p>Dear ${company.cname || 'Partner'},</p>
