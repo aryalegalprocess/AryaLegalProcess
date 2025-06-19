@@ -65,7 +65,7 @@ const companyConnection = mongoose.createConnection(process.env.MONGO_URI_COMPAN
   useUnifiedTopology: true
 });
 const Company = require('./models/company');
-const Counter = require('./models/counter');
+const Counter = require('./server/models/counter');
 const CompanyModel = require('./models/company');
 
 async function initializeCompanyCounter() {
@@ -222,7 +222,7 @@ Promise.all([
       if (!lastCompany) {
         console.log("ℹ️ No existing companies found to initialize counter.");
         return;
-      }
+      } at
 
       const currentSeq = parseInt(lastCompany.id);
       if (!isNaN(currentSeq)) {
