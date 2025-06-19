@@ -83,14 +83,14 @@
     <div id="result" class="result-section"></div>
   </div>
 
-  <script>
-    // Go Back button function
-    function goBack() {
-      history.back();
-    }
+<script>
+  // Go Back button function
+  function goBack() {
+    history.back();
+  }
 
-    // Barcode search
-    async function searchProduct() {
+  // Barcode search
+async function searchProduct() {
   const barcode = document.getElementById('barcodeInput').value.trim();
   const resultDiv = document.getElementById("result");
 
@@ -101,13 +101,17 @@
 
   try {
     const res = await fetch(`https://aryalegalprocess.onrender.com/api/products/${barcode}`);
-
     if (!res.ok) throw new Error("Not found");
 
     const data = await res.json();
 
-    // Fallback values for missing or empty fields
-   const imgSrc = data.image ? `https://aryalegalprocess.onrender.com/images/${encodeURIComponent(data.image)}` : 'images/default.jpg';
+    // ✅ Handle both Base64 and static image filenames
+    const imgSrc = data.image?.startsWith("data:image")
+  ? data.image                                  // 🟢 Base64 image from DB
+  : data.image
+    ? `https://aryalegalprocess.onrender.com/images/${encodeURIComponent(data.image)}` // 🟢 File from folder
+    : 'images/default.jpg';                     // 🔴 Default fallback
+
     const name = data.name || '-';
     const weight = data.weight || '-';
     const price = data.price && data.price !== "" ? `₹${data.price}` : '₹0';
@@ -115,9 +119,8 @@
     const details = data.details || '-';
     const quantity = data.quantity || '-';
     const company = data.companyName || '-';
-  const startdate = data.startdate || data.startDate || '-';
-const enddate = data.enddate || data.endDate || '-';
-
+    const startdate = data.startdate || data.startDate || '-';
+    const enddate = data.enddate || data.endDate || '-';
 
     resultDiv.innerHTML = `
       <table class="product-info-table">
@@ -160,7 +163,7 @@ const enddate = data.enddate || data.endDate || '-';
   }
 }
 
-    
-  </script>
+</script>
+
 </body>
 </html>
