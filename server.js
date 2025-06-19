@@ -228,7 +228,7 @@ Promise.all([
       if (!isNaN(currentSeq)) {
         await Counter.findByIdAndUpdate(
           { _id: 'companyId' },
-          { $set: { seq: currentSeq } },
+          { $set: { seq: currentSeq + 1} },
           { upsert: true }
         );
         console.log(`🔄 Company ID counter initialized to ${currentSeq}`);
