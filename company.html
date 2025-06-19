@@ -176,67 +176,51 @@
     }
   });
 
-document.querySelector(".submit-btn").addEventListener("click", function (event) {
+ document.querySelector(".submit-btn").addEventListener("click", async function (event) {
   event.preventDefault();
 
-  const companyName = document.getElementById("companyName").value.trim();
-  const status = document.getElementById("status").value;
-  const startDate = document.getElementById("startDate").value;
-  const endDate = document.getElementById("endDate").value;
-  const contactName = document.getElementById("contactName").value.trim();
-  const contactNumber = document.getElementById("contactNumber").value.trim();
-  const contactEmail = document.getElementById("contactEmail").value.trim();
-  const address = document.getElementById("address").value.trim();
-
-  if (!companyName || !contactName || !contactNumber || !contactEmail || !address) {
-    alert("Please fill all required fields.");
-    return;
-  }
-
   const companyData = {
-    name: companyName,
-    status: status,
-    startdate: startDate,
-    enddate: endDate,
-    cname: contactName,
-    cnumber: contactNumber,
-    cemail: contactEmail,
-    caddress: address
+    name: document.getElementById("companyName").value.trim(),
+    status: document.getElementById("status").value,
+    startdate: document.getElementById("startDate").value,
+    enddate: document.getElementById("endDate").value,
+    cname: document.getElementById("contactName").value.trim(),
+    cnumber: document.getElementById("contactNumber").value.trim(),
+    cemail: document.getElementById("contactEmail").value.trim(),
+    caddress: document.getElementById("address").value.trim()
   };
 
-  fetch('https://aryalegalprocess.onrender.com/api/companies', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(companyData)
-  })
-    .then(async (res) => {
-      const responseText = await res.text();
-      try {
-        const data = JSON.parse(responseText);
-        console.log("✅ Backend response:", data);
+  // Basic validation
+  for (let key of ["name", "cname", "cnumber", "cemail", "caddress"]) {
+    if (!companyData[key]) {
+      return alert(`Please fill the ${key} field.`);
+    }
+  }
 
-        // Check for valid keys
-        if (data && (data.name || data._id || data.status)) {
-          alert("✅ Company added successfully!");
-          document.getElementById("companyForm").reset();
-          fetchAndRenderCompanies();
-        } else {
-          alert("❌ Failed to add company. Unexpected response.");
-          console.error("Invalid structure:", data);
-        }
-      } catch (err) {
-        console.error("❌ JSON parse error:", responseText);
-        alert("❌ Failed to add company: Server returned invalid JSON.");
-      }
-    })
-    .catch((err) => {
-      console.error("❌ Network or server error:", err);
-      alert("❌ Failed to add company: Network/server error.");
+  try {
+    const res = await fetch('https://aryalegalprocess.onrender.com/api/companies', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(companyData)
     });
+
+    const body = await res.json();
+    console.log('📤 POST response:', res.status, body);
+
+    if (res.ok) {
+      alert("✅ Company added successfully!");
+      document.getElementById("companyForm").reset();
+      fetchAndRenderCompanies();
+    } else {
+      alert("❌ Error: " + (body.error || res.status));
+    }
+  } catch (err) {
+    console.error("❌ Network error:", err);
+    alert("❌ Failed to add company: network error");
+  }
 });
 
+  
   // Store all companies data globally
   let allCompanies = [];
   let currentPage = 1;
