@@ -131,8 +131,8 @@ for (const companyId of companyIds) {
           Weight: ${p.weight || '-'}, Quantity: ${p.quantity || '-'}<br/>
           Details: ${p.details || '-'}<br/>
           Description: ${p.description || '-'}<br/>
-          Start Date: ${p.startdate || '-'}, 
-          End Date: <span style="color:red">${p.enddate || '-'}</span><br/>
+          Start Date: ${p.startdate || p.startDate || '-'}, 
+          End Date: <span style="color:red">${p.enddate || p.endDate || '-'}</span><br/>
           Price: ₹${p.price || '-'}
         </li>
       `).join("<br/><br/>");
