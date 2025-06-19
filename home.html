@@ -153,11 +153,11 @@
       const startIndex = (currentPage - 1) * entriesToShow;
       const paginated = filtered.slice(startIndex, startIndex + entriesToShow);
 
-      paginated.reverse().forEach((product, index) => {
+      paginated.forEach((product, index) => {
         const row = document.createElement('tr');
        row.innerHTML = `
   <td><button class="btn-barcode">VIEW BARCODE</button></td>
-  <td>${filtered.length - startIndex - index}</td>
+  <td>${product.id || '-'}</td>
   <td>${product.barcode || ''}</td>
   <td>${product.name || ''}</td>
   <td>${product.details && product.details.trim() !== '' ? product.details : '-'}</td>
@@ -165,8 +165,8 @@
   <td>${product.quantity || ''}</td>
   <td>${companyMap[product.company] || 'Unknown'}</td>
   <td><button class="btn-description" data-desc="${product.description || 'No description'}">Description</button></td>
-  <td>${formatDate(product.startdate)}</td>
-  <td>${formatDate(product.enddate)}</td>
+ <td>${formatDate(product.startDate || product.startdate || '-')}</td>
+<td>${formatDate(product.endDate || product.enddate || '-')}</td>
   <td>₹${product.price || '0'}</td>
 `;
 
