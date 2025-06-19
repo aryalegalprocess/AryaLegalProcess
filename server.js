@@ -210,10 +210,7 @@ Promise.all([
 
   async function initializeCompanyCounter() {
     try {
-      const lastCompany = await CompanyModel(companyConnection)
-        .findOne()
-        .sort({ id: -1 })
-        .lean();
+const lastCompany = await CompanyModel.findOne().sort({ id: -1 }).lean();
 
       if (!lastCompany) {
         console.log("ℹ️ No existing companies found to initialize counter.");
