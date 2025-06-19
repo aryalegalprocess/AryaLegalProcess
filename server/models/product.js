@@ -1,5 +1,5 @@
 const productSchema = new mongoose.Schema({
-  id: String, // Add this
+  id: String,
   barcode: String,
   name: String,
   details: String,
@@ -7,10 +7,11 @@ const productSchema = new mongoose.Schema({
   quantity: String,
   company: String,
   description: String,
-  startDate: String,
-  endDate: String,
+  startdate: String,   // 🔁 use lowercase here
+  enddate: String,     // 🔁 use lowercase here
   price: String,
-  image: String,  // Add image field here (string)
+  image: String
 });
+
 
 const Product = productConnection.model('Product', productSchema);
