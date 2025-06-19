@@ -139,8 +139,8 @@
         <td>${p.quantity || '-'}</td>
         <td>${companyMap[p.company] || 'Unknown'}</td>
         <td>${p.description || '-'}</td>
-        <td>${formatDate(p.startdate)}</td>
-        <td>${formatDate(p.enddate)}</td>
+        <td>${formatDate(p.startdate || p.startDate)}</td>
+<td>${formatDate(p.enddate || p.endDate)}</td>
         <td>₹${p.price || '0'}</td>
       `;
       tbody.appendChild(tr);
@@ -155,7 +155,7 @@
     const toDate = to ? new Date(to) : null;
 
     return allProducts.filter(p => {
-      const start = new Date(p.startdate);
+const start = new Date(p.startdate || p.startDate);
       return (!fromDate || start >= fromDate) && (!toDate || start <= toDate);
     });
   }
