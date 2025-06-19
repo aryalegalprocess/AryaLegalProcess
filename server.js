@@ -65,6 +65,35 @@ const companyConnection = mongoose.createConnection(process.env.MONGO_URI_COMPAN
   useUnifiedTopology: true
 });
 const Company = require('./models/company');
+const Counter = require('./models/counter');
+const CompanyModel = require('./models/company');
+
+async function initializeCompanyCounter() {
+  try {
+    const lastCompany = await CompanyModel(companyConnection)
+      .findOne()
+      .sort({ id: -1 })
+      .lean();
+
+    if (!lastCompany) {
+      console.log("ℹ️ No existing companies found to initialize counter.");
+      return;
+    }
+
+    const currentSeq = parseInt(lastCompany.id);
+    if (!isNaN(currentSeq)) {
+      await Counter.findByIdAndUpdate(
+        { _id: 'companyId' },
+        { $set: { seq: currentSeq } },
+        { upsert: true }
+      );
+      console.log(`🔄 Company ID counter initialized to ${currentSeq}`);
+    }
+  } catch (err) {
+    console.error("❌ Failed to initialize company counter:", err);
+  }
+}
+
 
 // Default connection for Contact
 mongoose.connect(process.env.MONGO_URI, {
@@ -175,7 +204,40 @@ Promise.all([
   new Promise(resolve => productConnection.once('open', resolve)),
   new Promise(resolve => companyConnection.once('open', resolve)),
   new Promise(resolve => mongoose.connection.once('open', resolve))
-]).then(() => {
+]).then(async () => {
+
+  // 🔁 Initialize company ID counter after DBs are ready
+  const Counter = require('./models/counter');
+  const CompanyModel = require('./models/company');
+
+  async function initializeCompanyCounter() {
+    try {
+      const lastCompany = await CompanyModel(companyConnection)
+        .findOne()
+        .sort({ id: -1 })
+        .lean();
+
+      if (!lastCompany) {
+        console.log("ℹ️ No existing companies found to initialize counter.");
+        return;
+      }
+
+      const currentSeq = parseInt(lastCompany.id);
+      if (!isNaN(currentSeq)) {
+        await Counter.findByIdAndUpdate(
+          { _id: 'companyId' },
+          { $set: { seq: currentSeq } },
+          { upsert: true }
+        );
+        console.log(`🔄 Company ID counter initialized to ${currentSeq}`);
+      }
+    } catch (err) {
+      console.error("❌ Failed to initialize company counter:", err);
+    }
+  }
+
+  await initializeCompanyCounter(); // ✅ Call before server starts
+
   // ✅ Custom route for fetching product by barcode (with company name)
   app.get('/api/products/:barcode', async (req, res) => {
     try {
@@ -210,6 +272,7 @@ Promise.all([
 }).catch(err => {
   console.error('❌ Error connecting to databases:', err);
 });
+
 
 // 404 API fallback (after all routes)
 app.all('/*splat', (req, res) => {
