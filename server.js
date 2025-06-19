@@ -196,14 +196,11 @@ app.get('/test', (req, res) => {
 });
 
 // --- Start server only after DBs are ready ---
-// --- Start server only after DBs are ready ---
 Promise.all([
   new Promise(resolve => productConnection.once('open', resolve)),
   new Promise(resolve => companyConnection.once('open', resolve)),
   new Promise(resolve => mongoose.connection.once('open', resolve))
-]).then(async () => {
-  await initializeCompanyCounter(); // ✅ initialize ID counter using latest company ID
-
+]).then(() => {
   // ✅ Custom route for fetching product by barcode (with company name)
   app.get('/api/products/:barcode', async (req, res) => {
     try {
