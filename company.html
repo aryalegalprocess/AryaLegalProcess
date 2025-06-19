@@ -195,15 +195,16 @@
 
   // Use correct field names as expected by backend
   const companyData = {
-    name: companyName,
-    status: status,
-    startDate: startDate,
-    endDate: endDate,
-    contactName: contactName,
-    contactNumber: contactNumber,
-    contactEmail: contactEmail,
-    contactAddress: address
-  };
+  name: companyName,
+  status: status,
+  startdate: startDate,
+  enddate: endDate,
+  cname: contactName,
+  cnumber: contactNumber,
+  cemail: contactEmail,
+  caddress: address
+};
+
 
   fetch('https://aryalegalprocess.onrender.com/api/companies', {
     method: 'POST',
