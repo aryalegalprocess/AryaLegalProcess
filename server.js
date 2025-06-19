@@ -208,9 +208,13 @@ Promise.all([
   new Promise(resolve => mongoose.connection.once('open', resolve))
 ]).then(async () => {
 
-  // 🔁 Initialize company ID counter after DBs are ready
-  const Counter = require('./server/models/counter');
-  const CompanyModel = require('./models/company');
+const companyConnection = mongoose.createConnection(process.env.MONGO_URI_COMPANY, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+});
+const CompanyModel = require('./models/company')(companyConnection);
+const Counter = require('./server/models/counter');
+
 
   async function initializeCompanyCounter() {
     try {
