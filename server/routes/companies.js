@@ -1,22 +1,20 @@
 // server/routes/companies.js
 const express = require('express');
-const Counter = require('../models/Counter'); // ⬅️ Import the counter model
+const Counter = require('./models/Counter'); // ✅ Import Counter model
 
 module.exports = function (Company) {
   const router = express.Router();
 
-  // POST: Add new company with auto-incremented ID
+  // ➕ Add new company
   router.post('/', async (req, res) => {
     console.log('📥 Incoming company data:', req.body);
     try {
       const { name, status, startdate, enddate, cname, cnumber, cemail, caddress } = req.body;
-
-      // Basic validation
       if (!name || !cname || !cnumber || !cemail || !caddress) {
         return res.status(400).json({ error: "Please fill all required fields." });
       }
 
-      // 🔁 Auto-increment logic for `id`
+      // 🔁 Get next company ID from counter
       const counter = await Counter.findByIdAndUpdate(
         { _id: 'companyId' },
         { $inc: { seq: 1 } },
@@ -24,8 +22,15 @@ module.exports = function (Company) {
       );
 
       const newCompany = new Company({
-        id: counter.seq, // ✅ Assign incremented ID
-        name, status, startdate, enddate, cname, cnumber, cemail, caddress
+        id: counter.seq, // ✅ Use auto-incremented ID
+        name,
+        status,
+        startdate,
+        enddate,
+        cname,
+        cnumber,
+        cemail,
+        caddress
       });
 
       const saved = await newCompany.save();
@@ -37,7 +42,7 @@ module.exports = function (Company) {
     }
   });
 
-  // GET: Get all companies
+  // 📄 Get all companies
   router.get('/', async (req, res) => {
     try {
       const list = await Company.find().sort({ id: 1 }); // ✅ Sort by ID
