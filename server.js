@@ -64,9 +64,9 @@ const companyConnection = mongoose.createConnection(process.env.MONGO_URI_COMPAN
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
+const CompanyModel = require('./models/company')(companyConnection);
 const Company = require('./models/company');
 const Counter = require('./server/models/counter');
-const CompanyModel = require('./models/company');
 
 async function initializeCompanyCounter() {
   try {
@@ -208,17 +208,9 @@ Promise.all([
   new Promise(resolve => mongoose.connection.once('open', resolve))
 ]).then(async () => {
 
-const companyConnection = mongoose.createConnection(process.env.MONGO_URI_COMPANY, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-});
-const CompanyModel = require('./models/company')(companyConnection);
-const Counter = require('./server/models/counter');
-
-
   async function initializeCompanyCounter() {
     try {
-      const lastCompany = await CompanyModel
+      const lastCompany = await CompanyModel(companyConnection)
         .findOne()
         .sort({ id: -1 })
         .lean();
@@ -257,7 +249,7 @@ const Counter = require('./server/models/counter');
         return res.status(404).json({ message: 'Product not found' });
       }
 
-      const company = await Company(companyConnection).findOne({ id: product.company });
+      const company = await Company.findOne({ id: product.company });
       console.log("Company found:", company);
 
       const responseData = {
