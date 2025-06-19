@@ -1,6 +1,6 @@
 // server/routes/companies.js
 const express = require('express');
-const Counter = require('./models/counter'); // ✅ Import Counter model
+const Counter = require('../models/counter'); // ✅ Import Counter model
 
 module.exports = function (Company) {
   const router = express.Router();
