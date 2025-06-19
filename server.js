@@ -70,29 +70,31 @@ const CompanyModel = require('./models/company');
 
 async function initializeCompanyCounter() {
   try {
+    const existingCounter = await Counter.findById("companyId");
+    if (existingCounter) {
+      console.log(`ℹ️ Counter already initialized at: ${existingCounter.seq}`);
+      return;
+    }
+
     const lastCompany = await CompanyModel(companyConnection)
       .findOne()
       .sort({ id: -1 })
       .lean();
 
-    if (!lastCompany) {
-      console.log("ℹ️ No existing companies found to initialize counter.");
-      return;
-    }
+    const lastId = lastCompany?.id ? parseInt(lastCompany.id) : 0;
 
-    const currentSeq = parseInt(lastCompany.id);
-    if (!isNaN(currentSeq)) {
-      await Counter.findByIdAndUpdate(
-        { _id: 'companyId' },
-        { $set: { seq: currentSeq } },
-        { upsert: true }
-      );
-      console.log(`🔄 Company ID counter initialized to ${currentSeq}`);
-    }
+    await Counter.findByIdAndUpdate(
+      { _id: 'companyId' },
+      { $set: { seq: lastId } },
+      { upsert: true }
+    );
+
+    console.log(`✅ Company ID counter initialized to ${lastId}`);
   } catch (err) {
     console.error("❌ Failed to initialize company counter:", err);
   }
 }
+
 
 
 // Default connection for Contact
