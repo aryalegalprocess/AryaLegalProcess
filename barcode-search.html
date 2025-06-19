@@ -115,8 +115,9 @@
     const details = data.details || '-';
     const quantity = data.quantity || '-';
     const company = data.companyName || '-';
-    const startdate = data.startdate || '-';
-    const enddate = data.enddate || '-';
+  const startdate = data.startdate || data.startDate || '-';
+const enddate = data.enddate || data.endDate || '-';
+
 
     resultDiv.innerHTML = `
       <table class="product-info-table">
