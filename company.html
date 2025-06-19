@@ -274,17 +274,19 @@
 
     // Filter companies by search
    const filteredCompanies = allCompanies.filter(company => {
+  const status = company.status?.toLowerCase(); // normalize status for safety
   return (
     company.name.toLowerCase().includes(filter) ||
     company.startdate.toLowerCase().includes(filter) ||
     company.enddate.toLowerCase().includes(filter) ||
-    (company.status === "a" ? "active" : "inactive").includes(filter) ||
+    status.includes(filter) || // 👈 directly check lowercase status
     company.cname.toLowerCase().includes(filter) ||
     company.cnumber.toLowerCase().includes(filter) ||
     company.cemail.toLowerCase().includes(filter) ||
     company.caddress.toLowerCase().includes(filter)
   );
 });
+
 
 
     const totalEntries = filteredCompanies.length;
@@ -309,7 +311,7 @@
     <td>${company.name}</td>
     <td>${company.startdate}</td>
     <td>${company.enddate}</td>
-    <td>${company.status === 'a' ? 'ACTIVE' : 'INACTIVE'}</td>
+<td>${['active', 'a'].includes(company.status?.toLowerCase()) ? 'ACTIVE' : 'INACTIVE'}</td>
     <td>${company.cname}</td>
     <td>${company.cnumber}</td>
     <td>${company.cemail}</td>
