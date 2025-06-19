@@ -1,27 +1,46 @@
 const express = require('express');
 
-module.exports = function(Company) {
+module.exports = function (Company) {
   const router = express.Router();
 
   // POST: Add new company
   router.post('/', async (req, res) => {
     try {
-      const companyData = req.body;
+      const {
+        name,
+        status,
+        startdate,
+        enddate,
+        cname,
+        cnumber,
+        cemail,
+        caddress
+      } = req.body;
 
-      // Optional: Simple validation
-      if (!companyData.name || !companyData.contactEmail) {
-        return res.status(400).json({ error: "Name and contactEmail are required." });
+      // Validate required fields
+      if (!name || !cemail || !cname || !cnumber || !caddress) {
+        return res.status(400).json({ error: "Please fill all required fields." });
       }
 
-      const newCompany = new Company(companyData);
+      // Create company document
+      const newCompany = new Company({
+        id: Date.now(), // optional ID
+        name,
+        status,
+        startdate,
+        enddate,
+        cname,
+        cnumber,
+        cemail,
+        caddress
+      });
+
       await newCompany.save();
 
-      res.status(201).json({
-        message: "Company added successfully.",
-        company: newCompany
-      });
+      res.status(201).json(newCompany); // return the saved company object directly
+
     } catch (err) {
-      console.error("Error adding company:", err.message);
+      console.error("❌ Error adding company:", err.message);
       res.status(500).json({ error: "Failed to add company." });
     }
   });
@@ -32,7 +51,7 @@ module.exports = function(Company) {
       const companies = await Company.find();
       res.status(200).json(companies);
     } catch (err) {
-      console.error("Error fetching companies:", err.message);
+      console.error("❌ Error fetching companies:", err.message);
       res.status(500).json({ error: "Failed to fetch companies." });
     }
   });
