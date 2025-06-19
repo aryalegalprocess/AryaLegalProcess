@@ -209,7 +209,7 @@ Promise.all([
 ]).then(async () => {
 
   // 🔁 Initialize company ID counter after DBs are ready
-  const Counter = require('./models/counter');
+  const Counter = require('./server/models/counter');
   const CompanyModel = require('./models/company');
 
   async function initializeCompanyCounter() {
