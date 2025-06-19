@@ -163,12 +163,12 @@
       const entriesPerPage = parseInt(entriesSelect.value);
 
       const filteredProducts = allProducts.filter((product, index) => {
-        const companyName = companyMap[product.company] || product.company || 'Unknown';
-        const rowText = (
-          `${index + 1} ${product.barcode} ${product.name} ${product.details} ${product.weight} ${product.quantity} ${companyName} ${product.description} ${product.startdate} ${product.enddate} ₹${product.price}`
-        ).toLowerCase();
-        return rowText.includes(filter);
-      });
+  const companyName = companyMap[product.company] || product.company || 'Unknown';
+  const rowText = (
+    `${index + 1} ${product.barcode} ${product.name} ${product.details} ${product.weight} ${product.quantity} ${companyName} ${product.description} ${product.startDate} ${product.endDate} ₹${product.price}`
+  ).toLowerCase();
+  return rowText.includes(filter);
+});
 
       const totalEntries = filteredProducts.length;
       totalPages = Math.ceil(totalEntries / entriesPerPage);
@@ -192,8 +192,9 @@
     <td>${product.quantity || '-'}</td>
     <td>${companyName}</td>
     <td><button class="btn-description" data-desc="${product.description && product.description.trim() !== '' ? product.description : 'No description'}">Description</button></td>
-    <td>${product.startdate || '-'}</td>
-    <td>${product.enddate || '-'}</td>
+    <td>${product.startDate || '-'}</td>
+<td>${product.endDate || '-'}</td>
+
     <td>₹${product.price && product.price !== '' ? product.price : '0'}</td>
   `;
   tbody.appendChild(row);
