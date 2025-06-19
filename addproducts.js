@@ -83,19 +83,19 @@ document.getElementById('productForm').addEventListener('submit', function(e) {
     reader.onloadend = function() {
       const base64Image = reader.result;
 
-      const productData = {
-        barcode: barcode.value.trim(),
-        name: productName.value.trim(),
-        details: productDetails.value.trim(),
-        weight: weightage.value.trim(),
-        quantity: quantity.value.trim(),
-        company: company.value,
-        description: description.value.trim(),
-        startDate: startDate.value,
-        endDate: endDate.value,
-        price: price.value.trim(),
-        image: base64Image
-      };
+     const productData = {
+  barcode: barcode.value.trim(),
+  name: productName.value.trim(),
+  details: productDetails.value.trim(),
+  weight: weightage.value.trim(),
+  quantity: quantity.value.trim(),
+  company: company.value,
+  description: description.value.trim(),
+  startdate: startDate.value,
+  enddate: endDate.value,
+  price: price.value.trim(),
+  image: base64Image
+};
 
       fetch("https://aryalegalprocess.onrender.com/api/products", {
         method: 'POST',
