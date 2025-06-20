@@ -73,26 +73,35 @@ module.exports = function (Company) {
     }
   });
 
-  // 🗑️ Delete a company
-  router.delete('/:id', async (req, res) => {
-    try {
-      const id = parseInt(req.params.id); // ✅ ensure numeric ID
-      console.log("🔍 Deleting company with id:", id);
+router.delete('/:id', async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    console.log("🔍 Attempting to delete company with id:", id);
 
-      const deleted = await Company.findOneAndDelete({ id });
-
-      if (!deleted) {
-        console.log("❌ Company not found for id:", id);
-        return res.status(404).json({ error: "Company not found" });
-      }
-
-      console.log("✅ Deleted company:", deleted);
-      return res.status(200).json({ message: "Company deleted successfully." });
-    } catch (err) {
-      console.error("❌ Error deleting company:", err);
-      return res.status(500).json({ error: "Failed to delete company." });
+    // Check if the company with this ID exists
+    const company = await Company.findOne({ id });
+    if (!company) {
+      console.log("❌ Company not found with ID:", id);
+      return res.status(404).json({ error: "Company not found" });
     }
-  });
+
+    console.log("✅ Company found:", company);
+
+    const deleted = await Company.findOneAndDelete({ id });
+
+    if (!deleted) {
+      console.log("❌ Failed to delete company with id:", id);
+      return res.status(500).json({ error: "Deletion failed" });
+    }
+
+    console.log("✅ Successfully deleted:", deleted);
+    return res.status(200).json({ message: "Company deleted successfully." });
+  } catch (err) {
+    console.error("❌ Error deleting company:", err);
+    return res.status(500).json({ error: "Failed to delete company." });
+  }
+});
+
 
   return router;
 };
