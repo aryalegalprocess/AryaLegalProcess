@@ -1,18 +1,16 @@
-module.exports = function (connection) {
-  const mongoose = require('mongoose');
+const mongoose = require('mongoose');
 
-  const companySchema = new mongoose.Schema({
-  id: String, // Add this
+const companySchema = new mongoose.Schema({
+  id: { type: Number, unique: true },
   name: String,
-  startDate: String,
-  endDate: String,
   status: String,
-  contactName: String,
-  contactNumber: String,
-  contactEmail: String,
-  contactAddress: String
+  startdate: String,
+  enddate: String,
+  cname: String,
+  cnumber: String,
+  cemail: String,
+  caddress: String
 });
 
-
-  return connection.model('Company', companySchema);
-};
+// ✅ This should export a function that returns the model using the provided connection
+module.exports = (connection) => connection.model('Company', companySchema);
