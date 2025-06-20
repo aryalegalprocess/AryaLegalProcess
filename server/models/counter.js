@@ -1,4 +1,3 @@
-// models/Counter.js
 const mongoose = require('mongoose');
 
 const counterSchema = new mongoose.Schema({
@@ -6,4 +5,8 @@ const counterSchema = new mongoose.Schema({
   seq: { type: Number, default: 0 }
 });
 
-module.exports = mongoose.model('Counter', counterSchema);
+/**
+ * Export a function to register this model with a custom connection.
+ * @param {mongoose.Connection} connection - The Mongoose connection
+ */
+module.exports = (connection) => connection.model('Counter', counterSchema);

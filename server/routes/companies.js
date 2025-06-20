@@ -1,20 +1,21 @@
 // server/routes/companies.js
 const express = require('express');
-const Counter = require('../models/counter'); // ✅ Import Counter model
 
-module.exports = function (Company) {
+module.exports = function (Company, Counter) {
   const router = express.Router();
 
-  // ➕ Add new company
+  // ➕ POST: Add new company
   router.post('/', async (req, res) => {
     console.log('📥 Incoming company data:', req.body);
+
     try {
       const { name, status, startdate, enddate, cname, cnumber, cemail, caddress } = req.body;
+
       if (!name || !cname || !cnumber || !cemail || !caddress) {
         return res.status(400).json({ error: "Please fill all required fields." });
       }
 
-      // 🔁 Get next company ID from counter
+      // 🔢 Get next company ID using counter
       const counter = await Counter.findByIdAndUpdate(
         { _id: 'companyId' },
         { $inc: { seq: 1 } },
@@ -22,7 +23,7 @@ module.exports = function (Company) {
       );
 
       const newCompany = new Company({
-        id: counter.seq, // ✅ Use auto-incremented ID
+        id: counter.seq,
         name,
         status,
         startdate,
@@ -34,19 +35,20 @@ module.exports = function (Company) {
       });
 
       const saved = await newCompany.save();
-      console.log('✅ Saved company:', saved);
+      console.log('✅ Company saved:', saved);
       return res.status(201).json(saved);
+
     } catch (err) {
       console.error("❌ Error adding company:", err);
       return res.status(500).json({ error: "Failed to add company." });
     }
   });
 
-  // 📄 Get all companies
+  // 📄 GET: Fetch all companies
   router.get('/', async (req, res) => {
     try {
-      const list = await Company.find().sort({ id: 1 }); // ✅ Sort by ID
-      return res.status(200).json(list);
+      const companies = await Company.find().sort({ id: 1 });
+      return res.status(200).json(companies);
     } catch (err) {
       console.error("❌ Error fetching companies:", err);
       return res.status(500).json({ error: "Failed to fetch companies." });
