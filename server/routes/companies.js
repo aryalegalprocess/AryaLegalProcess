@@ -74,5 +74,22 @@ module.exports = function (Company) {
     }
   });
 
+  // 🗑️ Delete a company
+router.delete('/:id', async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const deleted = await Company.findOneAndDelete({ id });
+
+    if (!deleted) {
+      return res.status(404).json({ error: "Company not found" });
+    }
+
+    return res.status(200).json({ message: "Company deleted successfully." });
+  } catch (err) {
+    console.error("❌ Error deleting company:", err);
+    return res.status(500).json({ error: "Failed to delete company." });
+  }
+});
+
   return router;
 };
