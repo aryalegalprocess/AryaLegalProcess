@@ -74,11 +74,10 @@ module.exports = function (Company) {
     }
   });
 
-  // 🗑️ Delete a company
-router.delete('/:id', async (req, res) => {
+ router.delete('/:id', async (req, res) => {
   try {
-    const id = parseInt(req.params.id);
-    console.log("🔍 Deleting company with id:", id);
+    const id = req.params.id; // ✅ no parseInt
+    console.log("🔍 Deleting company with id (string):", id);
 
     const deleted = await Company.findOneAndDelete({ id });
 
