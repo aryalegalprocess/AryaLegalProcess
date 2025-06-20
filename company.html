@@ -5,36 +5,49 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Company List Dashboard</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-ZM8i9+0fwN2lYY4uFgvmc5P8P1A3RZVgRnUdf3YkU1zHugvTjvDix9BqV6vJ05qxCrMkx0a1OCbZyZZd2O3v5Q==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+  integrity="sha512-Avb2QiuDEEvB4bZJYdft2mNjVShBftLdPG8FJ0V7irTLQ8Uo0qcPxh4Plq7G5tGm0rU+1SPhVotteLpBERwTkw=="
+  crossorigin="anonymous" referrerpolicy="no-referrer" />
+
   <link rel="stylesheet" href="style2.css" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="addproduct.css">
   <link rel="stylesheet" href="email.css">
   <link rel="stylesheet" href="productlist.css">
   <link rel="stylesheet" href="company.css">
-  <style>table button {
-  background: linear-gradient(to right, #2c2c2c, #434343); /* dark gray to slightly lighter gray */
-  color: #fff;
+  <style>
+    .edit-btn, .delete-btn {
+  padding: 4px 10px;
+  margin: 2px;
   border: none;
-  padding: 8px 16px;
-  border-radius: 20px;
+  border-radius: 4px;
+  cursor: pointer;
   font-size: 14px;
   font-weight: 600;
-  cursor: pointer;
   box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
   transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.edit-btn {
+  background-color: #2196F3;
+  color: white;
+}
+.delete-btn {
+  background-color: #f44336;
+  color: white;
+}
+.edit-btn:hover {
+  background-color: #1976d2;
+}
+.delete-btn:hover {
+  background-color: #d32f2f;
+}
+.edit-btn i, .delete-btn i {
+  pointer-events: none;
 }
 
-table button:hover {
-  background: linear-gradient(to right, #80c322, #15aa24);
-  transform: scale(1.06);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-}
-.bin:hover {
-  background: linear-gradient(to right, #e05151, #ff0202);
-  transform: scale(1.06);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
-}
 </style>
 </head>
 <body>
@@ -316,9 +329,17 @@ table button:hover {
         <td>${company.cnumber}</td>
         <td>${company.cemail}</td>
         <td>${company.caddress}</td>
-      <td>
-  <button onclick="editCompany(${company.id})">✏️ Edit</button></td>
-  <td><button class="bin" onclick="deleteCompany(${company.id})">🗑️ </button>
+     <td>
+  <button class="edit-btn" onclick="editCompany(${company.id})">
+    <i class="fas fa-edit"></i> 
+  </button>
+</td>
+<td>
+  <button class="delete-btn" onclick="deleteCompany(${company.id})">
+    <i class="fas fa-trash-alt"></i> 
+  </button>
+</td>
+
 </td>
 
 

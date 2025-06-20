@@ -6,6 +6,7 @@
   <title>Product List Dashboard</title>
   <link rel="stylesheet" href="style2.css" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
   <link rel="stylesheet" href="addproduct.css">
   <link rel="stylesheet" href="email.css">
   <link rel="stylesheet" href="productlist.css">
@@ -24,6 +25,15 @@
 .delete-btn {
   background-color: #f44336;
   color: white;
+}
+.edit-btn i, .delete-btn i {
+  pointer-events: none; /* Allows clicking the button without clicking just the icon */
+}
+.edit-btn:hover {
+  background-color: #1976d2;
+}
+.delete-btn:hover {
+  background-color: #d32f2f;
 }
 
   </style>
@@ -219,8 +229,9 @@
 <td>${product.endDate || product.enddate || '-'}</td>
 
     <td>₹${product.price && product.price !== '' ? product.price : '0'}</td>
-    <td><button class="edit-btn" data-id="${product.id}">Edit</button></td> <!-- ✅ Edit Button -->
-  <td><button class="delete-btn" data-id="${product.id}">Delete</button></td> <!-- ✅ Delete Button -->
+    <td><button class="edit-btn" data-id="${product.id}"><i class="fas fa-edit"></i></button></td>
+<td><button class="delete-btn" data-id="${product.id}"><i class="fas fa-trash-alt"></i></button></td>
+
   `;
   tbody.appendChild(row);
 });
