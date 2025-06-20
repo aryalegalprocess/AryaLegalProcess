@@ -155,13 +155,17 @@ const emailContent = `
   <div style="font-family: 'Segoe UI', sans-serif; color: #333; padding: 20px; line-height: 1.6;">
     <h2 style="color: #007bff;">Dear ${company.cname || 'Valued Partner'},</h2>
 
-    <p>This is a friendly reminder that the following product(s) associated with your company have partnership end dates approaching or expiring soon:</p>
+    <p>This is a reminder that the following product(s) associated with your company have partnership dates that are expiring soon:</p>
 
-    <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
-      <thead>
-        <tr style="background-color: #f2f2f2;">
-          <th style="border: 1px solid #ccc; padding: 8px;">Name</th>
+    <table style="width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px;">
+      <thead style="background-color: #f2f2f2;">
+        <tr>
+          <th style="border: 1px solid #ccc; padding: 8px;">Product Name</th>
           <th style="border: 1px solid #ccc; padding: 8px;">Barcode</th>
+          <th style="border: 1px solid #ccc; padding: 8px;">Weight</th>
+          <th style="border: 1px solid #ccc; padding: 8px;">Quantity</th>
+          <th style="border: 1px solid #ccc; padding: 8px;">Details</th>
+          <th style="border: 1px solid #ccc; padding: 8px;">Description</th>
           <th style="border: 1px solid #ccc; padding: 8px;">Start Date</th>
           <th style="border: 1px solid #ccc; padding: 8px;">End Date</th>
           <th style="border: 1px solid #ccc; padding: 8px;">Price</th>
@@ -172,6 +176,10 @@ const emailContent = `
           <tr>
             <td style="border: 1px solid #ccc; padding: 8px;">${p.name || '-'}</td>
             <td style="border: 1px solid #ccc; padding: 8px;">${p.barcode || '-'}</td>
+            <td style="border: 1px solid #ccc; padding: 8px;">${p.weight || '-'}</td>
+            <td style="border: 1px solid #ccc; padding: 8px;">${p.quantity || '-'}</td>
+            <td style="border: 1px solid #ccc; padding: 8px;">${p.details || '-'}</td>
+            <td style="border: 1px solid #ccc; padding: 8px;">${p.description || '-'}</td>
             <td style="border: 1px solid #ccc; padding: 8px;">${formatDate(p.startdate || p.startDate)}</td>
             <td style="border: 1px solid #ccc; padding: 8px;">${formatDate(p.enddate || p.endDate)}</td>
             <td style="border: 1px solid #ccc; padding: 8px;">₹${p.price || '-'}</td>
@@ -191,6 +199,7 @@ const emailContent = `
     <small style="color: #888;">You are receiving this email because you're registered with ARYA LEGAL PROCESS. Please contact us if you have any questions.</small>
   </div>
 `;
+
 
 
       await sendEmail(company.cemail, '⚠️ Product Partnership Expiry Alert', emailContent);
