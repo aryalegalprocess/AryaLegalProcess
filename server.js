@@ -65,8 +65,8 @@ const companyConnection = mongoose.createConnection(process.env.MONGO_URI_COMPAN
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
-const CompanyModel = require('./models/company')(companyConnection);
-const Company = require('./models/company');
+const Company = require('./models/company')(companyConnection); // ✅ Proper model
+
 
 
 
