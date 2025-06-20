@@ -66,34 +66,7 @@ const companyConnection = mongoose.createConnection(process.env.MONGO_URI_COMPAN
 });
 const CompanyModel = require('./models/company')(companyConnection);
 const Company = require('./models/company');
-const Counter = require('./server/models/counter');
 
-async function initializeCompanyCounter() {
-  try {
-    const existingCounter = await Counter.findById("companyId");
-    if (existingCounter) {
-      console.log(`ℹ️ Counter already initialized at: ${existingCounter.seq}`);
-      return;
-    }
-
-    const lastCompany = await CompanyModel(companyConnection)
-      .findOne()
-      .sort({ id: -1 })
-      .lean();
-
-    const lastId = lastCompany?.id ? parseInt(lastCompany.id) : 0;
-
-    await Counter.findByIdAndUpdate(
-      { _id: 'companyId' },
-      { $set: { seq: lastId } },
-      { upsert: true }
-    );
-
-    console.log(`✅ Company ID counter initialized to ${lastId}`);
-  } catch (err) {
-    console.error("❌ Failed to initialize company counter:", err);
-  }
-}
 
 
 
@@ -208,30 +181,7 @@ Promise.all([
   new Promise(resolve => mongoose.connection.once('open', resolve))
 ]).then(async () => {
 
-  async function initializeCompanyCounter() {
-    try {
-const lastCompany = await CompanyModel.findOne().sort({ id: -1 }).lean();
 
-      if (!lastCompany) {
-        console.log("ℹ️ No existing companies found to initialize counter.");
-        return;
-      } at
-
-      const currentSeq = parseInt(lastCompany.id);
-      if (!isNaN(currentSeq)) {
-        await Counter.findByIdAndUpdate(
-          { _id: 'companyId' },
-          { $set: { seq: currentSeq + 1} },
-          { upsert: true }
-        );
-        console.log(`🔄 Company ID counter initialized to ${currentSeq}`);
-      }
-    } catch (err) {
-      console.error("❌ Failed to initialize company counter:", err);
-    }
-  }
-
-  await initializeCompanyCounter(); // ✅ Call before server starts
 
   // ✅ Custom route for fetching product by barcode (with company name)
   app.get('/api/products/:barcode', async (req, res) => {
