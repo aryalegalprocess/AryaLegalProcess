@@ -148,17 +148,19 @@
   }
 
   function getFilteredProducts() {
-    const from = document.getElementById("fromDate").value;
-    const to = document.getElementById("toDate").value;
+  const from = document.getElementById("fromDate").value;
+  const to = document.getElementById("toDate").value;
 
-    const fromDate = from ? new Date(from) : null;
-    const toDate = to ? new Date(to) : null;
+  const fromDate = from ? new Date(from) : null;
+  const toDate = to ? new Date(to) : null;
 
-    return allProducts.filter(p => {
-const start = new Date(p.startdate || p.startDate);
-      return (!fromDate || start >= fromDate) && (!toDate || start <= toDate);
-    });
-  }
+  return allProducts.filter(p => {
+    const start = new Date(p.startdate || p.startDate);
+    return (!fromDate || start.getTime() >= fromDate.getTime()) &&
+           (!toDate || start.getTime() <= toDate.getTime());
+  });
+}
+
 
   document.querySelector(".btn-search").addEventListener("click", () => {
     const filtered = getFilteredProducts();
