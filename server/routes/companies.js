@@ -40,7 +40,7 @@ module.exports = function (Company) {
   // 📄 Get all companies
   router.get('/', async (req, res) => {
     try {
-      const list = await Company.find().sort({ id: 1 }); // ✅ Sort by ID
+      const list = await Company.find().sort({ id: 1 });
       return res.status(200).json(list);
     } catch (err) {
       console.error("❌ Error fetching companies:", err);
@@ -51,14 +51,13 @@ module.exports = function (Company) {
   // ✏️ Update an existing company
   router.put('/:id', async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = parseInt(req.params.id); // ✅ ensure numeric ID
       const company = await Company.findOne({ id });
 
       if (!company) {
         return res.status(404).json({ error: "Company not found" });
       }
 
-      // Update only fields that are present in the request body
       const fields = ['name', 'status', 'startdate', 'enddate', 'cname', 'cnumber', 'cemail', 'caddress'];
       fields.forEach(field => {
         if (req.body[field] !== undefined) {
@@ -74,26 +73,26 @@ module.exports = function (Company) {
     }
   });
 
- router.delete('/:id', async (req, res) => {
-  try {
-    const id = req.params.id; // ✅ no parseInt
-    console.log("🔍 Deleting company with id (string):", id);
+  // 🗑️ Delete a company
+  router.delete('/:id', async (req, res) => {
+    try {
+      const id = parseInt(req.params.id); // ✅ ensure numeric ID
+      console.log("🔍 Deleting company with id:", id);
 
-    const deleted = await Company.findOneAndDelete({ id });
+      const deleted = await Company.findOneAndDelete({ id });
 
-    if (!deleted) {
-      console.log("❌ Company not found for id:", id);
-      return res.status(404).json({ error: "Company not found" });
+      if (!deleted) {
+        console.log("❌ Company not found for id:", id);
+        return res.status(404).json({ error: "Company not found" });
+      }
+
+      console.log("✅ Deleted company:", deleted);
+      return res.status(200).json({ message: "Company deleted successfully." });
+    } catch (err) {
+      console.error("❌ Error deleting company:", err);
+      return res.status(500).json({ error: "Failed to delete company." });
     }
-
-    console.log("✅ Deleted company:", deleted);
-    return res.status(200).json({ message: "Company deleted successfully." });
-  } catch (err) {
-    console.error("❌ Error deleting company:", err);
-    return res.status(500).json({ error: "Failed to delete company." });
-  }
-});
-
+  });
 
   return router;
 };
