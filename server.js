@@ -76,7 +76,7 @@ async function initializeCompanyCounter() {
       return;
     }
 
-    const lastCompany = await CompanyModel(companyConnection)
+    const lastCompany = await CompanyModel
       .findOne()
       .sort({ id: -1 })
       .lean();
