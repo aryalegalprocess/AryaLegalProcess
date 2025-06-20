@@ -151,14 +151,47 @@ const productListHtml = productsForCompany.map(p => `
   </li>
 `).join("<br/><br/>");
 
+const emailContent = `
+  <div style="font-family: 'Segoe UI', sans-serif; color: #333; padding: 20px; line-height: 1.6;">
+    <h2 style="color: #007bff;">Dear ${company.cname || 'Valued Partner'},</h2>
 
-      const emailContent = `
-        <p>Dear ${company.cname || 'Partner'},</p>
-        <p>This is a reminder that your product(s) listed below have partnerships ending soon:</p>
-        <ul>${productListHtml}</ul>
-        <p>Please take appropriate action.</p>
-        <p>Regards,<br/>ARYA LEGAL PROCESS</p>
-      `;
+    <p>This is a friendly reminder that the following product(s) associated with your company have partnership end dates approaching or expiring soon:</p>
+
+    <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+      <thead>
+        <tr style="background-color: #f2f2f2;">
+          <th style="border: 1px solid #ccc; padding: 8px;">Name</th>
+          <th style="border: 1px solid #ccc; padding: 8px;">Barcode</th>
+          <th style="border: 1px solid #ccc; padding: 8px;">Start Date</th>
+          <th style="border: 1px solid #ccc; padding: 8px;">End Date</th>
+          <th style="border: 1px solid #ccc; padding: 8px;">Price</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${productsForCompany.map(p => `
+          <tr>
+            <td style="border: 1px solid #ccc; padding: 8px;">${p.name || '-'}</td>
+            <td style="border: 1px solid #ccc; padding: 8px;">${p.barcode || '-'}</td>
+            <td style="border: 1px solid #ccc; padding: 8px;">${formatDate(p.startdate || p.startDate)}</td>
+            <td style="border: 1px solid #ccc; padding: 8px;">${formatDate(p.enddate || p.endDate)}</td>
+            <td style="border: 1px solid #ccc; padding: 8px;">₹${p.price || '-'}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+
+    <p style="margin-top: 20px;">Please take the necessary steps to renew or update your product information to avoid service interruptions.</p>
+
+    <p style="margin-top: 30px;">Best regards,<br/>
+    <strong>ARYA LEGAL PROCESS</strong><br/>
+    📧 support@aryalegalprocess.com<br/>
+    📞 +91-XXXXXXXXXX</p>
+
+    <hr style="margin-top: 40px;"/>
+    <small style="color: #888;">You are receiving this email because you're registered with ARYA LEGAL PROCESS. Please contact us if you have any questions.</small>
+  </div>
+`;
+
 
       await sendEmail(company.cemail, '⚠️ Product Partnership Expiry Alert', emailContent);
     }
