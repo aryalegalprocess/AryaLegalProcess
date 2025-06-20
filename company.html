@@ -11,6 +11,25 @@
   <link rel="stylesheet" href="email.css">
   <link rel="stylesheet" href="productlist.css">
   <link rel="stylesheet" href="company.css">
+  <style>table button {
+  background: linear-gradient(to right, #2c2c2c, #434343); /* dark gray to slightly lighter gray */
+  color: #fff;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+table button:hover {
+  background: linear-gradient(to right, #1c1c1c, #4f4f4f);
+  transform: scale(1.06);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+</style>
 </head>
 <body>
   <div class="sidebar">
@@ -129,6 +148,8 @@
               <th>Contact Number</th>
               <th>Contact Email</th>
               <th>Contact Address</th>
+              <th>Action</th>
+
             </tr>
           </thead>
           <tbody></tbody>
@@ -141,211 +162,238 @@
   </div>
 
   <!-- JavaScript -->
-  <script>
-    const sidebar = document.querySelector('.sidebar');
-    sidebar.addEventListener('click', () => {
-      sidebar.classList.toggle('expanded');
-    });
+<script>
+  const sidebar = document.querySelector('.sidebar');
+  sidebar.addEventListener('click', () => {
+    sidebar.classList.toggle('expanded');
+  });
 
-    function toggleDropdown() {
-      const dropdown = document.getElementById("dropdown");
-      dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
-    }
+  function toggleDropdown() {
+    const dropdown = document.getElementById("dropdown");
+    dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+  }
 
-    document.addEventListener("click", function (event) {
-      const dropdown = document.getElementById("dropdown");
-      const admin = document.querySelector(".admin");
-      if (!admin.contains(event.target)) dropdown.style.display = "none";
-    });
+  document.addEventListener("click", function (event) {
+    const dropdown = document.getElementById("dropdown");
+    const admin = document.querySelector(".admin");
+    if (!admin.contains(event.target)) dropdown.style.display = "none";
+  });
 
-    document.querySelector(".submit-btn").addEventListener("click", async function (event) {
-      event.preventDefault();
+  let editingCompanyId = null;
 
-      const companyData = {
-        name: document.getElementById("companyName").value.trim(),
-        status: document.getElementById("status").value,
-        startdate: document.getElementById("startDate").value,
-        enddate: document.getElementById("endDate").value,
-        cname: document.getElementById("contactName").value.trim(),
-        cnumber: document.getElementById("contactNumber").value.trim(),
-        cemail: document.getElementById("contactEmail").value.trim(),
-        caddress: document.getElementById("address").value.trim()
-      };
+  document.querySelector(".submit-btn").addEventListener("click", async function (event) {
+    event.preventDefault();
 
-      for (let key of ["name", "cname", "cnumber", "cemail", "caddress"]) {
-        if (!companyData[key]) {
-          return alert(`Please fill the ${key} field.`);
-        }
-      }
-
-      try {
-        const res = await fetch('https://aryalegalprocess.onrender.com/api/companies', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(companyData)
-        });
-
-        const body = await res.json();
-        if (res.ok) {
-          alert("✅ Company added successfully!");
-          document.getElementById("companyForm").reset();
-          fetchAndRenderCompanies(); // Refresh table
-        } else {
-          alert("❌ Error: " + (body.error || res.status));
-        }
-      } catch (err) {
-        alert("❌ Failed to add company: network error");
-      }
-    });
-
-    let allCompanies = [];
-    let currentPage = 1;
-    let entriesPerPage = 10;
-
-    window.onload = function () {
-      fetchAndRenderCompanies();
-      setupShowEntries();
+    const companyData = {
+      name: document.getElementById("companyName").value.trim(),
+      status: document.getElementById("status").value,
+      startdate: document.getElementById("startDate").value,
+      enddate: document.getElementById("endDate").value,
+      cname: document.getElementById("contactName").value.trim(),
+      cnumber: document.getElementById("contactNumber").value.trim(),
+      cemail: document.getElementById("contactEmail").value.trim(),
+      caddress: document.getElementById("address").value.trim()
     };
 
-    function fetchAndRenderCompanies() {
-      fetch('https://aryalegalprocess.onrender.com/api/companies')
-        .then(res => res.json())
-        .then(data => {
-          // Sort by ID ascending
-          allCompanies = data.sort((a, b) => (a.id ?? 0) - (b.id ?? 0));
-          currentPage = 1;
-          renderTable();
-          renderPagination();
-        })
-        .catch(error => {
-          const tbody = document.querySelector("table tbody");
-          tbody.innerHTML = '<tr><td colspan="9">Failed to load companies.</td></tr>';
-        });
+    for (let key of ["name", "cname", "cnumber", "cemail", "caddress"]) {
+      if (!companyData[key]) {
+        return alert(`Please fill the ${key} field.`);
+      }
     }
 
-    function setupShowEntries() {
-      const select = document.getElementById("entriesLimit");
-      select.value = "10";
-      select.addEventListener("change", () => {
-        entriesPerPage = parseInt(select.value, 10);
+    const url = editingCompanyId
+      ? `https://aryalegalprocess.onrender.com/api/companies/${editingCompanyId}`
+      : `https://aryalegalprocess.onrender.com/api/companies`;
+
+    const method = editingCompanyId ? 'PUT' : 'POST';
+
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(companyData)
+      });
+
+      const body = await res.json();
+      if (res.ok) {
+        alert(editingCompanyId ? "✅ Company updated!" : "✅ Company added!");
+        document.getElementById("companyForm").reset();
+        editingCompanyId = null;
+        fetchAndRenderCompanies();
+      } else {
+        alert("❌ Error: " + (body.error || res.status));
+      }
+    } catch (err) {
+      alert("❌ Failed to add/update company: network error");
+    }
+  });
+
+  let allCompanies = [];
+  let currentPage = 1;
+  let entriesPerPage = 10;
+
+  window.onload = function () {
+    fetchAndRenderCompanies();
+    setupShowEntries();
+  };
+
+  function fetchAndRenderCompanies() {
+    fetch('https://aryalegalprocess.onrender.com/api/companies')
+      .then(res => res.json())
+      .then(data => {
+        allCompanies = data.sort((a, b) => (a.id ?? 0) - (b.id ?? 0));
         currentPage = 1;
         renderTable();
         renderPagination();
+      })
+      .catch(error => {
+        const tbody = document.querySelector("table tbody");
+        tbody.innerHTML = '<tr><td colspan="10">Failed to load companies.</td></tr>';
       });
-    }
+  }
 
-    document.getElementById("searchInput").addEventListener("input", function () {
+  function setupShowEntries() {
+    const select = document.getElementById("entriesLimit");
+    select.value = "10";
+    select.addEventListener("change", () => {
+      entriesPerPage = parseInt(select.value, 10);
       currentPage = 1;
       renderTable();
       renderPagination();
     });
+  }
 
-    function renderTable() {
-      const tbody = document.querySelector("table tbody");
-      tbody.innerHTML = '';
-      const filter = document.getElementById("searchInput").value.toLowerCase();
+  document.getElementById("searchInput").addEventListener("input", function () {
+    currentPage = 1;
+    renderTable();
+    renderPagination();
+  });
 
-      const filteredCompanies = allCompanies.filter(company => {
-        const status = company.status?.toLowerCase();
-        return (
-          company.name.toLowerCase().includes(filter) ||
-          company.startdate.toLowerCase().includes(filter) ||
-          company.enddate.toLowerCase().includes(filter) ||
-          status.includes(filter) ||
-          company.cname.toLowerCase().includes(filter) ||
-          company.cnumber.toLowerCase().includes(filter) ||
-          company.cemail.toLowerCase().includes(filter) ||
-          company.caddress.toLowerCase().includes(filter)
-        );
-      });
+  function renderTable() {
+    const tbody = document.querySelector("table tbody");
+    tbody.innerHTML = '';
+    const filter = document.getElementById("searchInput").value.toLowerCase();
 
-      const totalEntries = filteredCompanies.length;
-      totalPages = Math.ceil(totalEntries / entriesPerPage);
-      if (currentPage > totalPages) currentPage = totalPages;
-      if (currentPage < 1) currentPage = 1;
+    const filteredCompanies = allCompanies.filter(company => {
+      const status = company.status?.toLowerCase();
+      return (
+        company.name.toLowerCase().includes(filter) ||
+        company.startdate.toLowerCase().includes(filter) ||
+        company.enddate.toLowerCase().includes(filter) ||
+        status.includes(filter) ||
+        company.cname.toLowerCase().includes(filter) ||
+        company.cnumber.toLowerCase().includes(filter) ||
+        company.cemail.toLowerCase().includes(filter) ||
+        company.caddress.toLowerCase().includes(filter)
+      );
+    });
 
-      const startIndex = (currentPage - 1) * entriesPerPage;
-      const endIndex = startIndex + entriesPerPage;
-      const companiesToShow = filteredCompanies.slice(startIndex, endIndex);
+    const totalEntries = filteredCompanies.length;
+    totalPages = Math.ceil(totalEntries / entriesPerPage);
+    if (currentPage > totalPages) currentPage = totalPages;
+    if (currentPage < 1) currentPage = 1;
 
-      companiesToShow.forEach(company => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-          <td>${company.id ?? '-'}</td>
-          <td>${company.name}</td>
-          <td>${company.startdate}</td>
-          <td>${company.enddate}</td>
-          <td>${['active', 'a'].includes(company.status?.toLowerCase()) ? 'ACTIVE' : 'INACTIVE'}</td>
-          <td>${company.cname}</td>
-          <td>${company.cnumber}</td>
-          <td>${company.cemail}</td>
-          <td>${company.caddress}</td>
-        `;
-        tbody.appendChild(row);
-      });
+    const startIndex = (currentPage - 1) * entriesPerPage;
+    const endIndex = startIndex + entriesPerPage;
+    const companiesToShow = filteredCompanies.slice(startIndex, endIndex);
 
-      updatePaginationInfo(startIndex + 1, startIndex + companiesToShow.length, totalEntries);
-    }
+    companiesToShow.forEach(company => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${company.id ?? '-'}</td>
+        <td>${company.name}</td>
+        <td>${company.startdate}</td>
+        <td>${company.enddate}</td>
+        <td>${['active', 'a'].includes(company.status?.toLowerCase()) ? 'ACTIVE' : 'INACTIVE'}</td>
+        <td>${company.cname}</td>
+        <td>${company.cnumber}</td>
+        <td>${company.cemail}</td>
+        <td>${company.caddress}</td>
+        <td><button onclick="editCompany(${company.id})">✏️ Edit</button></td>
+      `;
+      tbody.appendChild(row);
+    });
 
-    function updatePaginationInfo(from, to, total) {
-      const info = document.querySelector(".pagination-info");
-      info.textContent = total === 0
-        ? "Showing 0 to 0 of 0 entries"
-        : `Showing ${from} to ${to} of ${total} entries`;
-    }
+    updatePaginationInfo(startIndex + 1, startIndex + companiesToShow.length, totalEntries);
+  }
 
-    function renderPagination() {
-      const container = document.querySelector(".pagination");
-      container.innerHTML = '';
-      if (totalPages <= 1) return;
+  function updatePaginationInfo(from, to, total) {
+    const info = document.querySelector(".pagination-info");
+    info.textContent = total === 0
+      ? "Showing 0 to 0 of 0 entries"
+      : `Showing ${from} to ${to} of ${total} entries`;
+  }
 
-      function createPageLink(page) {
-        const a = document.createElement('a');
-        a.href = "#";
-        a.textContent = page;
-        if (page === currentPage) a.classList.add('active');
-        a.addEventListener('click', function (e) {
-          e.preventDefault();
-          if (page !== currentPage) {
-            currentPage = page;
-            renderTable();
-            renderPagination();
-          }
-        });
-        return a;
-      }
+  function renderPagination() {
+    const container = document.querySelector(".pagination");
+    container.innerHTML = '';
+    if (totalPages <= 1) return;
 
-      container.appendChild(createPageLink(1));
-      if (totalPages <= 7) {
-        for (let i = 2; i <= totalPages; i++) container.appendChild(createPageLink(i));
-      } else {
-        let startPage, endPage;
-        if (currentPage <= 4) {
-          startPage = 2; endPage = 5;
-          for (let i = startPage; i <= endPage; i++) container.appendChild(createPageLink(i));
-          container.appendChild(createEllipsis());
-          container.appendChild(createPageLink(totalPages));
-        } else if (currentPage > totalPages - 4) {
-          container.appendChild(createEllipsis());
-          startPage = totalPages - 4;
-          for (let i = startPage; i < totalPages; i++) container.appendChild(createPageLink(i));
-          container.appendChild(createPageLink(totalPages));
-        } else {
-          container.appendChild(createEllipsis());
-          for (let i = currentPage - 1; i <= currentPage + 1; i++) container.appendChild(createPageLink(i));
-          container.appendChild(createEllipsis());
-          container.appendChild(createPageLink(totalPages));
+    function createPageLink(page) {
+      const a = document.createElement('a');
+      a.href = "#";
+      a.textContent = page;
+      if (page === currentPage) a.classList.add('active');
+      a.addEventListener('click', function (e) {
+        e.preventDefault();
+        if (page !== currentPage) {
+          currentPage = page;
+          renderTable();
+          renderPagination();
         }
-      }
+      });
+      return a;
+    }
 
-      function createEllipsis() {
-        const span = document.createElement('span');
-        span.textContent = '...';
-        span.classList.add('ellipsis');
-        return span;
+    container.appendChild(createPageLink(1));
+    if (totalPages <= 7) {
+      for (let i = 2; i <= totalPages; i++) container.appendChild(createPageLink(i));
+    } else {
+      let startPage, endPage;
+      if (currentPage <= 4) {
+        startPage = 2; endPage = 5;
+        for (let i = startPage; i <= endPage; i++) container.appendChild(createPageLink(i));
+        container.appendChild(createEllipsis());
+        container.appendChild(createPageLink(totalPages));
+      } else if (currentPage > totalPages - 4) {
+        container.appendChild(createEllipsis());
+        startPage = totalPages - 4;
+        for (let i = startPage; i < totalPages; i++) container.appendChild(createPageLink(i));
+        container.appendChild(createPageLink(totalPages));
+      } else {
+        container.appendChild(createEllipsis());
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) container.appendChild(createPageLink(i));
+        container.appendChild(createEllipsis());
+        container.appendChild(createPageLink(totalPages));
       }
     }
-  </script>
+
+    function createEllipsis() {
+      const span = document.createElement('span');
+      span.textContent = '...';
+      span.classList.add('ellipsis');
+      return span;
+    }
+  }
+
+  function editCompany(id) {
+    const company = allCompanies.find(c => c.id === id);
+    if (!company) return;
+
+    editingCompanyId = id;
+    document.getElementById("companyName").value = company.name;
+    document.getElementById("status").value = company.status;
+    document.getElementById("startDate").value = company.startdate;
+    document.getElementById("endDate").value = company.enddate;
+    document.getElementById("contactName").value = company.cname;
+    document.getElementById("contactNumber").value = company.cnumber;
+    document.getElementById("contactEmail").value = company.cemail;
+    document.getElementById("address").value = company.caddress;
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+</script>
+
 </body>
 </html>
 <!-- END OF FILE -->

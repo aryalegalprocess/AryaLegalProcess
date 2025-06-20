@@ -18,9 +18,10 @@ app.use(cors({
     "http://localhost:5500",
     "http://127.0.0.1:5500"
   ],
-  methods: ["GET", "POST"],
+  methods: ["GET", "POST", "PUT"],
   credentials: true
 }));
+
 app.use(express.json({ limit: '100mb' }));
 app.use(express.urlencoded({ extended: true, limit: '100mb' }));
 
