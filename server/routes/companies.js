@@ -78,18 +78,23 @@ module.exports = function (Company) {
 router.delete('/:id', async (req, res) => {
   try {
     const id = parseInt(req.params.id);
+    console.log("🔍 Deleting company with id:", id);
+
     const deleted = await Company.findOneAndDelete({ id });
 
     if (!deleted) {
+      console.log("❌ Company not found for id:", id);
       return res.status(404).json({ error: "Company not found" });
     }
 
+    console.log("✅ Deleted company:", deleted);
     return res.status(200).json({ message: "Company deleted successfully." });
   } catch (err) {
     console.error("❌ Error deleting company:", err);
     return res.status(500).json({ error: "Failed to delete company." });
   }
 });
+
 
   return router;
 };
