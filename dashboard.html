@@ -473,15 +473,26 @@ input:-webkit-autofill:active {
 
   <script>
     function login() {
-      const username = document.getElementById('username').value.trim();
-      const password = document.getElementById('password').value;
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value;
 
-      if (username === "9246466288" && password === "12345678") {
-        window.location.href = "home.html"; 
-      } else {
-        alert("Invalid mobile number or password.");
-      }
+  fetch('https://aryalegalprocess-backend.onrender.com/api/login', {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username, password })
+  }).then(res => {
+    if (res.ok) {
+      window.location.href = "home.html";
+    } else {
+      alert("Invalid mobile number or password.");
     }
+  }).catch(err => {
+    console.error('Login error:', err);
+    alert("Login failed.");
+  });
+}
+
 
    function togglePassword() {
   const passwordInput = document.getElementById("password");
