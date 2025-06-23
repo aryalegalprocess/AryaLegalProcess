@@ -2,10 +2,13 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
+const session = require('express-session'); // ✅ NEW
+const fs = require('fs'); // ✅ NEW
+const bcrypt = require('bcryptjs'); // ✅ NEW
 require('dotenv').config();
 
 const Contact = require('./models/contact');
-const sendEmail = require('./server/utils/sendemail'); // ✅ Email utility
+const sendEmail = require('./server/utils/sendemail');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -18,35 +21,42 @@ app.use(cors({
     "http://localhost:5500",
     "http://127.0.0.1:5500"
   ],
-  methods: ["GET", "POST", "PUT", "DELETE"], // ✅ FIXED
+  methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
 }));
 
+app.use(session({ // ✅ NEW
+  secret: 'arya_secret_key',
+  resave: false,
+  saveUninitialized: true,
+  cookie: {
+    httpOnly: true,
+    secure: false,
+    maxAge: 60 * 60 * 1000 // 1 hour
+  }
+}));
 
 app.use(express.json({ limit: '100mb' }));
 app.use(express.urlencoded({ extended: true, limit: '100mb' }));
 
-// ✅ Fix: Enable CORS headers for images explicitly
-// ✅ Serve images with proper CORS and Cross-Origin-Resource-Policy to fix ORB error
+// ✅ Serve images with proper CORS headers
 app.use('/images', (req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
   next();
 }, express.static(path.join(__dirname, 'images')));
 
-
-// ✅ Serve other static files from root directory
+// ✅ Serve static files
 app.use(express.static(path.join(__dirname)));
 
-// --- MongoDB connections ---
+// --- MongoDB Connections ---
 
-// Products DB
 const productConnection = mongoose.createConnection(process.env.MONGO_URI_PRODUCTS, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
 const productSchema = new mongoose.Schema({
-  id: Number, // ✅ added this line
+  id: Number,
   barcode: String,
   name: String,
   details: String,
@@ -61,7 +71,6 @@ const productSchema = new mongoose.Schema({
 });
 const Product = productConnection.model('Product', productSchema);
 
-// Companies DB
 const companyConnection = mongoose.createConnection(process.env.MONGO_URI_COMPANY, {
   useNewUrlParser: true,
   useUnifiedTopology: true
@@ -69,26 +78,47 @@ const companyConnection = mongoose.createConnection(process.env.MONGO_URI_COMPAN
 const CompanyModel = require('./models/company')(companyConnection);
 const Company = require('./models/company');
 
-
-
-
-// Default connection for Contact
+// Default connection
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
 
-// --- Routes ---
+// --- Session Auth Middleware ---
+function isAuthenticated(req, res, next) {
+  if (req.session && req.session.user) return next();
+  res.status(401).send('Unauthorized');
+}
 
-// Products
+// --- Auth Routes ---
+app.post('/api/login', (req, res) => {
+  const { username, password } = req.body;
+  const users = JSON.parse(fs.readFileSync(path.join(__dirname, 'data/users.json')));
+  const user = users.find(u => u.mobile === username);
+
+  if (!user) return res.status(401).json({ message: 'Invalid mobile or password' });
+
+  const passwordMatch = bcrypt.compareSync(password, user.password);
+  if (!passwordMatch) return res.status(401).json({ message: 'Invalid mobile or password' });
+
+  req.session.user = { id: user.id, name: user.name, type: user.type };
+  res.status(200).json({ message: 'Login successful' });
+});
+
+app.post('/api/logout', (req, res) => {
+  req.session.destroy();
+  res.clearCookie('connect.sid');
+  res.json({ message: 'Logged out' });
+});
+
+// --- API Routes ---
 const productRoutes = require('./server/routes/products')(Product, Company);
 app.use('/api/products', productRoutes);
 
-// Companies
 const companyRoutes = require('./server/routes/companies')(Company);
 app.use('/api/companies', companyRoutes);
 
-// Contact POST
+// Contact Routes
 app.post("/api/contact", async (req, res) => {
   try {
     const { name, email, message } = req.body;
@@ -101,7 +131,6 @@ app.post("/api/contact", async (req, res) => {
   }
 });
 
-// Contact GET
 app.get("/api/contact", async (req, res) => {
   try {
     const contacts = await Contact.find();
@@ -213,41 +242,42 @@ const emailContent = `
   }
 });
 
+// --- Protected HTML Pages ---
+app.get('/home.html', isAuthenticated, (req, res) => {
+  res.sendFile(path.join(__dirname, 'home.html'));
+});
+app.get('/company.html', isAuthenticated, (req, res) => {
+  res.sendFile(path.join(__dirname, 'company.html'));
+});
+app.get('/addproduct.html', isAuthenticated, (req, res) => {
+  res.sendFile(path.join(__dirname, 'addproduct.html'));
+});
+app.get('/meila.html', isAuthenticated, (req, res) => {
+  res.sendFile(path.join(__dirname, 'meila.html'));
+});
+
 // Health check
 app.get('/test', (req, res) => {
   res.send('✅ Backend is running!');
 });
 
-// --- Start server only after DBs are ready ---
+// --- DB ready check ---
 Promise.all([
   new Promise(resolve => productConnection.once('open', resolve)),
   new Promise(resolve => companyConnection.once('open', resolve)),
   new Promise(resolve => mongoose.connection.once('open', resolve))
-]).then(async () => {
-
-
-
-  // ✅ Custom route for fetching product by barcode (with company name)
+]).then(() => {
   app.get('/api/products/:barcode', async (req, res) => {
     try {
       const barcode = req.params.barcode;
-      console.log("Looking for product with barcode:", barcode);
-
       const product = await Product.findOne({ barcode });
-      console.log("Product found:", product);
-
-      if (!product) {
-        return res.status(404).json({ message: 'Product not found' });
-      }
+      if (!product) return res.status(404).json({ message: 'Product not found' });
 
       const company = await Company.findOne({ id: product.company });
-      console.log("Company found:", company);
-
       const responseData = {
         ...product.toObject(),
         companyName: company ? company.name : "Unknown"
       };
-
       res.json(responseData);
     } catch (err) {
       console.error("Error fetching product by barcode:", err);
@@ -262,13 +292,11 @@ Promise.all([
   console.error('❌ Error connecting to databases:', err);
 });
 
-
-// 404 API fallback (after all routes)
+// Fallback
 app.all('/*splat', (req, res) => {
   res.status(404).json({ error: 'API route not found' });
 });
 
-// ✅ Serve index.html for all non-API routes (for SPA routing)
 app.get('/*splat', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
