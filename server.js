@@ -10,7 +10,6 @@ const sendEmail = require('./server/utils/sendemail'); // ✅ Email utility
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// --- Middleware ---
 const allowedOrigins = [
   "https://www.aryalegalprocess.com",
   "https://aryalegalprocess.com",
@@ -18,6 +17,7 @@ const allowedOrigins = [
   "http://127.0.0.1:5500"
 ];
 
+// ✅ CORS FIRST
 app.use(cors({
   origin: function (origin, callback) {
     if (!origin || allowedOrigins.includes(origin)) {
@@ -31,26 +31,27 @@ app.use(cors({
   allowedHeaders: ["Content-Type", "Authorization"]
 }));
 
-// ✅ Required to handle CORS preflight
+// ✅ HANDLE ALL OPTIONS PRE-FLIGHTS BEFORE ANYTHING ELSE
 app.options('*', cors());
 
+// ✅ THEN express.json / session etc.
+app.use(express.json({ limit: '100mb' }));
+app.use(express.urlencoded({ extended: true, limit: '100mb' }));
 
+// ✅ SESSION AFTER CORS/OPTIONS
 const session = require('express-session');
-
 app.use(session({
-  secret: 'arya-secret', // change in production
+  secret: 'arya-secret',
   resave: false,
   saveUninitialized: false,
   cookie: {
     httpOnly: true,
-    secure: true, // needs HTTPS!
+    secure: true, // requires HTTPS
     sameSite: 'None',
-    maxAge: 24 * 60 * 60 * 1000 // 1 day
+    maxAge: 24 * 60 * 60 * 1000
   }
 }));
 
-app.use(express.json({ limit: '100mb' }));
-app.use(express.urlencoded({ extended: true, limit: '100mb' }));
 
 // ✅ Fix: Enable CORS headers for images explicitly
 // ✅ Serve images with proper CORS and Cross-Origin-Resource-Policy to fix ORB error
