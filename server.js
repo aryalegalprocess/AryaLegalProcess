@@ -10,54 +10,21 @@ const sendEmail = require('./server/utils/sendemail'); // ✅ Email utility
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-const allowedOrigins = [
-  "https://www.aryalegalprocess.com",
-  "https://aryalegalprocess.com",
-  "http://localhost:5500",
-  "http://127.0.0.1:5500"
-];
-
-// ✅ CORS FIRST
+// --- Middleware ---
 app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
-  allowedHeaders: ["Content-Type", "Authorization"]
+  origin: [
+    "https://www.aryalegalprocess.com",
+    "https://aryalegalprocess.com",
+    "http://localhost:5500",
+    "http://127.0.0.1:5500"
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE"], // ✅ FIXED
+  credentials: true
 }));
 
-// ✅ HANDLE ALL OPTIONS PRE-FLIGHTS BEFORE ANYTHING ELSE
-app.options('*', cors());
 
-// ✅ THEN express.json / session etc.
 app.use(express.json({ limit: '100mb' }));
 app.use(express.urlencoded({ extended: true, limit: '100mb' }));
-
-const session = require('express-session');
-app.use(session({
-  secret: 'arya-secret',
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    httpOnly: true,
-    secure: true,
-    sameSite: 'None',
-    maxAge: 24 * 60 * 60 * 1000
-  }
-}));
-
-// ✅ Add this here:
-app.use((req, res, next) => {
-  console.log(`[${req.method}] ${req.url} - Body:`, req.body);
-  next();
-});
-
-
 
 // ✅ Fix: Enable CORS headers for images explicitly
 // ✅ Serve images with proper CORS and Cross-Origin-Resource-Policy to fix ORB error
@@ -143,31 +110,6 @@ app.get("/api/contact", async (req, res) => {
     console.error("Error fetching contacts:", err);
     res.status(500).json({ error: "Failed to fetch contacts." });
   }
-});
-
-// ✅ Login/Auth Routes (moved outside Promise.all)
-app.post('/api/login', (req, res) => {
-  console.log("Login attempt:", req.body);
-  const { username, password } = req.body;
-  if (username === '9246466288' && password === '12345678') {
-    req.session.user = { username };
-    return res.status(200).json({ message: 'Login success' });
-  }
-  res.status(401).json({ message: 'Invalid credentials' });
-});
-
-app.get('/api/check-auth', (req, res) => {
-  if (req.session.user) {
-    return res.status(200).json({ authenticated: true });
-  }
-  res.status(401).json({ authenticated: false });
-});
-
-app.post('/api/logout', (req, res) => {
-  req.session.destroy(() => {
-    res.clearCookie('connect.sid');
-    res.status(200).json({ message: 'Logged out' });
-  });
 });
 
 // ✅ NEW: Send Expiry Emails Route
