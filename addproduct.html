@@ -114,7 +114,7 @@
         .then(companies => {
           companies.forEach(company => {
             const option = document.createElement("option");
-            option.value = company._id; // ONLY use _id
+            option.value = company.id; // 🔁 Use linear numeric ID
             option.textContent = company.name;
             companySelect.appendChild(option);
           });

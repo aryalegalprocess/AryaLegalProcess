@@ -10,10 +10,10 @@ window.addEventListener("DOMContentLoaded", () => {
         if (!uniqueCompanyNames.has(company.companyName)) {
           uniqueCompanyNames.add(company.companyName);
 
-          const option = document.createElement("option");
-          option.value = company.companyName;
-          option.textContent = company.companyName;
-          select.appendChild(option);
+           const option = document.createElement("option");
+        option.value = company.id;  // 🔴 FIXED: Use linear numeric ID
+        option.textContent = company.name; // 🔴 DISPLAY the actual company name
+        select.appendChild(option);
         }
       });
     })
