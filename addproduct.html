@@ -80,143 +80,180 @@
     </div>
   </div>
 
-  <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      const sidebar = document.querySelector('.sidebar');
-      if (sidebar) {
-        sidebar.addEventListener('click', () => {
-          sidebar.classList.toggle('expanded');
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const productId = urlParams.get("id");
+
+    const sidebar = document.querySelector('.sidebar');
+    if (sidebar) {
+      sidebar.addEventListener('click', () => {
+        sidebar.classList.toggle('expanded');
+      });
+    }
+
+    window.toggleDropdown = function () {
+      const dropdown = document.getElementById("dropdown");
+      dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+    };
+
+    document.addEventListener("click", function (event) {
+      const dropdown = document.getElementById("dropdown");
+      const admin = document.querySelector(".admin");
+      if (dropdown && admin && !admin.contains(event.target)) {
+        dropdown.style.display = "none";
+      }
+    });
+
+    const companySelect = document.getElementById("company");
+
+    // Load companies first
+    fetch('https://aryalegalprocess.onrender.com/api/companies')
+      .then(res => res.json())
+      .then(companies => {
+        const uniqueCompanyNames = new Set();
+        companies.forEach(company => {
+          if (!uniqueCompanyNames.has(company.name)) {
+            uniqueCompanyNames.add(company.name);
+            const option = document.createElement("option");
+            option.value = company.id;
+            option.textContent = company.name;
+            companySelect.appendChild(option);
+          }
         });
+
+        // After companies are loaded, fetch product details if editing
+        if (productId) {
+          fetch(`https://aryalegalprocess.onrender.com/api/products/id/${productId}`)
+            .then(res => res.json())
+            .then(product => {
+              document.getElementById("barcode").value = product.barcode || '';
+              document.getElementById("product-name").value = product.name || '';
+              document.getElementById("product-details").value = product.details || '';
+              document.getElementById("weightage").value = product.weight || '';
+              document.getElementById("quantity").value = product.quantity || '';
+              document.getElementById("company").value = product.company || '';
+              document.getElementById("description").value = product.description || '';
+              document.getElementById("start-date").value = product.startDate || '';
+              document.getElementById("end-date").value = product.endDate || '';
+              document.getElementById("price").value = product.price || '';
+            })
+            .catch(err => {
+              console.error("Failed to load product:", err);
+              alert("Unable to load product details.");
+            });
+        }
+      })
+      .catch(err => {
+        console.error("Failed to fetch companies:", err);
+      });
+
+    // Handle form submit
+    document.getElementById('productForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const errorElements = document.querySelectorAll('.error-message');
+      errorElements.forEach(el => el.remove());
+
+      let valid = true;
+
+      function showError(input, message) {
+        valid = false;
+        const error = document.createElement('div');
+        error.className = 'error-message';
+        error.style.color = 'red';
+        error.style.fontSize = '14px';
+        error.style.marginTop = '4px';
+        error.textContent = message;
+        input.parentNode.insertBefore(error, input.nextSibling);
       }
 
-      window.toggleDropdown = function () {
-        const dropdown = document.getElementById("dropdown");
-        dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
-      };
+      const barcode = document.getElementById('barcode');
+      const productName = document.getElementById('product-name');
+      const productDetails = document.getElementById('product-details');
+      const weightage = document.getElementById('weightage');
+      const quantity = document.getElementById('quantity');
+      const company = document.getElementById('company');
+      const description = document.getElementById('description');
+      const imageInput = document.getElementById('image');
+      const startDate = document.getElementById('start-date');
+      const endDate = document.getElementById('end-date');
+      const price = document.getElementById('price');
 
-      document.addEventListener("click", function (event) {
-        const dropdown = document.getElementById("dropdown");
-        const admin = document.querySelector(".admin");
-        if (dropdown && admin && !admin.contains(event.target)) {
-          dropdown.style.display = "none";
-        }
-      });
+      if (!barcode.value.trim()) showError(barcode, 'Barcode Number is required.');
+      if (!productName.value.trim()) showError(productName, 'Product Name is required.');
+      if (!productDetails.value.trim()) showError(productDetails, 'Product Details are required.');
+      if (!weightage.value.trim()) showError(weightage, 'Product Weightage is required.');
+      if (!quantity.value.trim()) showError(quantity, 'Product Quantity is required.');
+      if (!company.value) showError(company, 'Please select a company.');
+      if (!description.value.trim()) showError(description, 'Product Description is required.');
+      if (!startDate.value) showError(startDate, 'Start Date is required.');
+      if (!endDate.value) showError(endDate, 'End Date is required.');
+      if (!price.value.trim()) showError(price, 'Price is required.');
 
-      // Load companies
-      fetch('https://aryalegalprocess.onrender.com/api/companies')
-        .then(res => res.json())
-        .then(companies => {
-          const select = document.getElementById("company");
-          const uniqueCompanyNames = new Set();
+      const isEditing = !!productId;
+      const file = imageInput.files[0];
 
-          companies.forEach(company => {
-            if (!uniqueCompanyNames.has(company.name)) {
-              uniqueCompanyNames.add(company.name);
-              const option = document.createElement("option");
-              option.value = company.id;
-              option.textContent = company.name;
-              select.appendChild(option);
-            }
-          });
-        })
-        .catch(err => {
-          console.error("Failed to fetch companies:", err);
-        });
+      // Only require image if adding
+      if (!isEditing && !file) {
+        showError(imageInput, 'Please upload a product image.');
+      }
 
-      // Form submit with validation
-      document.getElementById('productForm').addEventListener('submit', function (e) {
-        e.preventDefault();
-
-        const errorElements = document.querySelectorAll('.error-message');
-        errorElements.forEach(el => el.remove());
-
-        let valid = true;
-
-        function showError(input, message) {
-          valid = false;
-          const error = document.createElement('div');
-          error.className = 'error-message';
-          error.style.color = 'red';
-          error.style.fontSize = '14px';
-          error.style.marginTop = '4px';
-          error.textContent = message;
-          input.parentNode.insertBefore(error, input.nextSibling);
-        }
-
-        const barcode = document.getElementById('barcode');
-        const productName = document.getElementById('product-name');
-        const productDetails = document.getElementById('product-details');
-        const weightage = document.getElementById('weightage');
-        const quantity = document.getElementById('quantity');
-        const company = document.getElementById('company');
-        const description = document.getElementById('description');
-        const imageInput = document.getElementById('image');
-        const startDate = document.getElementById('start-date');
-        const endDate = document.getElementById('end-date');
-        const price = document.getElementById('price');
-
-        if (!barcode.value.trim()) showError(barcode, 'Barcode Number is required.');
-        if (!productName.value.trim()) showError(productName, 'Product Name is required.');
-        if (!productDetails.value.trim()) showError(productDetails, 'Product Details are required.');
-        if (!weightage.value.trim()) showError(weightage, 'Product Weightage is required.');
-        if (!quantity.value.trim()) showError(quantity, 'Product Quantity is required.');
-        if (!company.value) showError(company, 'Please select a company.');
-        if (!description.value.trim()) showError(description, 'Product Description is required.');
-        if (!imageInput.value) showError(imageInput, 'Please upload a product image.');
-        if (!startDate.value) showError(startDate, 'Start Date is required.');
-        if (!endDate.value) showError(endDate, 'End Date is required.');
-        if (!price.value.trim()) showError(price, 'Price is required.');
-
-        if (valid) {
-          const file = imageInput.files[0];
-          const reader = new FileReader();
-
-          reader.onloadend = function () {
-            const base64Image = reader.result;
-
-            const productData = {
-              barcode: barcode.value.trim(),
-              name: productName.value.trim(),
-              details: productDetails.value.trim(),
-              weight: weightage.value.trim(),
-              quantity: quantity.value.trim(),
-              company: company.value,
-              description: description.value.trim(),
-              startDate: startDate.value,
-              endDate: endDate.value,
-              price: price.value.trim(),
-              image: base64Image
-            };
-
-            fetch("https://aryalegalprocess.onrender.com/api/products", {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify(productData)
-            })
-              .then(response => {
-                if (response.ok) {
-                  alert('Product added successfully!');
-                  document.getElementById('productForm').reset();
-                } else {
-                  alert('Failed to add product.');
-                }
-              })
-              .catch(error => {
-                console.error('Error:', error);
-                alert('An error occurred.');
-              });
+      if (valid) {
+        const submitData = () => {
+          const productData = {
+            barcode: barcode.value.trim(),
+            name: productName.value.trim(),
+            details: productDetails.value.trim(),
+            weight: weightage.value.trim(),
+            quantity: quantity.value.trim(),
+            company: company.value,
+            description: description.value.trim(),
+            startDate: startDate.value,
+            endDate: endDate.value,
+            price: price.value.trim(),
+            image: base64Image // added later
           };
 
-          if (file) {
-            reader.readAsDataURL(file);
-          } else {
-            alert('Please upload an image file.');
-          }
+          const url = isEditing
+            ? `https://aryalegalprocess.onrender.com/api/products/${productId}`
+            : `https://aryalegalprocess.onrender.com/api/products`;
+
+          const method = isEditing ? 'PUT' : 'POST';
+
+          fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(productData)
+          })
+            .then(res => res.json())
+            .then(data => {
+              alert(data.message || (isEditing ? "Product updated!" : "Product added!"));
+              window.location.href = "productlist.html";
+            })
+            .catch(error => {
+              console.error("Error:", error);
+              alert("Failed to save product.");
+            });
+        };
+
+        let base64Image = "";
+
+        if (file) {
+          const reader = new FileReader();
+          reader.onloadend = function () {
+            base64Image = reader.result;
+            submitData();
+          };
+          reader.readAsDataURL(file);
+        } else {
+          base64Image = ""; // send blank if no image change during edit
+          submitData();
         }
-      });
+      }
     });
-  </script>
+  });
+</script>
+
 </body>
 </html>
