@@ -7,7 +7,6 @@
   <link rel="stylesheet" href="barcode-search.css" />
 </head>
 <style>
-  
 .result-section {
   display: none;
   margin-top: 30px;
@@ -60,7 +59,6 @@
   border-radius: 6px;
   border: 1px solid #ccc;
 }
-
 </style>
 <body>
   <div class="top-bar">
@@ -90,79 +88,78 @@
   }
 
   // Barcode search
-async function searchProduct() {
-  const barcode = document.getElementById('barcodeInput').value.trim();
-  const resultDiv = document.getElementById("result");
+  async function searchProduct() {
+    const barcode = document.getElementById('barcodeInput').value.trim();
+    const resultDiv = document.getElementById("result");
 
-  if (!barcode) {
-    alert("Please enter a barcode number.");
-    return;
+    if (!barcode) {
+      alert("Please enter a barcode number.");
+      return;
+    }
+
+    try {
+      const res = await fetch(`https://aryalegalprocess.onrender.com/api/products/${barcode}`);
+      if (!res.ok) throw new Error("Not found");
+
+      const data = await res.json();
+
+      // ✅ Handle both Base64 and static image filenames
+      const imgSrc = data.image?.startsWith("data:image")
+        ? data.image
+        : data.image
+        ? `https://aryalegalprocess.onrender.com/images/${encodeURIComponent(data.image)}`
+        : 'images/default.jpg';
+
+      const name = data.name || '-';
+      const weight = data.weight || '-';
+      const price = data.price && data.price !== "" ? `₹${data.price}` : '₹0';
+      const description = data.description || '-';
+      const details = data.details || '-';
+      const quantity = data.quantity || '-';
+      const company = data.companyName || '-';
+      const startdate = data.startdate || data.startDate || '-';
+      const enddate = data.enddate || data.endDate || '-';
+
+      resultDiv.innerHTML = `
+        <table class="product-info-table">
+          <thead>
+            <tr>
+              <th>Image</th>
+              <th>Name</th>
+              <th>Weight</th>
+              <th>Price</th>
+              <th>Description</th>
+              <th>Details</th>
+              <th>Quantity</th>
+              <th>Company</th>
+              <th>Start Date</th>
+              <th>End Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><img src="${imgSrc}" alt="${name}" class="product-img" /></td>
+              <td>${name}</td>
+              <td>${weight}</td>
+              <td>${price}</td>
+              <td>${description}</td>
+              <td>${details}</td>
+              <td>${quantity}</td>
+              <td>${company}</td>
+              <td>${startdate}</td>
+              <td>${enddate}</td>
+            </tr>
+          </tbody>
+        </table>
+      `;
+
+      resultDiv.style.display = "block";
+
+    } catch (err) {
+      resultDiv.innerHTML = `<p style="color:red;">Product not found. Please try again.</p>`;
+      resultDiv.style.display = "block";
+    }
   }
-
-  try {
-    const res = await fetch(https://aryalegalprocess.onrender.com/api/products/${barcode});
-    if (!res.ok) throw new Error("Not found");
-
-    const data = await res.json();
-
-    // ✅ Handle both Base64 and static image filenames
-    const imgSrc = data.image?.startsWith("data:image")
-  ? data.image                                  // 🟢 Base64 image from DB
-  : data.image
-    ? https://aryalegalprocess.onrender.com/images/${encodeURIComponent(data.image)} // 🟢 File from folder
-    : 'images/default.jpg';                     // 🔴 Default fallback
-
-    const name = data.name || '-';
-    const weight = data.weight || '-';
-    const price = data.price && data.price !== "" ? ₹${data.price} : '₹0';
-    const description = data.description || '-';
-    const details = data.details || '-';
-    const quantity = data.quantity || '-';
-    const company = data.companyName || '-';
-    const startdate = data.startdate || data.startDate || '-';
-    const enddate = data.enddate || data.endDate || '-';
-
-    resultDiv.innerHTML = `
-      <table class="product-info-table">
-        <thead>
-          <tr>
-            <th>Image</th>
-            <th>Name</th>
-            <th>Weight</th>
-            <th>Price</th>
-            <th>Description</th>
-            <th>Details</th>
-            <th>Quantity</th>
-            <th>Company</th>
-            <th>Start Date</th>
-            <th>End Date</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td><img src="${imgSrc}" alt="${name}" class="product-img" /></td>
-            <td>${name}</td>
-            <td>${weight}</td>
-            <td>${price}</td>
-            <td>${description}</td>
-            <td>${details}</td>
-            <td>${quantity}</td>
-            <td>${company}</td>
-            <td>${startdate}</td>
-            <td>${enddate}</td>
-          </tr>
-        </tbody>
-      </table>
-    `;
-
-    resultDiv.style.display = "block";
-
-  } catch (err) {
-    resultDiv.innerHTML = <p style="color:red;">Product not found. Please try again.</p>;
-    resultDiv.style.display = "block";
-  }
-}
-
 </script>
 
 </body>
