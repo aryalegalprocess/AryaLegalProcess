@@ -38,7 +38,6 @@ app.options('*', cors());
 app.use(express.json({ limit: '100mb' }));
 app.use(express.urlencoded({ extended: true, limit: '100mb' }));
 
-// ✅ SESSION AFTER CORS/OPTIONS
 const session = require('express-session');
 app.use(session({
   secret: 'arya-secret',
@@ -46,11 +45,18 @@ app.use(session({
   saveUninitialized: false,
   cookie: {
     httpOnly: true,
-    secure: true, // requires HTTPS
+    secure: true,
     sameSite: 'None',
     maxAge: 24 * 60 * 60 * 1000
   }
 }));
+
+// ✅ Add this here:
+app.use((req, res, next) => {
+  console.log(`[${req.method}] ${req.url} - Body:`, req.body);
+  next();
+});
+
 
 
 // ✅ Fix: Enable CORS headers for images explicitly
