@@ -126,6 +126,31 @@ app.get("/api/contact", async (req, res) => {
   }
 });
 
+// ✅ Login/Auth Routes (moved outside Promise.all)
+app.post('/api/login', (req, res) => {
+  console.log("Login attempt:", req.body);
+  const { username, password } = req.body;
+  if (username === '9246466288' && password === '12345678') {
+    req.session.user = { username };
+    return res.status(200).json({ message: 'Login success' });
+  }
+  res.status(401).json({ message: 'Invalid credentials' });
+});
+
+app.get('/api/check-auth', (req, res) => {
+  if (req.session.user) {
+    return res.status(200).json({ authenticated: true });
+  }
+  res.status(401).json({ authenticated: false });
+});
+
+app.post('/api/logout', (req, res) => {
+  req.session.destroy(() => {
+    res.clearCookie('connect.sid');
+    res.status(200).json({ message: 'Logged out' });
+  });
+});
+
 // ✅ NEW: Send Expiry Emails Route
 app.post('/api/send-expiry-emails', async (req, res) => {
   try {
@@ -268,30 +293,6 @@ Promise.all([
       res.status(500).json({ message: 'Server error' });
     }
   });
-app.post('/api/login', (req, res) => {
-  const { username, password } = req.body;
-
-  if (username === '9246466288' && password === '12345678') {
-    req.session.user = { username };
-    return res.status(200).json({ message: 'Login success' });
-  }
-
-  res.status(401).json({ message: 'Invalid credentials' });
-});
-
-app.get('/api/check-auth', (req, res) => {
-  if (req.session.user) {
-    return res.status(200).json({ authenticated: true });
-  }
-  res.status(401).json({ authenticated: false });
-});
-
-app.post('/api/logout', (req, res) => {
-  req.session.destroy(() => {
-    res.clearCookie('connect.sid');
-    res.status(200).json({ message: 'Logged out' });
-  });
-});
 
   app.listen(PORT, () => {
     console.log(`🚀 Server running on port ${PORT}`);
