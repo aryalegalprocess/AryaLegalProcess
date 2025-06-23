@@ -86,18 +86,6 @@
   <div id="descPopup" class="description-popup" style="display:none;"></div>
 
   <script>
-
-    fetch('https://aryalegalprocess-backend.onrender.com/api/check-auth', {
-    credentials: 'include'
-  })
-  .then(res => {
-    if (!res.ok) {
-      window.location.href = 'dashboard.html';
-    }
-  })
-  .catch(() => {
-    window.location.href = 'dashboard.html';
-  });
     const sidebar = document.querySelector('.sidebar');
     sidebar.addEventListener('click', () => {
       sidebar.classList.toggle('expanded');
