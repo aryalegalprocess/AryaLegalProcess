@@ -4,6 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Arya Barcode Lookup</title>
+  <link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+/>
   <link rel="stylesheet" href="barcode-search.css" />
 </head>
 <style>
@@ -76,7 +80,20 @@
       <h4><strong>ENTER YOUR BARCODE (GTIN) NUMBER</strong></h4>
       <input type="text" class="barcode-input" placeholder="Barcode" id="barcodeInput" />
       <br />
-      <button class="search-button" onclick="searchProduct()">Search</button>
+      <button class="action-button search-button" onclick="searchProduct()">Search</button>
+<button class="action-button scan-button" onclick="startScanner()">
+  <i class="fas fa-camera-alt"></i> Scan
+</button>
+
+
+<!-- Scanner Modal -->
+<div id="scannerModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:#000000b0; z-index:9999; justify-content:center; align-items:center;">
+  <div style="position:relative; width:90%; max-width:600px;">
+    <video id="scanner" style="width:100%; border-radius:8px;"></video>
+    <button onclick="stopScanner()" style="position:absolute; top:10px; right:10px; background:#ff4444; color:white; border:none; padding:5px 10px; border-radius:5px;">✖</button>
+  </div>
+</div>
+
     </div>
 
     <!-- Result will show here -->
@@ -162,8 +179,50 @@ async function searchProduct() {
     resultDiv.style.display = "block";
   }
 }
+function startScanner() {
+  const modal = document.getElementById("scannerModal");
+  modal.style.display = "flex";
 
+  Quagga.init({
+    inputStream: {
+      name: "Live",
+      type: "LiveStream",
+      target: document.querySelector("#scanner"),
+      constraints: {
+        width: 640,
+        height: 480,
+        facingMode: "environment" // use rear camera
+      }
+    },
+    decoder: {
+      readers: ["ean_reader", "ean_8_reader", "upc_reader", "code_128_reader"]
+    }
+  }, function(err) {
+    if (err) {
+      console.error(err);
+      alert("Error initializing scanner.");
+      return;
+    }
+    Quagga.start();
+  });
+
+  Quagga.onDetected(data => {
+    const code = data.codeResult.code;
+    if (code) {
+      document.getElementById("barcodeInput").value = code;
+      stopScanner();
+      searchProduct(); // Automatically search after detection
+    }
+  });
+}
+
+function stopScanner() {
+  Quagga.stop();
+  document.getElementById("scannerModal").style.display = "none";
+  Quagga.offDetected(); // Remove previous listeners
+}
 </script>
+<script src="https://unpkg.com/@ericblade/quagga2/dist/quagga.js"></script>
 
 </body>
 </html>
