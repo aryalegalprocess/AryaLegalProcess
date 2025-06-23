@@ -472,36 +472,16 @@ input:-webkit-autofill:active {
   </div>
 
   <script>
-   function login() {
-  const username = document.getElementById('username').value.trim();
-  const password = document.getElementById('password').value;
+    function login() {
+      const username = document.getElementById('username').value.trim();
+      const password = document.getElementById('password').value;
 
-  if (!username || !password) {
-    alert("Please enter both mobile number and password.");
-    return;
-  }
-
-  fetch('/api/login', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
-    credentials: 'include', // ✅ Important for session cookie
-    body: JSON.stringify({ username, password })
-  })
-  .then(response => {
-    if (!response.ok) throw new Error("Login failed");
-    return response.json();
-  })
-  .then(data => {
-    window.location.href = "home.html";
-  })
-  .catch(error => {
-    alert("Invalid mobile number or password.");
-    console.error("Login error:", error);
-  });
-}
-
+      if (username === "9246466288" && password === "12345678") {
+        window.location.href = "home.html"; 
+      } else {
+        alert("Invalid mobile number or password.");
+      }
+    }
 
    function togglePassword() {
   const passwordInput = document.getElementById("password");

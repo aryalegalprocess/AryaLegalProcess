@@ -2,61 +2,84 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
-const session = require('express-session'); // ✅ NEW
-const fs = require('fs'); // ✅ NEW
-const bcrypt = require('bcryptjs'); // ✅ NEW
 require('dotenv').config();
 
 const Contact = require('./models/contact');
-const sendEmail = require('./server/utils/sendemail');
+const sendEmail = require('./server/utils/sendemail'); // ✅ Email utility
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// --- Middleware ---
+const allowedOrigins = [
+  "https://www.aryalegalprocess.com",
+  "https://aryalegalprocess.com",
+  "http://localhost:5500",
+  "http://127.0.0.1:5500"
+];
+
+// ✅ CORS FIRST
 app.use(cors({
-  origin: [
-    "https://www.aryalegalprocess.com",
-    "https://aryalegalprocess.com",
-    "http://localhost:5500",
-    "http://127.0.0.1:5500"
-  ],
-  methods: ["GET", "POST", "PUT", "DELETE"],
-  credentials: true
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
 }));
 
-app.use(session({ // ✅ NEW
-  secret: 'arya_secret_key',
-  resave: false,
-  saveUninitialized: true,
-  cookie: {
-    httpOnly: true,
-    secure: false,
-    maxAge: 60 * 60 * 1000 // 1 hour
-  }
-}));
+// ✅ HANDLE ALL OPTIONS PRE-FLIGHTS BEFORE ANYTHING ELSE
+app.options('*', cors());
 
+// ✅ THEN express.json / session etc.
 app.use(express.json({ limit: '100mb' }));
 app.use(express.urlencoded({ extended: true, limit: '100mb' }));
 
-// ✅ Serve images with proper CORS headers
+const session = require('express-session');
+app.use(session({
+  secret: 'arya-secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'None',
+    maxAge: 24 * 60 * 60 * 1000
+  }
+}));
+
+// ✅ Add this here:
+app.use((req, res, next) => {
+  console.log(`[${req.method}] ${req.url} - Body:`, req.body);
+  next();
+});
+
+
+
+// ✅ Fix: Enable CORS headers for images explicitly
+// ✅ Serve images with proper CORS and Cross-Origin-Resource-Policy to fix ORB error
 app.use('/images', (req, res, next) => {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
   next();
 }, express.static(path.join(__dirname, 'images')));
 
-// ✅ Serve static files
+
+// ✅ Serve other static files from root directory
 app.use(express.static(path.join(__dirname)));
 
-// --- MongoDB Connections ---
+// --- MongoDB connections ---
 
+// Products DB
 const productConnection = mongoose.createConnection(process.env.MONGO_URI_PRODUCTS, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
 const productSchema = new mongoose.Schema({
-  id: Number,
+  id: Number, // ✅ added this line
   barcode: String,
   name: String,
   details: String,
@@ -71,6 +94,7 @@ const productSchema = new mongoose.Schema({
 });
 const Product = productConnection.model('Product', productSchema);
 
+// Companies DB
 const companyConnection = mongoose.createConnection(process.env.MONGO_URI_COMPANY, {
   useNewUrlParser: true,
   useUnifiedTopology: true
@@ -78,47 +102,26 @@ const companyConnection = mongoose.createConnection(process.env.MONGO_URI_COMPAN
 const CompanyModel = require('./models/company')(companyConnection);
 const Company = require('./models/company');
 
-// Default connection
+
+
+
+// Default connection for Contact
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
 });
 
-// --- Session Auth Middleware ---
-function isAuthenticated(req, res, next) {
-  if (req.session && req.session.user) return next();
-  res.status(401).send('Unauthorized');
-}
+// --- Routes ---
 
-// --- Auth Routes ---
-app.post('/api/login', (req, res) => {
-  const { username, password } = req.body;
-  const users = JSON.parse(fs.readFileSync(path.join(__dirname, 'data/users.json')));
-  const user = users.find(u => u.mobile === username);
-
-  if (!user) return res.status(401).json({ message: 'Invalid mobile or password' });
-
-  const passwordMatch = bcrypt.compareSync(password, user.password);
-  if (!passwordMatch) return res.status(401).json({ message: 'Invalid mobile or password' });
-
-  req.session.user = { id: user.id, name: user.name, type: user.type };
-  res.status(200).json({ message: 'Login successful' });
-});
-
-app.post('/api/logout', (req, res) => {
-  req.session.destroy();
-  res.clearCookie('connect.sid');
-  res.json({ message: 'Logged out' });
-});
-
-// --- API Routes ---
+// Products
 const productRoutes = require('./server/routes/products')(Product, Company);
 app.use('/api/products', productRoutes);
 
+// Companies
 const companyRoutes = require('./server/routes/companies')(Company);
 app.use('/api/companies', companyRoutes);
 
-// Contact Routes
+// Contact POST
 app.post("/api/contact", async (req, res) => {
   try {
     const { name, email, message } = req.body;
@@ -131,6 +134,7 @@ app.post("/api/contact", async (req, res) => {
   }
 });
 
+// Contact GET
 app.get("/api/contact", async (req, res) => {
   try {
     const contacts = await Contact.find();
@@ -139,6 +143,31 @@ app.get("/api/contact", async (req, res) => {
     console.error("Error fetching contacts:", err);
     res.status(500).json({ error: "Failed to fetch contacts." });
   }
+});
+
+// ✅ Login/Auth Routes (moved outside Promise.all)
+app.post('/api/login', (req, res) => {
+  console.log("Login attempt:", req.body);
+  const { username, password } = req.body;
+  if (username === '9246466288' && password === '12345678') {
+    req.session.user = { username };
+    return res.status(200).json({ message: 'Login success' });
+  }
+  res.status(401).json({ message: 'Invalid credentials' });
+});
+
+app.get('/api/check-auth', (req, res) => {
+  if (req.session.user) {
+    return res.status(200).json({ authenticated: true });
+  }
+  res.status(401).json({ authenticated: false });
+});
+
+app.post('/api/logout', (req, res) => {
+  req.session.destroy(() => {
+    res.clearCookie('connect.sid');
+    res.status(200).json({ message: 'Logged out' });
+  });
 });
 
 // ✅ NEW: Send Expiry Emails Route
@@ -242,42 +271,41 @@ const emailContent = `
   }
 });
 
-// --- Protected HTML Pages ---
-app.get('/home.html', isAuthenticated, (req, res) => {
-  res.sendFile(path.join(__dirname, 'home.html'));
-});
-app.get('/company.html', isAuthenticated, (req, res) => {
-  res.sendFile(path.join(__dirname, 'company.html'));
-});
-app.get('/addproduct.html', isAuthenticated, (req, res) => {
-  res.sendFile(path.join(__dirname, 'addproduct.html'));
-});
-app.get('/meila.html', isAuthenticated, (req, res) => {
-  res.sendFile(path.join(__dirname, 'meila.html'));
-});
-
 // Health check
 app.get('/test', (req, res) => {
   res.send('✅ Backend is running!');
 });
 
-// --- DB ready check ---
+// --- Start server only after DBs are ready ---
 Promise.all([
   new Promise(resolve => productConnection.once('open', resolve)),
   new Promise(resolve => companyConnection.once('open', resolve)),
   new Promise(resolve => mongoose.connection.once('open', resolve))
-]).then(() => {
+]).then(async () => {
+
+
+
+  // ✅ Custom route for fetching product by barcode (with company name)
   app.get('/api/products/:barcode', async (req, res) => {
     try {
       const barcode = req.params.barcode;
+      console.log("Looking for product with barcode:", barcode);
+
       const product = await Product.findOne({ barcode });
-      if (!product) return res.status(404).json({ message: 'Product not found' });
+      console.log("Product found:", product);
+
+      if (!product) {
+        return res.status(404).json({ message: 'Product not found' });
+      }
 
       const company = await Company.findOne({ id: product.company });
+      console.log("Company found:", company);
+
       const responseData = {
         ...product.toObject(),
         companyName: company ? company.name : "Unknown"
       };
+
       res.json(responseData);
     } catch (err) {
       console.error("Error fetching product by barcode:", err);
@@ -292,11 +320,13 @@ Promise.all([
   console.error('❌ Error connecting to databases:', err);
 });
 
-// Fallback
+
+// 404 API fallback (after all routes)
 app.all('/*splat', (req, res) => {
   res.status(404).json({ error: 'API route not found' });
 });
 
+// ✅ Serve index.html for all non-API routes (for SPA routing)
 app.get('/*splat', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
