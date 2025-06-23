@@ -11,16 +11,23 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 
 // --- Middleware ---
-app.use(cors({
-  origin: [
-    "https://www.aryalegalprocess.com",
-    "https://aryalegalprocess.com",
-    "http://localhost:5500",
-    "http://127.0.0.1:5500"
-  ],
-  methods: ["GET", "POST", "PUT", "DELETE"], // ✅ FIXED
-  credentials: true
-}));
+const allowedOrigins = [
+  "https://www.aryalegalprocess.com",
+  "https://aryalegalprocess.com",
+  "http://localhost:5500",
+  "http://127.0.0.1:5500"
+];
+
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  if (allowedOrigins.includes(origin)) {
+    res.setHeader("Access-Control-Allow-Origin", origin);
+    res.setHeader("Access-Control-Allow-Credentials", "true");
+    res.setHeader("Access-Control-Allow-Methods", "GET,POST,PUT,DELETE,OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  }
+  next();
+});
 
 
 const session = require('express-session');

@@ -472,26 +472,44 @@ input:-webkit-autofill:active {
   </div>
 
   <script>
-    function login() {
+   function login() {
   const username = document.getElementById('username').value.trim();
-  const password = document.getElementById('password').value;
+  const password = document.getElementById('password').value.trim();
+
+  // Basic validation
+  if (!username || !password) {
+    alert("Please enter both mobile number and password.");
+    return;
+  }
+
+  const loginBtn = document.querySelector('.login-btn');
+  loginBtn.disabled = true;
+  loginBtn.innerText = "Logging in...";
 
   fetch('https://aryalegalprocess-backend.onrender.com/api/login', {
     method: 'POST',
     credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ username, password })
-  }).then(res => {
+  })
+  .then(res => {
+    loginBtn.disabled = false;
+    loginBtn.innerText = "Login";
+
     if (res.ok) {
       window.location.href = "home.html";
     } else {
       alert("Invalid mobile number or password.");
     }
-  }).catch(err => {
+  })
+  .catch(err => {
     console.error('Login error:', err);
-    alert("Login failed.");
+    loginBtn.disabled = false;
+    loginBtn.innerText = "Login";
+    alert("Login failed. Please try again.");
   });
 }
+
 
 
    function togglePassword() {
