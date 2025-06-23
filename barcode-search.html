@@ -4,62 +4,126 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Arya Barcode Lookup</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <link rel="stylesheet" href="barcode-search.css" />
+  <style>
+    .result-section {
+      display: none;
+      margin-top: 30px;
+      padding: 20px;
+      border: 1px solid #ccc;
+      background-color: #ffffff;
+      border-radius: 10px;
+      max-width: 1200px;
+      margin-left: auto;
+      margin-right: auto;
+      overflow-x: auto;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .product-info-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 17px;
+      text-align: left;
+      background-color: #fefefe;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .product-info-table th,
+    .product-info-table td {
+      padding: 16px 20px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .product-info-table th {
+      background-color: #003366;
+      color: white;
+      font-weight: 600;
+      font-size: 18px;
+    }
+
+    .product-info-table td {
+      color: #333;
+    }
+
+    .product-info-table tr:hover {
+      background-color: #f1f7ff;
+    }
+
+    .product-info-table img.product-img {
+      width: 140px;
+      height: auto;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    /* Scanner Styling */
+    #scannerModal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.95);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+    }
+
+    #scanner {
+      width: 90%;
+      max-width: 600px;
+      border-radius: 10px;
+      z-index: 1;
+    }
+
+    .scanner-frame {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 60%;
+      height: 350px;
+      transform: translate(-50%, -50%);
+      border: 2px solid limegreen;
+      border-radius: 10px;
+      box-shadow: 0 0 10px limegreen;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    .scan-line {
+      position: absolute;
+      top: 0;
+      left: 0;
+      height: 2px;
+      width: 100%;
+      background: red;
+      animation: scanMove 2s linear infinite;
+      z-index: 3;
+    }
+
+    @keyframes scanMove {
+      0% { top: 0; }
+      100% { top: 100%; }
+    }
+
+    .close-btn {
+      margin-bottom: -130px;
+      background: #ff4444;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      z-index: 10;
+    }
+  </style>
 </head>
-<style>
-.result-section {
-  display: none;
-  margin-top: 30px;
-  padding: 20px;
-  border: 1px solid #ccc;
-  background-color: #ffffff;
-  border-radius: 10px;
-  max-width: 1200px;
-  margin-left: auto;
-  margin-right: auto;
-  overflow-x: auto;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-}
-
-.product-info-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  font-size: 17px;
-  text-align: left;
-  background-color: #fefefe;
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-.product-info-table th,
-.product-info-table td {
-  padding: 16px 20px;
-  border-bottom: 1px solid #ddd;
-}
-
-.product-info-table th {
-  background-color: #003366;
-  color: white;
-  font-weight: 600;
-  font-size: 18px;
-}
-
-.product-info-table td {
-  color: #333;
-}
-
-.product-info-table tr:hover {
-  background-color: #f1f7ff;
-}
-
-.product-info-table img.product-img {
-  width: 140px;
-  height: auto;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-}
-</style>
 <body>
   <div class="top-bar">
     <button class="go-back" onclick="goBack()">Go Back</button>
@@ -74,93 +138,145 @@
       <h4><strong>ENTER YOUR BARCODE (GTIN) NUMBER</strong></h4>
       <input type="text" class="barcode-input" placeholder="Barcode" id="barcodeInput" />
       <br />
-      <button class="search-button" onclick="searchProduct()">Search</button>
+      <button class="action-button search-button" onclick="searchProduct()">Search</button>
+      <button class="action-button scan-button" onclick="startScanner()">
+        <i class="fas fa-camera-alt"></i> Scan
+      </button>
+
+      <!-- Scanner Modal -->
+      <div id="scannerModal">
+        <video id="scanner" autoplay muted playsinline></video>
+        <div class="scanner-frame">
+          <div class="scan-line"></div>
+        </div>
+        <button class="close-btn" onclick="stopScanner()">✖ Close</button>
+      </div>
     </div>
 
     <!-- Result will show here -->
     <div id="result" class="result-section"></div>
   </div>
 
-<script>
-  // Go Back button function
-  function goBack() {
-    history.back();
-  }
-
-  // Barcode search
-  async function searchProduct() {
-    const barcode = document.getElementById('barcodeInput').value.trim();
-    const resultDiv = document.getElementById("result");
-
-    if (!barcode) {
-      alert("Please enter a barcode number.");
-      return;
+  <script>
+    function goBack() {
+      history.back();
     }
 
-    try {
-      const res = await fetch(`https://aryalegalprocess.onrender.com/api/products/${barcode}`);
-      if (!res.ok) throw new Error("Not found");
+    async function searchProduct() {
+      const barcode = document.getElementById('barcodeInput').value.trim();
+      const resultDiv = document.getElementById("result");
 
-      const data = await res.json();
+      if (!barcode) {
+        alert("Please enter a barcode number.");
+        return;
+      }
 
-      // ✅ Handle both Base64 and static image filenames
-      const imgSrc = data.image?.startsWith("data:image")
-        ? data.image
-        : data.image
-        ? `https://aryalegalprocess.onrender.com/images/${encodeURIComponent(data.image)}`
-        : 'images/default.jpg';
+      try {
+        const res = await fetch(`https://aryalegalprocess.onrender.com/api/products/${barcode}`);
+        if (!res.ok) throw new Error("Not found");
 
-      const name = data.name || '-';
-      const weight = data.weight || '-';
-      const price = data.price && data.price !== "" ? `₹${data.price}` : '₹0';
-      const description = data.description || '-';
-      const details = data.details || '-';
-      const quantity = data.quantity || '-';
-      const company = data.companyName || '-';
-      const startdate = data.startdate || data.startDate || '-';
-      const enddate = data.enddate || data.endDate || '-';
+        const data = await res.json();
 
-      resultDiv.innerHTML = `
-        <table class="product-info-table">
-          <thead>
-            <tr>
-              <th>Image</th>
-              <th>Name</th>
-              <th>Weight</th>
-              <th>Price</th>
-              <th>Description</th>
-              <th>Details</th>
-              <th>Quantity</th>
-              <th>Company</th>
-              <th>Start Date</th>
-              <th>End Date</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td><img src="${imgSrc}" alt="${name}" class="product-img" /></td>
-              <td>${name}</td>
-              <td>${weight}</td>
-              <td>${price}</td>
-              <td>${description}</td>
-              <td>${details}</td>
-              <td>${quantity}</td>
-              <td>${company}</td>
-              <td>${startdate}</td>
-              <td>${enddate}</td>
-            </tr>
-          </tbody>
-        </table>
-      `;
+        const imgSrc = data.image?.startsWith("data:image")
+          ? data.image
+          : data.image
+          ? `https://aryalegalprocess.onrender.com/images/${encodeURIComponent(data.image)}`
+          : 'images/default.jpg';
 
-      resultDiv.style.display = "block";
+        const name = data.name || '-';
+        const weight = data.weight || '-';
+        const price = data.price && data.price !== "" ? `₹${data.price}` : '₹0';
+        const description = data.description || '-';
+        const details = data.details || '-';
+        const quantity = data.quantity || '-';
+        const company = data.companyName || '-';
+        const startdate = data.startdate || data.startDate || '-';
+        const enddate = data.enddate || data.endDate || '-';
 
-    } catch (err) {
-      resultDiv.innerHTML = `<p style="color:red;">Product not found. Please try again.</p>`;
-      resultDiv.style.display = "block";
+        resultDiv.innerHTML = `
+          <table class="product-info-table">
+            <thead>
+              <tr>
+                <th>Image</th>
+                <th>Name</th>
+                <th>Weight</th>
+                <th>Price</th>
+                <th>Description</th>
+                <th>Details</th>
+                <th>Quantity</th>
+                <th>Company</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td><img src="${imgSrc}" alt="${name}" class="product-img" /></td>
+                <td>${name}</td>
+                <td>${weight}</td>
+                <td>${price}</td>
+                <td>${description}</td>
+                <td>${details}</td>
+                <td>${quantity}</td>
+                <td>${company}</td>
+                <td>${startdate}</td>
+                <td>${enddate}</td>
+              </tr>
+            </tbody>
+          </table>
+        `;
+
+        resultDiv.style.display = "block";
+      } catch (err) {
+        resultDiv.innerHTML = `<p style="color:red;">Product not found. Please try again.</p>`;
+        resultDiv.style.display = "block";
+      }
     }
-  }
-</script>
 
+    function startScanner() {
+      const modal = document.getElementById("scannerModal");
+      modal.style.display = "flex";
+
+      Quagga.init({
+        inputStream: {
+          name: "Live",
+          type: "LiveStream",
+          target: document.querySelector("#scanner"),
+          constraints: {
+            width: 640,
+            height: 480,
+            facingMode: "environment"
+          }
+        },
+        decoder: {
+          readers: ["ean_reader", "ean_8_reader", "upc_reader", "code_128_reader"]
+        }
+      }, function (err) {
+        if (err) {
+          console.error(err);
+          alert("Error initializing scanner.");
+          return;
+        }
+        Quagga.start();
+      });
+
+      Quagga.onDetected(data => {
+        const code = data.codeResult.code;
+        if (code) {
+          document.getElementById("barcodeInput").value = code;
+          stopScanner();
+          searchProduct();
+        }
+      });
+    }
+
+    function stopScanner() {
+      Quagga.stop();
+      document.getElementById("scannerModal").style.display = "none";
+      Quagga.offDetected();
+    }
+  </script>
+
+  <script src="https://unpkg.com/@ericblade/quagga2/dist/quagga.js"></script>
 </body>
 </html>
