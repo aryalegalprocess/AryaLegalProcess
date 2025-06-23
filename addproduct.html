@@ -103,102 +103,21 @@
         }
       });
 
-      const form = document.getElementById("productForm");
+      // Populate company list only if not already done in addproducts.js
       const companySelect = document.getElementById("company");
-      const queryParams = new URLSearchParams(window.location.search);
-      const productId = queryParams.get("id");
-
-      // Load companies
       fetch("https://aryalegalprocess.onrender.com/api/companies")
         .then(res => res.json())
         .then(companies => {
           companies.forEach(company => {
             const option = document.createElement("option");
-            option.value = company.id; // 🔁 Use linear numeric ID
+            option.value = company.id;
             option.textContent = company.name;
             companySelect.appendChild(option);
           });
-
-          if (productId) {
-            fetch(`https://aryalegalprocess.onrender.com/api/products/id/${productId}`)
-              .then(res => {
-                if (!res.ok) throw new Error("Product not found");
-                return res.json();
-              })
-              .then(product => {
-                document.getElementById("barcode").value = product.barcode || "";
-                document.getElementById("product-name").value = product.name || "";
-                document.getElementById("product-details").value = product.details || "";
-                document.getElementById("weightage").value = product.weight || "";
-                document.getElementById("quantity").value = product.quantity || "";
-                document.getElementById("description").value = product.description || "";
-                document.getElementById("start-date").value = product.startDate || product.startdate || "";
-                document.getElementById("end-date").value = product.endDate || product.enddate || "";
-                document.getElementById("price").value = product.price || "";
-
-                const selectedOption = [...companySelect.options].find(
-                  opt => opt.value === String(product.company)
-                );
-                if (selectedOption) selectedOption.selected = true;
-              })
-              .catch(err => {
-                console.error("Failed to fetch product:", err);
-                alert("Failed to load product data.");
-              });
-          }
         })
         .catch(err => {
           console.error("Failed to load companies:", err);
-          const option = document.createElement("option");
-          option.value = "";
-          option.textContent = "Failed to load companies";
-          companySelect.appendChild(option);
         });
-
-      // Form submit
-      form.addEventListener("submit", function (e) {
-        e.preventDefault();
-
-        const data = {
-          barcode: document.getElementById("barcode").value.trim(),
-          name: document.getElementById("product-name").value.trim(),
-          details: document.getElementById("product-details").value.trim(),
-          weight: document.getElementById("weightage").value.trim(),
-          quantity: document.getElementById("quantity").value.trim(),
-          company: companySelect.value,
-          description: document.getElementById("description").value.trim(),
-          startDate: document.getElementById("start-date").value,
-          endDate: document.getElementById("end-date").value,
-          price: document.getElementById("price").value.trim(),
-          image: "" // TODO: Handle image upload
-        };
-
-        const url = productId
-          ? `https://aryalegalprocess.onrender.com/api/products/${productId}`
-          : "https://aryalegalprocess.onrender.com/api/products";
-
-        const method = productId ? "PUT" : "POST";
-
-        fetch(url, {
-          method: method,
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(data)
-        })
-          .then(res => {
-            if (!res.ok) throw new Error("Error saving product");
-            return res.json();
-          })
-          .then(result => {
-            alert(productId ? "Product updated successfully!" : "Product added successfully!");
-            window.location.href = "productlist.html";
-          })
-          .catch(err => {
-            console.error("Save error:", err);
-            alert("Failed to save product.");
-          });
-      });
     });
   </script>
 </body>
