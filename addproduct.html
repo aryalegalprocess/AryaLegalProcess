@@ -12,11 +12,11 @@
   <div class="sidebar">
     <div class="logo">&#9776; <span class="text">ARYA LEGAL PROCESS</span> </div>
     <ul class="menu">
-        <li><a href="home.html"><span class="icon">🏠</span><span class="text">Home</span></a></li>
-        <li><a href="company.html"><span class="icon">🛠️</span><span class="text">Manage Companies</span></a></li>
-        <li><a href="addproduct.html"><span class="icon">➕</span><span class="text">Add Products</span></a></li>
-        <li><a href="productlist.html"><span class="icon">📦</span><span class="text">Products List</span></a></li>
-        <li><a href="email.html"><span class="icon">📧</span><span class="text">Send E-Mail</span></a></li>
+      <li><a href="home.html"><span class="icon">🏠</span><span class="text">Home</span></a></li>
+      <li><a href="company.html"><span class="icon">🛠️</span><span class="text">Manage Companies</span></a></li>
+      <li><a href="addproduct.html"><span class="icon">➕</span><span class="text">Add Products</span></a></li>
+      <li><a href="productlist.html"><span class="icon">📦</span><span class="text">Products List</span></a></li>
+      <li><a href="email.html"><span class="icon">📧</span><span class="text">Send E-Mail</span></a></li>
     </ul>
   </div>
 
@@ -79,9 +79,9 @@
       </form>
     </div>
   </div>
-<script src="addproducts.js"></script>
+
   <script>
-    document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded", () => {
       const sidebar = document.querySelector('.sidebar');
       if (sidebar) {
         sidebar.addEventListener('click', () => {
@@ -89,11 +89,10 @@
         });
       }
 
-      function toggleDropdown() {
+      window.toggleDropdown = function () {
         const dropdown = document.getElementById("dropdown");
         dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
-      }
-      window.toggleDropdown = toggleDropdown;
+      };
 
       document.addEventListener("click", function (event) {
         const dropdown = document.getElementById("dropdown");
@@ -103,21 +102,120 @@
         }
       });
 
-      // Populate company list only if not already done in addproducts.js
-      const companySelect = document.getElementById("company");
-      fetch("https://aryalegalprocess.onrender.com/api/companies")
+      // Load companies
+      fetch('https://aryalegalprocess.onrender.com/api/companies')
         .then(res => res.json())
         .then(companies => {
+          const select = document.getElementById("company");
+          const uniqueCompanyNames = new Set();
+
           companies.forEach(company => {
-            const option = document.createElement("option");
-            option.value = company.id;
-            option.textContent = company.name;
-            companySelect.appendChild(option);
+            if (!uniqueCompanyNames.has(company.name)) {
+              uniqueCompanyNames.add(company.name);
+              const option = document.createElement("option");
+              option.value = company.id;
+              option.textContent = company.name;
+              select.appendChild(option);
+            }
           });
         })
         .catch(err => {
-          console.error("Failed to load companies:", err);
+          console.error("Failed to fetch companies:", err);
         });
+
+      // Form submit with validation
+      document.getElementById('productForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        const errorElements = document.querySelectorAll('.error-message');
+        errorElements.forEach(el => el.remove());
+
+        let valid = true;
+
+        function showError(input, message) {
+          valid = false;
+          const error = document.createElement('div');
+          error.className = 'error-message';
+          error.style.color = 'red';
+          error.style.fontSize = '14px';
+          error.style.marginTop = '4px';
+          error.textContent = message;
+          input.parentNode.insertBefore(error, input.nextSibling);
+        }
+
+        const barcode = document.getElementById('barcode');
+        const productName = document.getElementById('product-name');
+        const productDetails = document.getElementById('product-details');
+        const weightage = document.getElementById('weightage');
+        const quantity = document.getElementById('quantity');
+        const company = document.getElementById('company');
+        const description = document.getElementById('description');
+        const imageInput = document.getElementById('image');
+        const startDate = document.getElementById('start-date');
+        const endDate = document.getElementById('end-date');
+        const price = document.getElementById('price');
+
+        if (!barcode.value.trim()) showError(barcode, 'Barcode Number is required.');
+        if (!productName.value.trim()) showError(productName, 'Product Name is required.');
+        if (!productDetails.value.trim()) showError(productDetails, 'Product Details are required.');
+        if (!weightage.value.trim()) showError(weightage, 'Product Weightage is required.');
+        if (!quantity.value.trim()) showError(quantity, 'Product Quantity is required.');
+        if (!company.value) showError(company, 'Please select a company.');
+        if (!description.value.trim()) showError(description, 'Product Description is required.');
+        if (!imageInput.value) showError(imageInput, 'Please upload a product image.');
+        if (!startDate.value) showError(startDate, 'Start Date is required.');
+        if (!endDate.value) showError(endDate, 'End Date is required.');
+        if (!price.value.trim()) showError(price, 'Price is required.');
+
+        if (valid) {
+          const file = imageInput.files[0];
+          const reader = new FileReader();
+
+          reader.onloadend = function () {
+            const base64Image = reader.result;
+
+            const productData = {
+              barcode: barcode.value.trim(),
+              name: productName.value.trim(),
+              details: productDetails.value.trim(),
+              weight: weightage.value.trim(),
+              quantity: quantity.value.trim(),
+              company: company.value,
+              description: description.value.trim(),
+              startDate: startDate.value,
+              endDate: endDate.value,
+              price: price.value.trim(),
+              image: base64Image
+            };
+
+            fetch("https://aryalegalprocess.onrender.com/api/products", {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify(productData)
+            })
+              .then(response => {
+                if (response.ok) {
+                  alert('Product added successfully!');
+                  document.getElementById('productForm').reset();
+                } else {
+                  alert('Failed to add product.');
+                }
+              })
+              .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred.');
+              });
+          };
+
+          if (file) {
+            reader.readAsDataURL(file);
+          } else {
+            alert('Please upload an image file.');
+          }
+        }
+      });
     });
   </script>
 </body>
