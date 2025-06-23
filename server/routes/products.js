@@ -31,11 +31,20 @@ module.exports = function(Product, Company) {
     }
   });
 
-  // ✅ READ - Get all products (excluding image for performance)
+  // ✅ READ - Get all products (populate company name)
   router.get('/', async (req, res) => {
     try {
-      const products = await Product.find({}, { image: 0 });
-      res.json(products);
+      const products = await Product.find({}, { image: 0 })
+        .populate('company', 'name'); // ✅ Just added this line to get company name
+
+      // Optional: if you want to keep company field as string (not object), map response:
+      const formatted = products.map(p => {
+        const obj = p.toObject();
+        obj.company = obj.company?.name || 'Unknown'; // replace company object with name
+        return obj;
+      });
+
+      res.json(formatted); // ✅ Send formatted list with company name only
     } catch (err) {
       res.status(500).json({ error: err.message });
     }
@@ -126,4 +135,3 @@ module.exports = function(Product, Company) {
 
   return router;
 };
-                                            
