@@ -305,11 +305,11 @@ Promise.all([
 
 
 // 404 API fallback (after all routes)
-app.all('/*splat', (req, res) => {
+app.all('*', (req, res) => {
   res.status(404).json({ error: 'API route not found' });
 });
 
 // ✅ Serve index.html for all non-API routes (for SPA routing)
-app.get('/*splat', (req, res) => {
+app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
