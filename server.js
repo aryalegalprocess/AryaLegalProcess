@@ -9,6 +9,8 @@ const sendEmail = require('./server/utils/sendemail'); // ✅ Email utility
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+const fs = require('fs');
+const bcrypt = require('bcryptjs');
 
 // --- Middleware ---
 app.use(cors({
@@ -111,6 +113,37 @@ app.get("/api/contact", async (req, res) => {
     res.status(500).json({ error: "Failed to fetch contacts." });
   }
 });
+
+app.post("/api/login", (req, res) => {
+  const { username, password } = req.body;
+
+  const usersPath = path.join(__dirname, 'data', 'users.json');
+  const users = JSON.parse(fs.readFileSync(usersPath, 'utf8'));
+  const user = users.find(u => u.mobile === username);
+
+  if (!user) {
+    return res.status(401).json({ success: false, message: "User not found" });
+  }
+
+  const passwordMatch = bcrypt.compareSync(password, user.password);
+
+  if (!passwordMatch) {
+    return res.status(401).json({ success: false, message: "Invalid password" });
+  }
+
+  res.json({
+    success: true,
+    message: "Login successful",
+    user: {
+      id: user.id,
+      name: user.name,
+      mobile: user.mobile,
+      type: user.type,
+      reg_id: user.reg_id
+    }
+  });
+});
+
 
 // ✅ NEW: Send Expiry Emails Route
 app.post('/api/send-expiry-emails', async (req, res) => {
