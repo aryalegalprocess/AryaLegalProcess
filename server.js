@@ -1,3 +1,5 @@
+server.js
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -9,28 +11,18 @@ const sendEmail = require('./server/utils/sendemail'); // ✅ Email utility
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-const fs = require('fs');
-const bcrypt = require('bcryptjs');
 
-const allowedOrigins = [
-  "https://www.aryalegalprocess.com",
-  "https://aryalegalprocess.com",
-  "http://localhost:5500",
-  "http://127.0.0.1:5500"
-];
-
+// --- Middleware ---
 app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  origin: [
+    "https://www.aryalegalprocess.com",
+    "https://aryalegalprocess.com",
+    "http://localhost:5500",
+    "http://127.0.0.1:5500"
+  ],
+  methods: ["GET", "POST", "PUT", "DELETE"], // ✅ FIXED
   credentials: true
 }));
-app.options('*', cors());
 
 
 app.use(express.json({ limit: '100mb' }));
@@ -121,37 +113,6 @@ app.get("/api/contact", async (req, res) => {
     res.status(500).json({ error: "Failed to fetch contacts." });
   }
 });
-
-app.post("/api/login", (req, res) => {
-  const { username, password } = req.body;
-
-  const usersPath = path.join(__dirname, 'data', 'users.json');
-  const users = JSON.parse(fs.readFileSync(usersPath, 'utf8'));
-  const user = users.find(u => u.mobile === username);
-
-  if (!user) {
-    return res.status(401).json({ success: false, message: "User not found" });
-  }
-
-  const passwordMatch = bcrypt.compareSync(password, user.password);
-
-  if (!passwordMatch) {
-    return res.status(401).json({ success: false, message: "Invalid password" });
-  }
-
-  res.json({
-    success: true,
-    message: "Login successful",
-    user: {
-      id: user.id,
-      name: user.name,
-      mobile: user.mobile,
-      type: user.type,
-      reg_id: user.reg_id
-    }
-  });
-});
-
 
 // ✅ NEW: Send Expiry Emails Route
 app.post('/api/send-expiry-emails', async (req, res) => {
@@ -305,11 +266,11 @@ Promise.all([
 
 
 // 404 API fallback (after all routes)
-app.all('*', (req, res) => {
+app.all('/*splat', (req, res) => {
   res.status(404).json({ error: 'API route not found' });
 });
 
 // ✅ Serve index.html for all non-API routes (for SPA routing)
-app.get('*', (req, res) => {
+app.get('/*splat', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
