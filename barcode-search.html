@@ -144,13 +144,17 @@
       </button>
 
       <!-- Scanner Modal -->
-      <div id="scannerModal">
-        <video id="scanner" autoplay muted playsinline></video>
-        <div class="scanner-frame">
-          <div class="scan-line"></div>
-        </div>
-        <button class="close-btn" onclick="stopScanner()">✖ Close</button>
-      </div>
+   <div id="scannerModal">
+  <div id="scanner">
+    <div class="scanner-frame">
+      <div class="scan-line"></div>
+    </div>
+  </div>
+  <button class="close-btn" onclick="stopScanner()">✖ Close</button>
+</div>
+
+
+
     </div>
 
     <!-- Result will show here -->
@@ -192,39 +196,39 @@
         const company = data.companyName || '-';
         const startdate = data.startdate || data.startDate || '-';
         const enddate = data.enddate || data.endDate || '-';
+resultDiv.innerHTML = `
+  <table class="product-info-table">
+    <thead>
+      <tr>
+        <th>Image</th>
+        <th>Name</th>
+        <th>Weight</th>
+        <th>Price</th>
+        <th>Description</th>
+        <th>Details</th>
+        <th>Quantity</th>
+        <th>Company</th>
+        <th>Start Date</th>
+        <th>End Date</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td data-label="Image"><img src="${imgSrc}" alt="${name}" class="product-img" /></td>
+        <td data-label="Name">${name}</td>
+        <td data-label="Weight">${weight}</td>
+        <td data-label="Price">${price}</td>
+        <td data-label="Description">${description}</td>
+        <td data-label="Details">${details}</td>
+        <td data-label="Quantity">${quantity}</td>
+        <td data-label="Company">${company}</td>
+        <td data-label="Start Date">${startdate}</td>
+        <td data-label="End Date">${enddate}</td>
+      </tr>
+    </tbody>
+  </table>
+`;
 
-        resultDiv.innerHTML = `
-          <table class="product-info-table">
-            <thead>
-              <tr>
-                <th>Image</th>
-                <th>Name</th>
-                <th>Weight</th>
-                <th>Price</th>
-                <th>Description</th>
-                <th>Details</th>
-                <th>Quantity</th>
-                <th>Company</th>
-                <th>Start Date</th>
-                <th>End Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td><img src="${imgSrc}" alt="${name}" class="product-img" /></td>
-                <td>${name}</td>
-                <td>${weight}</td>
-                <td>${price}</td>
-                <td>${description}</td>
-                <td>${details}</td>
-                <td>${quantity}</td>
-                <td>${company}</td>
-                <td>${startdate}</td>
-                <td>${enddate}</td>
-              </tr>
-            </tbody>
-          </table>
-        `;
 
         resultDiv.style.display = "block";
       } catch (err) {

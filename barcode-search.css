@@ -147,3 +147,132 @@ body {
 .scan-button {
   margin-left: 10px; /* optional spacing between buttons */
 }
+#scannerModal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.95);
+  z-index: 9999;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+#scanner {
+  position: relative;
+  width: 90%;
+  max-width: 500px;
+  aspect-ratio: 4 / 3;
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1;
+}
+
+#scanner video,
+#scanner canvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover;
+  z-index: 1;
+  border-radius: 10px;
+}
+
+/* Green scanner frame matching video size */
+.scanner-frame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 2px solid limegreen;
+  border-radius: 10px;
+  box-shadow: 0 0 10px limegreen;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Red scanning line inside the green box */
+.scan-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 2px;
+  width: 100%;
+  background: red;
+  animation: scanMove 2s linear infinite;
+  z-index: 3;
+}
+
+@keyframes scanMove {
+  0% { top: 0; }
+  100% { top: 100%; }
+}
+
+.close-btn {
+  margin-top: 25px;
+  background: #ff4444;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  font-size: 16px;
+  z-index: 10;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.close-btn:hover {
+  background: #cc0000;
+}
+
+
+@media screen and (max-width: 768px) {
+  .product-info-table thead {
+    display: none; /* hide table headers */
+  }
+
+  .product-info-table,
+  .product-info-table tbody,
+  .product-info-table tr,
+  .product-info-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .product-info-table tr {
+    margin-bottom: 20px;
+    border-bottom: 2px solid #ccc;
+    padding: 10px;
+    background-color: #f9f9f9;
+  }
+
+  .product-info-table td {
+    text-align: left;
+    padding: 10px 15px;
+    position: relative;
+    font-size: 15px;
+  }
+
+  .product-info-table td::before {
+    content: attr(data-label);
+    font-weight: bold;
+    display: block;
+    margin-bottom: 5px;
+    color: #003366;
+  }
+
+  .product-info-table img.product-img {
+    width: 100%;
+    height: auto;
+    margin: 10px 0;
+  }
+}
