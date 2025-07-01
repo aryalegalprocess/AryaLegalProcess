@@ -330,72 +330,74 @@ const barcodeImg = new Image();
 barcodeImg.crossOrigin = "anonymous";
 barcodeImg.src = barcodeImgSrc;
 
+logo.onload = () => {
+  productImg.onload = () => {
+    // Title and Logo
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(16);
+    doc.setTextColor("#003366");
+    doc.text("Arya Legal Process", 14, 20);
+    doc.addImage(logo, 'JPEG', 160, 10, 35, 15); // right logo
 
-  logo.onload = () => {
-    productImg.onload = () => {
-      // Title and Logo
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(16);
-      doc.setTextColor("#003366");
-      doc.text("Arya Legal Process", 14, 20);
-      doc.addImage(logo, 'JPEG', 160, 10, 35, 15); // right logo
+    // Horizontal line
+    doc.setDrawColor(0);
+    doc.setLineWidth(0.5);
+    doc.line(14, 25, 200, 25);
 
-      // Horizontal line below header
-      doc.setDrawColor(0); // black line
-      doc.setLineWidth(0.5);
-      doc.line(14, 25, 200, 25); // from x=14 to x=200 at y=25
+    // Section title
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(13);
+    doc.setTextColor("#2e7d32");
+    doc.text("Product Information", 14, 35);
 
-      // Section title - Product Information
-      doc.setFont("helvetica", "bold");
-      doc.setFontSize(13);
-      doc.setTextColor("#2e7d32"); // green
-      doc.text("Product Information", 14, 35);
+// 🖼️ Left: Product Image
+doc.addImage(productImg, 'JPEG', 14, 42, 60, 40);
+doc.setFont("helvetica", "normal");
+doc.setFontSize(11);
+doc.setTextColor("#000000");
+doc.text("Product Image", 29, 90); // ← more space below image
 
-      // Product Name and Image
-      doc.setFont("helvetica", "normal");
-      doc.setFontSize(12);
-      doc.setTextColor("#000000");
-      doc.text(`Product Name: ${name}`, 14, 45);
-      doc.addImage(productImg, 'JPEG', 150, 38, 40, 30);
-      doc.text(`Barcode Image:`, 14, 65);
-doc.addImage(barcodeImg, 'JPEG', 150, 58, 40, 30);
+// 📷 Right: Barcode Image
+doc.addImage(barcodeImg, 'JPEG', 135, 42, 60, 40);
+doc.text("Product Barcode", 145, 90); // ← more space below image
 
 
-      // Product Details Table
-      const rows = [
-        ['Name', name],
-        ['Weight', weight],
-        ['Price', price],
-        ['Description', description],
-        ['Details', details],
-        ['Quantity', quantity],
-        ['Company', company],
-        ['Start Date', startDate],
-        ['End Date', endDate]
-      ];
+    // 📋 Details Table
+    const rows = [
+      ['Name', name],
+      ['Weight', weight],
+      ['Price', price],
+      ['Description', description],
+      ['Details', details],
+      ['Quantity', quantity],
+      ['Company', company],
+      ['Start Date', startDate],
+      ['End Date', endDate]
+    ];
 
-      doc.autoTable({
-        startY: 75,
-        head: [['Field', 'Value']],
-        body: rows,
-        styles: {
-          fontSize: 11,
-          cellPadding: 4,
-        },
-        headStyles: {
-          fillColor: [0, 51, 102],
-          textColor: 255,
-          fontStyle: 'bold'
-        },
-        columnStyles: {
-          0: { cellWidth: 50 },
-          1: { cellWidth: 130 }
-        }
-      });
+    doc.autoTable({
+      startY: 95,
+      head: [['Field', 'Value']],
+      body: rows,
+      styles: {
+        fontSize: 11,
+        cellPadding: 4,
+      },
+      headStyles: {
+        fillColor: [0, 51, 102],
+        textColor: 255,
+        fontStyle: 'bold'
+      },
+      columnStyles: {
+        0: { cellWidth: 50 },
+        1: { cellWidth: 130 }
+      }
+    });
 
-      doc.save(`${name.replace(/\s+/g, "_")}_Product_Info.pdf`);
-    };
+    doc.save(`${name.replace(/\s+/g, "_")}_Product_Info.pdf`);
   };
+};
+
 }
 
   </script>
