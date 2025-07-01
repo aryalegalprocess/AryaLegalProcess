@@ -7,7 +7,7 @@
   <style>
     body {
       margin: 0;
-      background-color: #f0f0f0;
+      background-color: #f9f9f9;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -15,40 +15,39 @@
       font-family: Arial, sans-serif;
     }
 
-    .barcode-container {
-      background: #fff;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    .container {
       text-align: center;
     }
 
-    .barcode-container img {
+    .container img {
       max-width: 100%;
       max-height: 80vh;
       border: 1px solid #ccc;
       border-radius: 8px;
     }
 
-    .title {
+    h2 {
       margin-bottom: 20px;
-      font-size: 24px;
       color: #333;
     }
   </style>
 </head>
 <body>
-  <div class="barcode-container">
-    <div class="title">Product Barcode</div>
-    <img id="barcodeImg" src="" alt="Barcode Image" />
+  <div class="container">
+    <h2>Product Barcode</h2>
+    <img id="barcodeImage" src="" alt="Barcode Image" />
   </div>
 
   <script>
     const params = new URLSearchParams(window.location.search);
     const imgSrc = params.get("src");
+    const img = document.getElementById("barcodeImage");
 
-    const img = document.getElementById("barcodeImg");
-    img.src = imgSrc || "images/default.jpg"; // fallback image if needed
+    if (imgSrc) {
+      img.src = decodeURIComponent(imgSrc);
+    } else {
+      img.alt = "No barcode image available.";
+    }
   </script>
 </body>
 </html>
