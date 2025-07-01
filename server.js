@@ -58,7 +58,8 @@ const productSchema = new mongoose.Schema({
   startDate: String,
   endDate: String,
   price: String,
-  image: String
+  image: String,
+  barcodeImage: String 
 });
 const Product = productConnection.model('Product', productSchema);
 
