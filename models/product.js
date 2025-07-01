@@ -10,6 +10,7 @@ const productSchema = new mongoose.Schema({
   company: String,
   description: String,
   image: String,
+  barcodeImage: String,
   startdate: String,
   enddate: String,
   price: String
