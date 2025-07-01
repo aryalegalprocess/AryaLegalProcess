@@ -472,16 +472,18 @@ input:-webkit-autofill:active {
   </div>
 
   <script>
-    function login() {
-      const username = document.getElementById('username').value.trim();
-      const password = document.getElementById('password').value;
+   function login() {
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value;
 
-      if (username === "9246466288" && password === "12345678") {
-        window.location.href = "home.html"; 
-      } else {
-        alert("Invalid mobile number or password.");
-      }
-    }
+  if (username === "9246466288" && password === "12345678") {
+    localStorage.setItem("isLoggedIn", "true"); // ✅ Store login flag
+    window.location.href = "home.html";
+  } else {
+    alert("Invalid mobile number or password.");
+  }
+}
+
 
    function togglePassword() {
   const passwordInput = document.getElementById("password");

@@ -37,6 +37,12 @@
 }
 
   </style>
+  <script>
+  if (localStorage.getItem("isLoggedIn") !== "true") {
+    window.location.href = "dashboard.html"; // Redirect if not logged in
+  }
+</script>
+
 </head>
 <body>
   <div class="sidebar">

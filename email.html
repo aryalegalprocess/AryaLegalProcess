@@ -8,6 +8,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Nunito&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="addproduct.css">
   <link rel="stylesheet" href="email.css">
+  <script>
+  if (localStorage.getItem("isLoggedIn") !== "true") {
+    window.location.href = "dashboard.html"; // Redirect if not logged in
+  }
+</script>
+
 </head>
 <body>
   <div class="sidebar">

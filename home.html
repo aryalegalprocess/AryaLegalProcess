@@ -6,6 +6,12 @@
   <title>ARYA LEGAL PROCESS Dashboard</title>
   <link rel="stylesheet" href="style2.css" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito&display=swap" rel="stylesheet">
+  <script>
+  if (localStorage.getItem("isLoggedIn") !== "true") {
+    window.location.href = "dashboard.html"; // Redirect if not logged in
+  }
+</script>
+
 </head>
 <body>
   <div class="sidebar">
