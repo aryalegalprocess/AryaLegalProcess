@@ -189,9 +189,12 @@
           ? `https://aryalegalprocess.onrender.com/images/${encodeURIComponent(data.image)}`
           : 'images/default.jpg';
 
-          const barcodeImgSrc = data.barcodeImage?.startsWith("data:image")
+        const barcodeImgSrc = data.barcodeImage?.startsWith("data:image")
   ? data.barcodeImage
-  : 'images/default-barcode.jpg'; // fallback if not available
+  : data.barcodeImage
+    ? `https://aryalegalprocess.onrender.com/images/${encodeURIComponent(data.barcodeImage)}`
+    : 'images/default-barcode.jpg';
+
 
 
         const name = data.name || '-';
@@ -207,8 +210,8 @@ resultDiv.innerHTML = `
   <table class="product-info-table">
     <thead>
       <tr>
-        <th>Barcode Image</th>
         <th>Image</th>
+        <th>Barcode Image</th>
         <th>Name</th>
         <th>Weight</th>
         <th>Price</th>
@@ -222,8 +225,8 @@ resultDiv.innerHTML = `
     </thead>
     <tbody>
       <tr>
-         <td data-label="Barcode Image"><img src="${barcodeImgSrc}" alt="Barcode" class="product-img" /></td>
         <td data-label="Image"><img src="${imgSrc}" alt="${name}" class="product-img" /></td>
+        <td data-label="Barcode Image"><img src="${barcodeImgSrc}" alt="Barcode" class="product-img" /></td>
         <td data-label="Name">${name}</td>
         <td data-label="Weight">${weight}</td>
         <td data-label="Price">${price}</td>
@@ -306,7 +309,8 @@ resultDiv.innerHTML = `
   if (!table) return;
 
   const tds = table.querySelectorAll("tbody td");
-  const imgSrc = tds[0].querySelector("img").src;
+const barcodeImgSrc = tds[1].querySelector("img").src; // barcode image
+const imgSrc = tds[0].querySelector("img").src; // product image
   const name = tds[1].textContent.trim();
   const weight = tds[2].textContent.trim();
 const price = tds[3].textContent.trim().replace('₹', 'Rs.');
@@ -320,11 +324,6 @@ const price = tds[3].textContent.trim().replace('₹', 'Rs.');
   const productImg = new Image();
   productImg.crossOrigin = "anonymous";
   productImg.src = imgSrc;
-
-  const barcodeImg = new Image();
-barcodeImg.crossOrigin = "anonymous";
-barcodeImg.src = tds[1].querySelector("img").src; // Barcode image
-
 
   logo.onload = () => {
     productImg.onload = () => {
@@ -352,9 +351,6 @@ barcodeImg.src = tds[1].querySelector("img").src; // Barcode image
       doc.setTextColor("#000000");
       doc.text(`Product Name: ${name}`, 14, 45);
       doc.addImage(productImg, 'JPEG', 150, 38, 40, 30);
-      doc.addImage(barcodeImg, 'JPEG', 150, 70, 40, 30); // adjust X, Y, width, height
-doc.text("Barcode:", 14, 80); // optional label
-
 
       // Product Details Table
       const rows = [
