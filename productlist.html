@@ -294,8 +294,9 @@ document.querySelectorAll('.barcode-btn').forEach(btn => {
         ? `https://aryalegalprocess.onrender.com/images/${encodeURIComponent(product.barcodeImage)}`
         : 'images/default.jpg';
 
-      const newTabUrl = `barcode-view.html?src=${encodeURIComponent(barcodeImg)}`;
-      window.open(newTabUrl, "_blank");
+      sessionStorage.setItem("barcodeImage", barcodeImg);
+window.open("barcode-view.html", "_blank");
+
 
     } catch (error) {
       console.error("Barcode view error:", error);

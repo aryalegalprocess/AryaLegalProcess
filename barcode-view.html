@@ -1,4 +1,3 @@
-<!-- barcode-view.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -39,12 +38,13 @@
   </div>
 
   <script>
-    const params = new URLSearchParams(window.location.search);
-    const imgSrc = params.get("src");
     const img = document.getElementById("barcodeImage");
+    const imgSrc = sessionStorage.getItem("barcodeImage");
 
-    if (imgSrc) {
-      img.src = decodeURIComponent(imgSrc);
+    if (imgSrc && imgSrc.startsWith("data:image")) {
+      img.src = imgSrc;
+    } else if (imgSrc) {
+      img.src = `https://aryalegalprocess.onrender.com/images/${encodeURIComponent(imgSrc)}`;
     } else {
       img.alt = "No barcode image available.";
     }
