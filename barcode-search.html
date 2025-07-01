@@ -189,14 +189,6 @@
           ? `https://aryalegalprocess.onrender.com/images/${encodeURIComponent(data.image)}`
           : 'images/default.jpg';
 
-        const barcodeImgSrc = data.barcodeImage?.startsWith("data:image")
-  ? data.barcodeImage
-  : data.barcodeImage
-    ? `https://aryalegalprocess.onrender.com/images/${encodeURIComponent(data.barcodeImage)}`
-    : 'images/default-barcode.jpg';
-
-
-
         const name = data.name || '-';
         const weight = data.weight || '-';
         const price = data.price && data.price !== "" ? `₹${data.price}` : '₹0';
@@ -211,7 +203,6 @@ resultDiv.innerHTML = `
     <thead>
       <tr>
         <th>Image</th>
-        <th>Barcode Image</th>
         <th>Name</th>
         <th>Weight</th>
         <th>Price</th>
@@ -226,7 +217,6 @@ resultDiv.innerHTML = `
     <tbody>
       <tr>
         <td data-label="Image"><img src="${imgSrc}" alt="${name}" class="product-img" /></td>
-        <td data-label="Barcode Image"><img src="${barcodeImgSrc}" alt="Barcode" class="product-img" /></td>
         <td data-label="Name">${name}</td>
         <td data-label="Weight">${weight}</td>
         <td data-label="Price">${price}</td>
@@ -309,8 +299,7 @@ resultDiv.innerHTML = `
   if (!table) return;
 
   const tds = table.querySelectorAll("tbody td");
-const barcodeImgSrc = tds[1].querySelector("img").src; // barcode image
-const imgSrc = tds[0].querySelector("img").src; // product image
+  const imgSrc = tds[0].querySelector("img").src;
   const name = tds[1].textContent.trim();
   const weight = tds[2].textContent.trim();
 const price = tds[3].textContent.trim().replace('₹', 'Rs.');
