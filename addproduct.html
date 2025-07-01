@@ -7,11 +7,12 @@
   <link rel="stylesheet" href="style2.css" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="addproduct.css">
-  <script>
-  if (localStorage.getItem("isLoggedIn") !== "true") {
-    window.location.href = "dashboard.html"; // Redirect if not logged in
+<script>
+  if (sessionStorage.getItem("isLoggedIn") !== "true") {
+    window.location.href = "dashboard.html";
   }
 </script>
+
 
 </head>
 <body>
