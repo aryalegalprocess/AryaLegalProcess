@@ -297,7 +297,7 @@ resultDiv.innerHTML = `
     
 
     
-  async function downloadPDF() {
+async function downloadPDF() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
 
@@ -309,96 +309,118 @@ resultDiv.innerHTML = `
 
   const tds = table.querySelectorAll("tbody td");
 
-const imgSrc = tds[0].querySelector("img").src;
-const barcodeImgSrc = tds[1].querySelector("img").src;
+  const imgSrc = tds[0].querySelector("img").src;
+  const barcodeImgSrc = tds[1].querySelector("img").src;
 
-const name = tds[2].textContent.trim();
-const weight = tds[3].textContent.trim();
-const price = tds[4].textContent.trim().replace('₹', 'Rs.');
-const description = tds[5].textContent.trim();
-const details = tds[6].textContent.trim();
-const quantity = tds[7].textContent.trim();
-const company = tds[8].textContent.trim();
-const startDate = tds[9].textContent.trim();
-const endDate = tds[10].textContent.trim();
+  const name = tds[2].textContent.trim();
+  const weight = tds[3].textContent.trim();
+  const price = tds[4].textContent.trim().replace('₹', 'Rs.');
+  const description = tds[5].textContent.trim();
+  const details = tds[6].textContent.trim();
+  const quantity = tds[7].textContent.trim();
+  const company = tds[8].textContent.trim();
+  const startDate = tds[9].textContent.trim();
+  const endDate = tds[10].textContent.trim();
 
   const productImg = new Image();
-productImg.crossOrigin = "anonymous";
-productImg.src = imgSrc;
+  productImg.crossOrigin = "anonymous";
+  productImg.src = imgSrc;
 
-const barcodeImg = new Image();
-barcodeImg.crossOrigin = "anonymous";
-barcodeImg.src = barcodeImgSrc;
+  const barcodeImg = new Image();
+  barcodeImg.crossOrigin = "anonymous";
+  barcodeImg.src = barcodeImgSrc;
 
-logo.onload = () => {
-  productImg.onload = () => {
-    // Title and Logo
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(16);
-    doc.setTextColor("#003366");
-    doc.text("Arya Legal Process", 14, 20);
-    doc.addImage(logo, 'JPEG', 160, 10, 35, 15); // right logo
+  const state = { productLoaded: false, barcodeLoaded: false };
 
-    // Horizontal line
-    doc.setDrawColor(0);
-    doc.setLineWidth(0.5);
-    doc.line(14, 25, 200, 25);
+  const checkAndGeneratePDF = () => {
+    if (state.productLoaded && state.barcodeLoaded) {
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(16);
+      doc.setTextColor("#003366");
+      doc.text("Arya Legal Process", 14, 20);
+      doc.addImage(logo, 'JPEG', 160, 10, 35, 15);
+      doc.setDrawColor(0);
+      doc.setLineWidth(0.5);
+      doc.line(14, 25, 200, 25);
 
-    // Section title
-    doc.setFont("helvetica", "bold");
-    doc.setFontSize(13);
-    doc.setTextColor("#2e7d32");
-    doc.text("Product Information", 14, 35);
+      doc.setFontSize(13);
+      doc.setTextColor("#2e7d32");
+      doc.text("Product Information", 14, 35);
 
-// 🖼️ Left: Product Image
-doc.addImage(productImg, 'JPEG', 14, 42, 60, 40);
-doc.setFont("helvetica", "normal");
-doc.setFontSize(11);
-doc.setTextColor("#000000");
-doc.text("Product Image", 29, 90); // ← more space below image
-
-// 📷 Right: Barcode Image
-doc.addImage(barcodeImg, 'JPEG', 135, 42, 60, 40);
-doc.text("Product Barcode", 145, 90); // ← more space below image
-
-
-    // 📋 Details Table
-    const rows = [
-      ['Name', name],
-      ['Weight', weight],
-      ['Price', price],
-      ['Description', description],
-      ['Details', details],
-      ['Quantity', quantity],
-      ['Company', company],
-      ['Start Date', startDate],
-      ['End Date', endDate]
-    ];
-
-    doc.autoTable({
-      startY: 95,
-      head: [['Field', 'Value']],
-      body: rows,
-      styles: {
-        fontSize: 11,
-        cellPadding: 4,
-      },
-      headStyles: {
-        fillColor: [0, 51, 102],
-        textColor: 255,
-        fontStyle: 'bold'
-      },
-      columnStyles: {
-        0: { cellWidth: 50 },
-        1: { cellWidth: 130 }
+      // Add Product Image if available
+      if (productImg._loaded !== false) {
+        doc.addImage(productImg, 'JPEG', 14, 42, 60, 40);
+        doc.setFontSize(11);
+        doc.setTextColor("#000000");
+        doc.text("Product Image", 29, 90);
       }
-    });
 
-    doc.save(`${name.replace(/\s+/g, "_")}_Product_Info.pdf`);
+      // Add Barcode Image if available
+      if (barcodeImg._loaded !== false) {
+        doc.addImage(barcodeImg, 'JPEG', 135, 42, 60, 40);
+        doc.text("Product Barcode", 145, 90);
+      }
+
+      const rows = [
+        ['Name', name],
+        ['Weight', weight],
+        ['Price', price],
+        ['Description', description],
+        ['Details', details],
+        ['Quantity', quantity],
+        ['Company', company],
+        ['Start Date', startDate],
+        ['End Date', endDate]
+      ];
+
+      doc.autoTable({
+        startY: 95,
+        head: [['Field', 'Value']],
+        body: rows,
+        styles: {
+          fontSize: 11,
+          cellPadding: 4,
+        },
+        headStyles: {
+          fillColor: [0, 51, 102],
+          textColor: 255,
+          fontStyle: 'bold'
+        },
+        columnStyles: {
+          0: { cellWidth: 50 },
+          1: { cellWidth: 130 }
+        }
+      });
+
+      doc.save(`${name.replace(/\s+/g, "_")}_Product_Info.pdf`);
+    }
   };
-};
 
+  // Track loading of product image
+  productImg.onload = () => {
+    productImg._loaded = true;
+    state.productLoaded = true;
+    checkAndGeneratePDF();
+  };
+  productImg.onerror = () => {
+    productImg._loaded = false;
+    state.productLoaded = true;
+    checkAndGeneratePDF();
+  };
+
+  // Track loading of barcode image
+  barcodeImg.onload = () => {
+    barcodeImg._loaded = true;
+    state.barcodeLoaded = true;
+    checkAndGeneratePDF();
+  };
+  barcodeImg.onerror = () => {
+    barcodeImg._loaded = false;
+    state.barcodeLoaded = true;
+    checkAndGeneratePDF();
+  };
 }
+
 
   </script>
 
