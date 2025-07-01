@@ -1,0 +1,54 @@
+<!-- barcode-view.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>View Barcode</title>
+  <style>
+    body {
+      margin: 0;
+      background-color: #f0f0f0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      font-family: Arial, sans-serif;
+    }
+
+    .barcode-container {
+      background: #fff;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    .barcode-container img {
+      max-width: 100%;
+      max-height: 80vh;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    .title {
+      margin-bottom: 20px;
+      font-size: 24px;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <div class="barcode-container">
+    <div class="title">Product Barcode</div>
+    <img id="barcodeImg" src="" alt="Barcode Image" />
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const imgSrc = params.get("src");
+
+    const img = document.getElementById("barcodeImg");
+    img.src = imgSrc || "images/default.jpg"; // fallback image if needed
+  </script>
+</body>
+</html>

@@ -144,11 +144,30 @@
     }
   });
 
-  document.querySelectorAll('.barcode-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      alert('Show barcode here');
-    });
+document.querySelectorAll('.barcode-btn').forEach(btn => {
+  btn.addEventListener('click', async () => {
+    const row = btn.closest('tr');
+    const id = row.querySelector(".edit-btn").getAttribute("data-id");
+
+    try {
+      const res = await fetch(`https://aryalegalprocess.onrender.com/api/products/${id}`);
+      if (!res.ok) throw new Error("Failed to fetch product");
+
+      const product = await res.json();
+      const barcodeImg = product.barcodeImage?.startsWith("data:image")
+        ? product.barcodeImage
+        : product.barcodeImage
+        ? `https://aryalegalprocess.onrender.com/images/${encodeURIComponent(product.barcodeImage)}`
+        : 'images/default.jpg';
+
+      window.open(`barcode-view.html?src=${encodeURIComponent(barcodeImg)}`, "_blank");
+    } catch (err) {
+      console.error("Error fetching barcode:", err);
+      alert("Failed to load barcode image.");
+    }
   });
+});
+
 
   window.onload = function () {
     const tbody = document.querySelector('tbody');
