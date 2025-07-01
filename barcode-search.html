@@ -159,6 +159,8 @@
 
     <!-- Result will show here -->
     <div id="result" class="result-section"></div>
+    <button id="downloadPdfBtn" class="action-button" style="display: none;" onclick="downloadPDF()">Download PDF</button>
+
   </div>
 
   <script>
@@ -231,9 +233,13 @@ resultDiv.innerHTML = `
 
 
         resultDiv.style.display = "block";
+        document.getElementById("downloadPdfBtn").style.display = "inline-block";
+
       } catch (err) {
         resultDiv.innerHTML = `<p style="color:red;">Product not found. Please try again.</p>`;
         resultDiv.style.display = "block";
+        document.getElementById("downloadPdfBtn").style.display = "none";
+
       }
     }
 
@@ -279,8 +285,106 @@ resultDiv.innerHTML = `
       document.getElementById("scannerModal").style.display = "none";
       Quagga.offDetected();
     }
+    
+
+    
+  async function downloadPDF() {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF();
+
+  const logo = new Image();
+  logo.src = 'images/aryalogo.jpg';
+
+  const table = document.querySelector(".product-info-table");
+  if (!table) return;
+
+  const tds = table.querySelectorAll("tbody td");
+  const imgSrc = tds[0].querySelector("img").src;
+  const name = tds[1].textContent.trim();
+  const weight = tds[2].textContent.trim();
+const price = tds[3].textContent.trim().replace('₹', 'Rs.');
+  const description = tds[4].textContent.trim();
+  const details = tds[5].textContent.trim();
+  const quantity = tds[6].textContent.trim();
+  const company = tds[7].textContent.trim();
+  const startDate = tds[8].textContent.trim();
+  const endDate = tds[9].textContent.trim();
+
+  const productImg = new Image();
+  productImg.crossOrigin = "anonymous";
+  productImg.src = imgSrc;
+
+  logo.onload = () => {
+    productImg.onload = () => {
+      // Title and Logo
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(16);
+      doc.setTextColor("#003366");
+      doc.text("Arya Legal Process", 14, 20);
+      doc.addImage(logo, 'JPEG', 160, 10, 35, 15); // right logo
+
+      // Horizontal line below header
+      doc.setDrawColor(0); // black line
+      doc.setLineWidth(0.5);
+      doc.line(14, 25, 200, 25); // from x=14 to x=200 at y=25
+
+      // Section title - Product Information
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(13);
+      doc.setTextColor("#2e7d32"); // green
+      doc.text("Product Information", 14, 35);
+
+      // Product Name and Image
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(12);
+      doc.setTextColor("#000000");
+      doc.text(`Product Name: ${name}`, 14, 45);
+      doc.addImage(productImg, 'JPEG', 150, 38, 40, 30);
+
+      // Product Details Table
+      const rows = [
+        ['Name', name],
+        ['Weight', weight],
+        ['Price', price],
+        ['Description', description],
+        ['Details', details],
+        ['Quantity', quantity],
+        ['Company', company],
+        ['Start Date', startDate],
+        ['End Date', endDate]
+      ];
+
+      doc.autoTable({
+        startY: 75,
+        head: [['Field', 'Value']],
+        body: rows,
+        styles: {
+          fontSize: 11,
+          cellPadding: 4,
+        },
+        headStyles: {
+          fillColor: [0, 51, 102],
+          textColor: 255,
+          fontStyle: 'bold'
+        },
+        columnStyles: {
+          0: { cellWidth: 50 },
+          1: { cellWidth: 130 }
+        }
+      });
+
+      doc.save(`${name.replace(/\s+/g, "_")}_Product_Info.pdf`);
+    };
+  };
+}
+
   </script>
 
   <script src="https://unpkg.com/@ericblade/quagga2/dist/quagga.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
+
+
 </body>
 </html>
