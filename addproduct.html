@@ -73,6 +73,10 @@
         <label for="image">Product Image:</label>
         <input type="file" id="image" />
 
+        <label for="barcode-image">Product Barcode Image:</label>
+<input type="file" id="barcode-image" accept="image/*" />
+
+
         <label for="start-date">Start Date:</label>
         <input type="date" id="start-date" value="2025-06-02" />
 
@@ -200,6 +204,9 @@
 
       const isEditing = !!productId;
       const file = imageInput.files[0];
+     const barcodeImageInput = document.getElementById('barcode-image');
+const barcodeFile = barcodeImageInput.files[0];
+
 
       // Only require image if adding
       if (!isEditing && !file) {
@@ -219,7 +226,8 @@
             startDate: startDate.value,
             endDate: endDate.value,
             price: price.value.trim(),
-            image: base64Image // added later
+            image: base64Image, // added later
+            barcodeImage: base64Barcode
           };
 
           const url = isEditing
@@ -245,18 +253,25 @@
         };
 
         let base64Image = "";
+let base64Barcode = "";
 
-        if (file) {
-          const reader = new FileReader();
-          reader.onloadend = function () {
-            base64Image = reader.result;
-            submitData();
-          };
-          reader.readAsDataURL(file);
-        } else {
-          base64Image = ""; // send blank if no image change during edit
-          submitData();
-        }
+const readImageAsBase64 = (file) => {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result);
+    reader.readAsDataURL(file);
+  });
+};
+
+Promise.all([
+  file ? readImageAsBase64(file) : Promise.resolve(""),
+  barcodeFile ? readImageAsBase64(barcodeFile) : Promise.resolve("")
+]).then(([imageResult, barcodeResult]) => {
+  base64Image = imageResult;
+  base64Barcode = barcodeResult;
+  submitData();
+});
+
       }
     });
   });

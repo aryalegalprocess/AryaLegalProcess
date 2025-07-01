@@ -189,6 +189,11 @@
           ? `https://aryalegalprocess.onrender.com/images/${encodeURIComponent(data.image)}`
           : 'images/default.jpg';
 
+          const barcodeImgSrc = data.barcodeImage?.startsWith("data:image")
+  ? data.barcodeImage
+  : 'images/default-barcode.jpg'; // fallback if not available
+
+
         const name = data.name || '-';
         const weight = data.weight || '-';
         const price = data.price && data.price !== "" ? `₹${data.price}` : '₹0';
@@ -202,6 +207,7 @@ resultDiv.innerHTML = `
   <table class="product-info-table">
     <thead>
       <tr>
+        <th>Barcode Image</th>
         <th>Image</th>
         <th>Name</th>
         <th>Weight</th>
@@ -217,6 +223,7 @@ resultDiv.innerHTML = `
     <tbody>
       <tr>
         <td data-label="Image"><img src="${imgSrc}" alt="${name}" class="product-img" /></td>
+        <td data-label="Barcode Image"><img src="${barcodeImgSrc}" alt="Barcode" class="product-img" /></td>
         <td data-label="Name">${name}</td>
         <td data-label="Weight">${weight}</td>
         <td data-label="Price">${price}</td>
@@ -314,6 +321,11 @@ const price = tds[3].textContent.trim().replace('₹', 'Rs.');
   productImg.crossOrigin = "anonymous";
   productImg.src = imgSrc;
 
+  const barcodeImg = new Image();
+barcodeImg.crossOrigin = "anonymous";
+barcodeImg.src = tds[1].querySelector("img").src; // Barcode image
+
+
   logo.onload = () => {
     productImg.onload = () => {
       // Title and Logo
@@ -340,6 +352,9 @@ const price = tds[3].textContent.trim().replace('₹', 'Rs.');
       doc.setTextColor("#000000");
       doc.text(`Product Name: ${name}`, 14, 45);
       doc.addImage(productImg, 'JPEG', 150, 38, 40, 30);
+      doc.addImage(barcodeImg, 'JPEG', 150, 70, 40, 30); // adjust X, Y, width, height
+doc.text("Barcode:", 14, 80); // optional label
+
 
       // Product Details Table
       const rows = [
