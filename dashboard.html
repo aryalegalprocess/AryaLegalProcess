@@ -472,12 +472,12 @@ input:-webkit-autofill:active {
   </div>
 
   <script>
-   function login() {
+function login() {
   const username = document.getElementById('username').value.trim();
-  const password = document.getElementById('password');
+  const password = document.getElementById('password').value;
 
   if (username === "9246466288" && password === "12345678") {
-    sessionStorage.setItem("isLoggedIn", "true"); // ✅ Set session flag
+    sessionStorage.setItem("isLoggedIn", "true");
     window.location.href = "home.html";
   } else {
     alert("Invalid mobile number or password.");
