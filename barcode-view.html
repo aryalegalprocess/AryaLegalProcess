@@ -36,18 +36,21 @@
     <h2>Product Barcode</h2>
     <img id="barcodeImage" src="" alt="Barcode Image" />
   </div>
+<script>
+  const img = document.getElementById("barcodeImage");
+  const imgSrc = sessionStorage.getItem("barcodeImage");
 
-  <script>
-    const img = document.getElementById("barcodeImage");
-    const imgSrc = sessionStorage.getItem("barcodeImage");
+  if (imgSrc && imgSrc.startsWith("data:image")) {
+    img.src = imgSrc;
+  } else if (imgSrc) {
+    img.src = `https://aryalegalprocess.onrender.com/images/${encodeURIComponent(imgSrc)}`;
+  } else {
+    img.alt = "No barcode image available.";
+  }
 
-    if (imgSrc && imgSrc.startsWith("data:image")) {
-      img.src = imgSrc;
-    } else if (imgSrc) {
-      img.src = `https://aryalegalprocess.onrender.com/images/${encodeURIComponent(imgSrc)}`;
-    } else {
-      img.alt = "No barcode image available.";
-    }
-  </script>
+  // Clear after use
+  sessionStorage.removeItem("barcodeImage");
+</script>
+
 </body>
 </html>

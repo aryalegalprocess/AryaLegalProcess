@@ -91,268 +91,272 @@
 
   <div id="descPopup" class="description-popup" style="display:none;"></div>
 
-  <script>
-    const sidebar = document.querySelector('.sidebar');
-    sidebar.addEventListener('click', () => {
-      sidebar.classList.toggle('expanded');
-    });
+<script>
+  const sidebar = document.querySelector('.sidebar');
+  sidebar.addEventListener('click', () => {
+    sidebar.classList.toggle('expanded');
+  });
 
-    function toggleDropdown() {
-      const dropdown = document.getElementById("dropdown");
-      dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+  function toggleDropdown() {
+    const dropdown = document.getElementById("dropdown");
+    dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+  }
+
+  document.addEventListener("click", function (event) {
+    const dropdown = document.getElementById("dropdown");
+    const admin = document.querySelector(".admin");
+    if (!admin.contains(event.target)) {
+      dropdown.style.display = "none";
     }
+  });
 
-    document.addEventListener("click", function (event) {
-      const dropdown = document.getElementById("dropdown");
-      const admin = document.querySelector(".admin");
-      if (!admin.contains(event.target)) {
-        dropdown.style.display = "none";
-      }
-    });
+  let allProducts = [];
+  let companyMap = {};
+  let currentPage = 1;
+  let totalPages = 1;
+  let popupTimeout;
+  let lastClickedDescriptionButton = null;
 
-    let allProducts = [];
-    let companyMap = {};
-    let currentPage = 1;
-    let totalPages = 1;
-    let popupTimeout;
-    let lastClickedDescriptionButton = null;
-
-    function fetchCompanies() {
-      return fetch('https://aryalegalprocess.onrender.com/api/companies')
-        .then(res => res.json())
-        .then(companies => {
-          companies.forEach(c => {
-            companyMap[c.id] = c.name;
-          });
+  function fetchCompanies() {
+    return fetch('https://aryalegalprocess.onrender.com/api/companies')
+      .then(res => res.json())
+      .then(companies => {
+        companies.forEach(c => {
+          companyMap[c.id] = c.name;
         });
-    }
-
-    function formatDate(dateStr) {
-      if (!dateStr) return 'N/A';
-      const date = new Date(dateStr);
-      return date.toISOString().split('T')[0];
-    }
-
-    function renderHomeTable(products) {
-      const tbody = document.getElementById('recentProductsBody');
-      tbody.innerHTML = '';
-      const search = document.getElementById("homeSearch").value.toLowerCase();
-      const entriesToShow = parseInt(document.getElementById("entriesSelect").value);
-
-      const filtered = products.filter(p => {
-        const rowText = `
-          ${p.barcode}
-          ${p.name}
-          ${p.details}
-          ${p.weight}
-          ${p.quantity}
-          ${companyMap[p.company] || p.company}
-          ${p.description}
-          ${p.startdate}
-          ${p.enddate}
-          ${p.price}
-        `.toLowerCase();
-        return rowText.includes(search);
       });
+  }
 
-      totalPages = Math.ceil(filtered.length / entriesToShow);
-      const startIndex = (currentPage - 1) * entriesToShow;
-      const paginated = filtered.slice(startIndex, startIndex + entriesToShow);
+  function formatDate(dateStr) {
+    if (!dateStr) return 'N/A';
+    const date = new Date(dateStr);
+    return date.toISOString().split('T')[0];
+  }
 
-      paginated.forEach((product, index) => {
-        const row = document.createElement('tr');
-       row.innerHTML = `
-  <td><button class="btn-barcode">VIEW BARCODE</button></td>
-  <td>${product.id || '-'}</td>
-  <td>${product.barcode || ''}</td>
-  <td>${product.name || ''}</td>
-  <td>${product.details && product.details.trim() !== '' ? product.details : '-'}</td>
-  <td>${product.weight || ''}</td>
-  <td>${product.quantity || ''}</td>
-  <td>${companyMap[product.company] || 'Unknown'}</td>
-  <td><button class="btn-description" data-desc="${product.description || 'No description'}">Description</button></td>
- <td>${formatDate(product.startDate || product.startdate || '-')}</td>
-<td>${formatDate(product.endDate || product.enddate || '-')}</td>
-  <td>₹${product.price || '0'}</td>
-`;
+  function renderHomeTable(products) {
+    const tbody = document.getElementById('recentProductsBody');
+    tbody.innerHTML = '';
+    const search = document.getElementById("homeSearch").value.toLowerCase();
+    const entriesToShow = parseInt(document.getElementById("entriesSelect").value);
 
-        tbody.appendChild(row);
-            document.querySelectorAll('.btn-barcode').forEach(btn => {
-  btn.addEventListener('click', async () => {
-    const row = btn.closest('tr');
-    const id = row.querySelector('td:nth-child(2)')?.textContent;
+    const filtered = products.filter(p => {
+      const rowText = `
+        ${p.barcode}
+        ${p.name}
+        ${p.details}
+        ${p.weight}
+        ${p.quantity}
+        ${companyMap[p.company] || p.company}
+        ${p.description}
+        ${p.startdate}
+        ${p.enddate}
+        ${p.price}
+      `.toLowerCase();
+      return rowText.includes(search);
+    });
 
-    if (!id) {
-      alert("No product ID found.");
-      return;
-    }
+    totalPages = Math.ceil(filtered.length / entriesToShow);
+    const startIndex = (currentPage - 1) * entriesToShow;
+    const paginated = filtered.slice(startIndex, startIndex + entriesToShow);
 
-    try {
-      const res = await fetch(`https://aryalegalprocess.onrender.com/api/products/id/${id}`);
-      if (!res.ok) throw new Error("Failed to fetch product");
+    paginated.forEach((product) => {
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td><button class="btn-barcode">VIEW BARCODE</button></td>
+        <td>${product.id || '-'}</td>
+        <td>${product.barcode || ''}</td>
+        <td>${product.name || ''}</td>
+        <td>${product.details && product.details.trim() !== '' ? product.details : '-'}</td>
+        <td>${product.weight || ''}</td>
+        <td>${product.quantity || ''}</td>
+        <td>${companyMap[product.company] || 'Unknown'}</td>
+        <td><button class="btn-description" data-desc="${product.description || 'No description'}">Description</button></td>
+        <td>${formatDate(product.startDate || product.startdate || '-')}</td>
+        <td>${formatDate(product.endDate || product.enddate || '-')}</td>
+        <td>₹${product.price || '0'}</td>
+      `;
+      tbody.appendChild(row);
+    });
 
-      const product = await res.json();
+    updatePaginationInfo(startIndex + 1, startIndex + paginated.length, filtered.length);
+    renderPagination();
 
-      const barcodeImg = product.barcodeImage?.startsWith("data:image")
-        ? product.barcodeImage
-        : product.barcodeImage
-        ? `https://aryalegalprocess.onrender.com/images/${encodeURIComponent(product.barcodeImage)}`
-        : "";
+    document.querySelectorAll('.btn-description').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const desc = btn.getAttribute('data-desc') || 'No description available';
+        const popup = document.getElementById('descPopup');
 
-      if (!barcodeImg) {
-        alert("No barcode image available.");
+        if (popup.style.display === 'block' && lastClickedDescriptionButton === btn) {
+          popup.style.display = 'none';
+          lastClickedDescriptionButton = null;
+          return;
+        }
+
+        popup.textContent = desc;
+        popup.style.display = 'block';
+
+        const rect = btn.getBoundingClientRect();
+        const popupWidth = popup.offsetWidth;
+        const spaceRight = window.innerWidth - rect.right;
+
+        popup.style.left = (spaceRight > popupWidth + 20)
+          ? `${rect.right + 10}px`
+          : `${rect.left - popupWidth - 10}px`;
+
+        popup.style.top = `${rect.top + window.scrollY}px`;
+
+        clearTimeout(popupTimeout);
+        popupTimeout = setTimeout(() => {
+          popup.style.display = 'none';
+          lastClickedDescriptionButton = null;
+        }, 6000);
+
+        lastClickedDescriptionButton = btn;
+      });
+    });
+  }
+
+  // ✅ Fix glitch by using event delegation for barcode view
+  document.addEventListener('click', async (e) => {
+    if (e.target.classList.contains('btn-barcode')) {
+      const btn = e.target;
+      const row = btn.closest('tr');
+      const id = row.querySelector('td:nth-child(2)')?.textContent;
+
+      if (!id) {
+        alert("No product ID found.");
         return;
       }
 
-      sessionStorage.setItem("barcodeImage", barcodeImg);
-      window.open("barcode-view.html", "_blank");
+      try {
+        const res = await fetch(`https://aryalegalprocess.onrender.com/api/products/id/${id}`);
+        if (!res.ok) throw new Error("Failed to fetch product");
 
-    } catch (error) {
-      console.error("Barcode view error:", error);
-      alert("Failed to load barcode image.");
+        const product = await res.json();
+
+        const barcodeImg = product.barcodeImage?.startsWith("data:image")
+          ? product.barcodeImage
+          : product.barcodeImage
+            ? `https://aryalegalprocess.onrender.com/images/${encodeURIComponent(product.barcodeImage)}`
+            : "";
+
+        if (!barcodeImg || barcodeImg.trim() === "") {
+          sessionStorage.removeItem("barcodeImage");
+          alert("No barcode image available.");
+          return;
+        }
+
+        sessionStorage.setItem("barcodeImage", barcodeImg);
+        window.open("barcode-view.html", "_blank");
+
+      } catch (error) {
+        console.error("Barcode view error:", error);
+        alert("Failed to load barcode image.");
+      }
     }
   });
-});
+
+  function updatePaginationInfo(from, to, total) {
+    const info = document.querySelector(".pagination-info");
+    if (total === 0) {
+      info.textContent = "Showing 0 to 0 of 0 entries";
+    } else {
+      info.textContent = `Showing ${from} to ${to} of ${total} entries`;
+    }
+  }
+
+  function renderPagination() {
+    const container = document.querySelector(".pagination");
+    container.innerHTML = '';
+    if (totalPages <= 1) return;
+
+    function createPageLink(page) {
+      const a = document.createElement('a');
+      a.href = "#";
+      a.textContent = page;
+      if (page === currentPage) a.classList.add('active');
+      a.addEventListener('click', e => {
+        e.preventDefault();
+        if (currentPage === page) return;
+        currentPage = page;
+        renderHomeTable(allProducts);
       });
-
-      updatePaginationInfo(startIndex + 1, startIndex + paginated.length, filtered.length);
-      renderPagination();
-
-      document.querySelectorAll('.btn-description').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          const desc = btn.getAttribute('data-desc') || 'No description available';
-          const popup = document.getElementById('descPopup');
-
-          if (popup.style.display === 'block' && lastClickedDescriptionButton === btn) {
-            popup.style.display = 'none';
-            lastClickedDescriptionButton = null;
-            return;
-          }
-
-          popup.textContent = desc;
-          popup.style.display = 'block';
-
-          const rect = btn.getBoundingClientRect();
-          const popupWidth = popup.offsetWidth;
-          const spaceRight = window.innerWidth - rect.right;
-
-          popup.style.left = (spaceRight > popupWidth + 20)
-            ? `${rect.right + 10}px`
-            : `${rect.left - popupWidth - 10}px`;
-
-          popup.style.top = `${rect.top + window.scrollY}px`;
-
-          clearTimeout(popupTimeout);
-          popupTimeout = setTimeout(() => {
-            popup.style.display = 'none';
-            lastClickedDescriptionButton = null;
-          }, 6000);
-
-          lastClickedDescriptionButton = btn;
-        });
-      });
+      return a;
     }
 
-    function updatePaginationInfo(from, to, total) {
-      const info = document.querySelector(".pagination-info");
-      if (total === 0) {
-        info.textContent = "Showing 0 to 0 of 0 entries";
+    function createEllipsis() {
+      const span = document.createElement('span');
+      span.textContent = '...';
+      span.classList.add('ellipsis');
+      return span;
+    }
+
+    container.appendChild(createPageLink(1));
+    if (totalPages <= 7) {
+      for (let i = 2; i <= totalPages; i++) container.appendChild(createPageLink(i));
+    } else {
+      let startPage, endPage;
+      if (currentPage <= 4) {
+        startPage = 2; endPage = 5;
+        for (let i = startPage; i <= endPage; i++) container.appendChild(createPageLink(i));
+        container.appendChild(createEllipsis());
+        container.appendChild(createPageLink(totalPages));
+      } else if (currentPage > totalPages - 4) {
+        container.appendChild(createEllipsis());
+        startPage = totalPages - 4; endPage = totalPages - 1;
+        for (let i = startPage; i <= endPage; i++) container.appendChild(createPageLink(i));
+        container.appendChild(createPageLink(totalPages));
       } else {
-        info.textContent = `Showing ${from} to ${to} of ${total} entries`;
+        container.appendChild(createEllipsis());
+        startPage = currentPage - 1; endPage = currentPage + 1;
+        for (let i = startPage; i <= endPage; i++) container.appendChild(createPageLink(i));
+        container.appendChild(createEllipsis());
+        container.appendChild(createPageLink(totalPages));
       }
     }
+  }
 
-    function renderPagination() {
-      const container = document.querySelector(".pagination");
-      container.innerHTML = '';
-      if (totalPages <= 1) return;
-
-      function createPageLink(page) {
-        const a = document.createElement('a');
-        a.href = "#";
-        a.textContent = page;
-        if (page === currentPage) a.classList.add('active');
-        a.addEventListener('click', e => {
-          e.preventDefault();
-          if (currentPage === page) return;
-          currentPage = page;
-          renderHomeTable(allProducts);
-        });
-        return a;
-      }
-
-      function createEllipsis() {
-        const span = document.createElement('span');
-        span.textContent = '...';
-        span.classList.add('ellipsis');
-        return span;
-      }
-
-      container.appendChild(createPageLink(1));
-      if (totalPages <= 7) {
-        for (let i = 2; i <= totalPages; i++) container.appendChild(createPageLink(i));
-      } else {
-        let startPage, endPage;
-        if (currentPage <= 4) {
-          startPage = 2; endPage = 5;
-          for (let i = startPage; i <= endPage; i++) container.appendChild(createPageLink(i));
-          container.appendChild(createEllipsis());
-          container.appendChild(createPageLink(totalPages));
-        } else if (currentPage > totalPages - 4) {
-          container.appendChild(createEllipsis());
-          startPage = totalPages - 4; endPage = totalPages - 1;
-          for (let i = startPage; i <= endPage; i++) container.appendChild(createPageLink(i));
-          container.appendChild(createPageLink(totalPages));
-        } else {
-          container.appendChild(createEllipsis());
-          startPage = currentPage - 1; endPage = currentPage + 1;
-          for (let i = startPage; i <= endPage; i++) container.appendChild(createPageLink(i));
-          container.appendChild(createEllipsis());
-          container.appendChild(createPageLink(totalPages));
-        }
-      }
+  document.addEventListener("click", function (event) {
+    const popup = document.getElementById('descPopup');
+    const isDescButton = event.target.classList.contains('btn-description');
+    if (!isDescButton && popup.style.display === 'block') {
+      popup.style.display = 'none';
+      lastClickedDescriptionButton = null;
     }
+  });
 
-    document.addEventListener("click", function (event) {
-      const popup = document.getElementById('descPopup');
-      const isDescButton = event.target.classList.contains('btn-description');
-      if (!isDescButton && popup.style.display === 'block') {
-        popup.style.display = 'none';
-        lastClickedDescriptionButton = null;
-      }
-    });
+  window.onload = function () {
+    Promise.all([fetchCompanies()])
+      .then(() => {
+        return fetch('https://aryalegalprocess.onrender.com/api/products')
+          .then(res => res.json())
+          .then(products => {
+            products.sort((a, b) => b.id - a.id);
+            allProducts = products;
+            document.getElementById('totalCount').textContent = products.length;
+            renderHomeTable(allProducts);
 
-    window.onload = function () {
-      Promise.all([fetchCompanies()])
-        .then(() => {
-          return fetch('https://aryalegalprocess.onrender.com/api/products')
-            .then(res => res.json())
-           .then(products => {
-  // Sort by ID in descending order (most recent first)
-  products.sort((a, b) => b.id - a.id);
-  allProducts = products;
-  document.getElementById('totalCount').textContent = products.length;
-  renderHomeTable(allProducts);
-
-              document.getElementById("homeSearch").addEventListener("input", () => {
-                currentPage = 1;
-                renderHomeTable(allProducts);
-              });
-              document.getElementById("entriesSelect").addEventListener("change", () => {
-                currentPage = 1;
-                renderHomeTable(allProducts);
-              });
+            document.getElementById("homeSearch").addEventListener("input", () => {
+              currentPage = 1;
+              renderHomeTable(allProducts);
             });
-        })
-        .catch(err => {
-          console.error('Failed to load:', err);
-          document.getElementById('recentProductsBody').innerHTML = '<tr><td colspan="12">Error loading data.</td></tr>';
-        });
-    };
-    function logout() {
+            document.getElementById("entriesSelect").addEventListener("change", () => {
+              currentPage = 1;
+              renderHomeTable(allProducts);
+            });
+          });
+      })
+      .catch(err => {
+        console.error('Failed to load:', err);
+        document.getElementById('recentProductsBody').innerHTML = '<tr><td colspan="12">Error loading data.</td></tr>';
+      });
+  };
+
+  function logout() {
     sessionStorage.clear();
     window.location.href = "dashboard.html";
   }
-  </script>
+</script>
+
 </body>
 </html>
