@@ -63,7 +63,7 @@
         <div class="admin" onclick="toggleDropdown()">ADMIN</div>
         <div class="dropdown-menu" id="dropdown">
           <a href="password.html">Change Password</a>
-          <a href="index.html">Logout</a>
+<a href="#" onclick="logout()">Logout</a>
         </div>
       </div>
     </div>
@@ -399,6 +399,10 @@ document.querySelectorAll('.delete-btn').forEach(btn => {
       }
     });
   };
+  function logout() {
+    sessionStorage.clear();
+    window.location.href = "dashboard.html";
+  }
 </script>
 
 <div id="descPopup" class="description-popup"></div>

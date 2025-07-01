@@ -75,7 +75,7 @@
         <div class="admin" onclick="toggleDropdown()">ADMIN</div>
         <div class="dropdown-menu" id="dropdown">
           <a href="password.html">Change Password</a>
-          <a href="index.html">Logout</a>
+<a href="#" onclick="logout()">Logout</a>
         </div>
       </div>
     </div>
@@ -448,6 +448,10 @@
       alert("❌ Failed to delete company. Please try again.");
     });
 }
+function logout() {
+    sessionStorage.clear();
+    window.location.href = "dashboard.html";
+  }
 
 </script>
 
