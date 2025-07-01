@@ -160,154 +160,109 @@
       });
 
     // Handle form submit
-    document.getElementById('productForm').addEventListener('submit', function (e) {
-      e.preventDefault();
+document.getElementById('productForm').addEventListener('submit', async function (e) {
+  e.preventDefault();
 
-      const errorElements = document.querySelectorAll('.error-message');
-      errorElements.forEach(el => el.remove());
+  const errorElements = document.querySelectorAll('.error-message');
+  errorElements.forEach(el => el.remove());
 
-      let valid = true;
+  let valid = true;
 
-      function showError(input, message) {
-        valid = false;
-        const error = document.createElement('div');
-        error.className = 'error-message';
-        error.style.color = 'red';
-        error.style.fontSize = '14px';
-        error.style.marginTop = '4px';
-        error.textContent = message;
-        input.parentNode.insertBefore(error, input.nextSibling);
-      }
-
-      const barcode = document.getElementById('barcode');
-      const productName = document.getElementById('product-name');
-      const productDetails = document.getElementById('product-details');
-      const weightage = document.getElementById('weightage');
-      const quantity = document.getElementById('quantity');
-      const company = document.getElementById('company');
-      const description = document.getElementById('description');
-      const imageInput = document.getElementById('image');
-      const startDate = document.getElementById('start-date');
-      const endDate = document.getElementById('end-date');
-      const price = document.getElementById('price');
-
-      if (!barcode.value.trim()) showError(barcode, 'Barcode Number is required.');
-      if (!productName.value.trim()) showError(productName, 'Product Name is required.');
-      if (!productDetails.value.trim()) showError(productDetails, 'Product Details are required.');
-      if (!weightage.value.trim()) showError(weightage, 'Product Weightage is required.');
-      if (!quantity.value.trim()) showError(quantity, 'Product Quantity is required.');
-      if (!company.value) showError(company, 'Please select a company.');
-      if (!description.value.trim()) showError(description, 'Product Description is required.');
-      if (!startDate.value) showError(startDate, 'Start Date is required.');
-      if (!endDate.value) showError(endDate, 'End Date is required.');
-      if (!price.value.trim()) showError(price, 'Price is required.');
-
-      const isEditing = !!productId;
-const file = imageInput.files[0];
-const barcodeFile = document.getElementById('barcode-image').files[0];
-
-if (!isEditing && (!file || !barcodeFile)) {
-  if (!file) showError(imageInput, 'Please upload a product image.');
-  if (!barcodeFile) showError(document.getElementById('barcode-image'), 'Please upload a barcode image.');
-}
-
-const reader1 = new FileReader();
-const reader2 = new FileReader();
-
-reader1.onloadend = function () {
-  base64Image = reader1.result;
-
-  if (barcodeFile) {
-    reader2.onloadend = function () {
-      base64BarcodeImage = reader2.result;
-      submitData();
-    };
-    reader2.readAsDataURL(barcodeFile);
-  } else {
-    base64BarcodeImage = "";
-    submitData();
+  function showError(input, message) {
+    valid = false;
+    const error = document.createElement('div');
+    error.className = 'error-message';
+    error.style.color = 'red';
+    error.style.fontSize = '14px';
+    error.style.marginTop = '4px';
+    error.textContent = message;
+    input.parentNode.insertBefore(error, input.nextSibling);
   }
-};
 
-if (file) {
-  reader1.readAsDataURL(file);
-} else {
-  base64Image = "";
-  if (barcodeFile) {
-    reader2.onloadend = function () {
-      base64BarcodeImage = reader2.result;
-      submitData();
-    };
-    reader2.readAsDataURL(barcodeFile);
-  } else {
-    base64BarcodeImage = "";
-    submitData();
+  const barcode = document.getElementById('barcode');
+  const productName = document.getElementById('product-name');
+  const productDetails = document.getElementById('product-details');
+  const weightage = document.getElementById('weightage');
+  const quantity = document.getElementById('quantity');
+  const company = document.getElementById('company');
+  const description = document.getElementById('description');
+  const imageInput = document.getElementById('image');
+  const barcodeInput = document.getElementById('barcode-image');
+  const startDate = document.getElementById('start-date');
+  const endDate = document.getElementById('end-date');
+  const price = document.getElementById('price');
+
+  if (!barcode.value.trim()) showError(barcode, 'Barcode Number is required.');
+  if (!productName.value.trim()) showError(productName, 'Product Name is required.');
+  if (!productDetails.value.trim()) showError(productDetails, 'Product Details are required.');
+  if (!weightage.value.trim()) showError(weightage, 'Product Weightage is required.');
+  if (!quantity.value.trim()) showError(quantity, 'Product Quantity is required.');
+  if (!company.value) showError(company, 'Please select a company.');
+  if (!description.value.trim()) showError(description, 'Product Description is required.');
+  if (!startDate.value) showError(startDate, 'Start Date is required.');
+  if (!endDate.value) showError(endDate, 'End Date is required.');
+  if (!price.value.trim()) showError(price, 'Price is required.');
+
+  const isEditing = !!productId;
+  const file = imageInput.files[0];
+  const barcodeFile = barcodeInput.files[0];
+
+  if (!isEditing && (!file || !barcodeFile)) {
+    if (!file) showError(imageInput, 'Please upload a product image.');
+    if (!barcodeFile) showError(barcodeInput, 'Please upload a barcode image.');
   }
-}
 
-      // Only require image if adding
-      if (!isEditing && !file) {
-        showError(imageInput, 'Please upload a product image.');
-      }
+  if (!valid) return;
 
-      if (valid) {
-        const submitData = () => {
-       const productData = {
-  barcode: barcode.value.trim(),
-  name: productName.value.trim(),
-  details: productDetails.value.trim(),
-  weight: weightage.value.trim(),
-  quantity: quantity.value.trim(),
-  company: company.value,
-  description: description.value.trim(),
-  startDate: startDate.value,
-  endDate: endDate.value,
-  price: price.value.trim(),
-  image: base64Image,
-  barcodeImage: base64BarcodeImage
-};
-
-
-          const url = isEditing
-            ? `https://aryalegalprocess.onrender.com/api/products/${productId}`
-            : `https://aryalegalprocess.onrender.com/api/products`;
-
-          const method = isEditing ? 'PUT' : 'POST';
-
-          fetch(url, {
-            method,
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(productData)
-          })
-            .then(res => res.json())
-            .then(data => {
-              alert(data.message || (isEditing ? "Product updated!" : "Product added!"));
-              window.location.href = "productlist.html";
-            })
-            .catch(error => {
-              console.error("Error:", error);
-              alert("Failed to save product.");
-            });
-        };
-
-        let base64Image = "";
-        let base64BarcodeImage = "";
-
-
-        if (file) {
-          const reader = new FileReader();
-          reader.onloadend = function () {
-            base64Image = reader.result;
-            submitData();
-          };
-          reader.readAsDataURL(file);
-        } else {
-          base64Image = ""; // send blank if no image change during edit
-          submitData();
-        }
-      }
+  const readAsBase64 = (file) =>
+    new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.readAsDataURL(file);
     });
+
+  const base64Image = file ? await readAsBase64(file) : "";
+  const base64BarcodeImage = barcodeFile ? await readAsBase64(barcodeFile) : "";
+
+  const productData = {
+    barcode: barcode.value.trim(),
+    name: productName.value.trim(),
+    details: productDetails.value.trim(),
+    weight: weightage.value.trim(),
+    quantity: quantity.value.trim(),
+    company: company.value,
+    description: description.value.trim(),
+    startDate: startDate.value,
+    endDate: endDate.value,
+    price: price.value.trim(),
+    image: base64Image,
+    barcodeImage: base64BarcodeImage,
+  };
+
+  const url = isEditing
+    ? `https://aryalegalprocess.onrender.com/api/products/${productId}`
+    : `https://aryalegalprocess.onrender.com/api/products`;
+
+  const method = isEditing ? 'PUT' : 'POST';
+
+  fetch(url, {
+    method,
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(productData)
+  })
+    .then(res => res.json())
+    .then(data => {
+      alert(data.message || (isEditing ? "Product updated!" : "Product added!"));
+      window.location.href = "productlist.html";
+    })
+    .catch(error => {
+      console.error("Error:", error);
+      alert("Failed to save product.");
+    });
+});
+
   });
+  
   function logout() {
     sessionStorage.clear();
     window.location.href = "dashboard.html";
