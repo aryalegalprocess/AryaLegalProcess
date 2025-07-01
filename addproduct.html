@@ -73,6 +73,10 @@
         <label for="image">Product Image:</label>
         <input type="file" id="image" />
 
+        <label for="barcode-image">Upload Barcode Image:</label>
+<input type="file" id="barcode-image" />
+
+
         <label for="start-date">Start Date:</label>
         <input type="date" id="start-date" value="2025-06-02" />
 
@@ -199,7 +203,47 @@
       if (!price.value.trim()) showError(price, 'Price is required.');
 
       const isEditing = !!productId;
-      const file = imageInput.files[0];
+const file = imageInput.files[0];
+const barcodeFile = document.getElementById('barcode-image').files[0];
+
+if (!isEditing && (!file || !barcodeFile)) {
+  if (!file) showError(imageInput, 'Please upload a product image.');
+  if (!barcodeFile) showError(document.getElementById('barcode-image'), 'Please upload a barcode image.');
+}
+
+const reader1 = new FileReader();
+const reader2 = new FileReader();
+
+reader1.onloadend = function () {
+  base64Image = reader1.result;
+
+  if (barcodeFile) {
+    reader2.onloadend = function () {
+      base64BarcodeImage = reader2.result;
+      submitData();
+    };
+    reader2.readAsDataURL(barcodeFile);
+  } else {
+    base64BarcodeImage = "";
+    submitData();
+  }
+};
+
+if (file) {
+  reader1.readAsDataURL(file);
+} else {
+  base64Image = "";
+  if (barcodeFile) {
+    reader2.onloadend = function () {
+      base64BarcodeImage = reader2.result;
+      submitData();
+    };
+    reader2.readAsDataURL(barcodeFile);
+  } else {
+    base64BarcodeImage = "";
+    submitData();
+  }
+}
 
       // Only require image if adding
       if (!isEditing && !file) {
@@ -208,19 +252,21 @@
 
       if (valid) {
         const submitData = () => {
-          const productData = {
-            barcode: barcode.value.trim(),
-            name: productName.value.trim(),
-            details: productDetails.value.trim(),
-            weight: weightage.value.trim(),
-            quantity: quantity.value.trim(),
-            company: company.value,
-            description: description.value.trim(),
-            startDate: startDate.value,
-            endDate: endDate.value,
-            price: price.value.trim(),
-            image: base64Image // added later
-          };
+       const productData = {
+  barcode: barcode.value.trim(),
+  name: productName.value.trim(),
+  details: productDetails.value.trim(),
+  weight: weightage.value.trim(),
+  quantity: quantity.value.trim(),
+  company: company.value,
+  description: description.value.trim(),
+  startDate: startDate.value,
+  endDate: endDate.value,
+  price: price.value.trim(),
+  image: base64Image,
+  barcodeImage: base64BarcodeImage
+};
+
 
           const url = isEditing
             ? `https://aryalegalprocess.onrender.com/api/products/${productId}`
@@ -245,6 +291,8 @@
         };
 
         let base64Image = "";
+        let base64BarcodeImage = "";
+
 
         if (file) {
           const reader = new FileReader();

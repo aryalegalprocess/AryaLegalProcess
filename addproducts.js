@@ -3,17 +3,17 @@ window.addEventListener("DOMContentLoaded", () => {
   fetch('https://aryalegalprocess.onrender.com/api/companies')
     .then(res => res.json())
     .then(companies => {
-      const select = document.getElementById("company");  // Make sure this matches your HTML ID
+      const select = document.getElementById("company");
       const uniqueCompanyNames = new Set();
 
       companies.forEach(company => {
         if (!uniqueCompanyNames.has(company.companyName)) {
           uniqueCompanyNames.add(company.companyName);
 
-           const option = document.createElement("option");
-        option.value = company.id;  // 🔴 FIXED: Use linear numeric ID
-        option.textContent = company.name; // 🔴 DISPLAY the actual company name
-        select.appendChild(option);
+          const option = document.createElement("option");
+          option.value = company.id;
+          option.textContent = company.name;
+          select.appendChild(option);
         }
       });
     })
@@ -42,46 +42,48 @@ document.getElementById('productForm').addEventListener('submit', function(e) {
     input.parentNode.insertBefore(error, input.nextSibling);
   }
 
-  // Validation code...
+  // Input elements
   const barcode = document.getElementById('barcode');
-  if (!barcode.value.trim()) showError(barcode, 'Barcode Number is required.');
-
   const productName = document.getElementById('product-name');
-  if (!productName.value.trim()) showError(productName, 'Product Name is required.');
-
   const productDetails = document.getElementById('product-details');
-  if (!productDetails.value.trim()) showError(productDetails, 'Product Details are required.');
-
   const weightage = document.getElementById('weightage');
-  if (!weightage.value.trim()) showError(weightage, 'Product Weightage is required.');
-
   const quantity = document.getElementById('quantity');
-  if (!quantity.value.trim()) showError(quantity, 'Product Quantity is required.');
-
   const company = document.getElementById('company');
-  if (!company.value) showError(company, 'Please select a company.');
-
   const description = document.getElementById('description');
-  if (!description.value.trim()) showError(description, 'Product Description is required.');
-
   const imageInput = document.getElementById('image');
-  if (!imageInput.value) showError(imageInput, 'Please upload a product image.');
-
+  const barcodeImageInput = document.getElementById('barcode-image'); // NEW
   const startDate = document.getElementById('start-date');
-  if (!startDate.value) showError(startDate, 'Start Date is required.');
-
   const endDate = document.getElementById('end-date');
-  if (!endDate.value) showError(endDate, 'End Date is required.');
-
   const price = document.getElementById('price');
+
+  // Validation
+  if (!barcode.value.trim()) showError(barcode, 'Barcode Number is required.');
+  if (!productName.value.trim()) showError(productName, 'Product Name is required.');
+  if (!productDetails.value.trim()) showError(productDetails, 'Product Details are required.');
+  if (!weightage.value.trim()) showError(weightage, 'Product Weightage is required.');
+  if (!quantity.value.trim()) showError(quantity, 'Product Quantity is required.');
+  if (!company.value) showError(company, 'Please select a company.');
+  if (!description.value.trim()) showError(description, 'Product Description is required.');
+  if (!imageInput.value) showError(imageInput, 'Please upload a product image.');
+  if (!barcodeImageInput.value) showError(barcodeImageInput, 'Please upload a barcode image.'); // NEW
+  if (!startDate.value) showError(startDate, 'Start Date is required.');
+  if (!endDate.value) showError(endDate, 'End Date is required.');
   if (!price.value.trim()) showError(price, 'Price is required.');
 
-  if (valid) {
-    const file = imageInput.files[0];
-    const reader = new FileReader();
+  if (!valid) return;
 
-    reader.onloadend = function() {
-      const base64Image = reader.result;
+  // File readers
+  const productImageFile = imageInput.files[0];
+  const barcodeImageFile = barcodeImageInput.files[0];
+
+  const reader1 = new FileReader();
+  const reader2 = new FileReader();
+
+  reader1.onloadend = function () {
+    const base64ProductImage = reader1.result;
+
+    reader2.onloadend = function () {
+      const base64BarcodeImage = reader2.result;
 
       const productData = {
         barcode: barcode.value.trim(),
@@ -94,7 +96,8 @@ document.getElementById('productForm').addEventListener('submit', function(e) {
         startDate: startDate.value,
         endDate: endDate.value,
         price: price.value.trim(),
-        image: base64Image
+        image: base64ProductImage,
+        barcodeImage: base64BarcodeImage // NEW
       };
 
       fetch("https://aryalegalprocess.onrender.com/api/products", {
@@ -104,24 +107,30 @@ document.getElementById('productForm').addEventListener('submit', function(e) {
         },
         body: JSON.stringify(productData)
       })
-      .then(response => {
-        if (response.ok) {
-          alert('Product added successfully!');
-          document.getElementById('productForm').reset();
-        } else {
-          alert('Failed to add product.');
-        }
-      })
-      .catch(error => {
-        console.error('Error:', error);
-        alert('An error occurred.');
-      });
+        .then(response => {
+          if (response.ok) {
+            alert('Product added successfully!');
+            document.getElementById('productForm').reset();
+          } else {
+            alert('Failed to add product.');
+          }
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          alert('An error occurred.');
+        });
     };
 
-    if (file) {
-      reader.readAsDataURL(file);
+    if (barcodeImageFile) {
+      reader2.readAsDataURL(barcodeImageFile);
     } else {
-      alert('Please upload an image file.');
+      alert('Please upload a barcode image file.');
     }
+  };
+
+  if (productImageFile) {
+    reader1.readAsDataURL(productImageFile);
+  } else {
+    alert('Please upload a product image file.');
   }
 });
