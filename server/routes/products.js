@@ -20,7 +20,8 @@ module.exports = function(Product, Company) {
         startDate: req.body.startDate,
         endDate: req.body.endDate,
         price: req.body.price,
-        image: req.body.image
+        image: req.body.image,
+        barcodeImage: req.body.barcodeImage // ✅ added this line
       });
 
       await newProduct.save();
@@ -31,10 +32,10 @@ module.exports = function(Product, Company) {
     }
   });
 
-  // ✅ READ - Get all products (excluding image for performance)
+  // ✅ READ - Get all products (excluding image fields for performance)
   router.get('/', async (req, res) => {
     try {
-      const products = await Product.find({}, { image: 0 });
+      const products = await Product.find({}, { image: 0, barcodeImage: 0 }); // exclude both for listing
       res.json(products);
     } catch (err) {
       res.status(500).json({ error: err.message });
@@ -95,7 +96,8 @@ module.exports = function(Product, Company) {
           startDate: req.body.startDate,
           endDate: req.body.endDate,
           price: req.body.price,
-          image: req.body.image
+          image: req.body.image,
+          barcodeImage: req.body.barcodeImage // ✅ added this line
         },
         { new: true }
       );
@@ -126,4 +128,3 @@ module.exports = function(Product, Company) {
 
   return router;
 };
-                                            
