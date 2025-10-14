@@ -28,7 +28,6 @@ document.getElementById('productForm').addEventListener('submit', async function
   document.querySelectorAll('.error-message').forEach(el => el.remove());
   let valid = true;
 
-  /*
   // Function to show validation errors
   function showError(input, message) {
     valid = false;
@@ -55,9 +54,12 @@ document.getElementById('productForm').addEventListener('submit', async function
   const endDate = document.getElementById('end-date');
   const price = document.getElementById('price');
 
-  // Validation (commented out as requested)
+  // ✅ Validation (only for barcode and product name)
   if (!barcode.value.trim()) showError(barcode, 'Barcode Number is required.');
   if (!productName.value.trim()) showError(productName, 'Product Name is required.');
+
+  /*
+  // ❌ Other field validations (commented out as requested)
   if (!productDetails.value.trim()) showError(productDetails, 'Product Details are required.');
   if (!weightage.value.trim()) showError(weightage, 'Product Weightage is required.');
   if (!quantity.value.trim()) showError(quantity, 'Product Quantity is required.');
@@ -68,23 +70,9 @@ document.getElementById('productForm').addEventListener('submit', async function
   if (!startDate.value) showError(startDate, 'Start Date is required.');
   if (!endDate.value) showError(endDate, 'End Date is required.');
   if (!price.value.trim()) showError(price, 'Price is required.');
-
-  if (!valid) return;
   */
 
-  // Input elements (directly used without validation)
-  const barcode = document.getElementById('barcode');
-  const productName = document.getElementById('product-name');
-  const productDetails = document.getElementById('product-details');
-  const weightage = document.getElementById('weightage');
-  const quantity = document.getElementById('quantity');
-  const company = document.getElementById('company');
-  const description = document.getElementById('description');
-  const imageInput = document.getElementById('image');
-  const barcodeImageInput = document.getElementById('barcode-image');
-  const startDate = document.getElementById('start-date');
-  const endDate = document.getElementById('end-date');
-  const price = document.getElementById('price');
+  if (!valid) return;
 
   // Convert files to base64
   const toBase64 = file =>
