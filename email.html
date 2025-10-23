@@ -189,28 +189,28 @@ document.querySelector(".btn-search").addEventListener("click", () => {
     renderTable(filtered);
   });
 
-  document.querySelector(".btn-send").addEventListener("click", () => {
-    const filtered = getFilteredProducts();
-    const companyIds = new Set(filtered.map(p => p.company));
-    const companyNames = Array.from(companyIds).map(id => companyMap[id]);
+  document.querySelector(".btn-send").addEventListener("click", async () => {
+  const filtered = getFilteredProducts();
 
-    fetch('https://aryalegalprocess.onrender.com/api/send-expiry-emails', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json'
-  },
-  body: JSON.stringify({ products: filtered }) // You can also send `companyNames` if needed
-})
-.then(res => res.json())
-.then(data => {
-  alert("✅ Emails sent successfully!");
-})
-.catch(err => {
-  console.error("Error sending email:", err);
-  alert("❌ Failed to send emails. Try again.");
+  if (!filtered.length) {
+    alert("⚠️ No products match your search criteria!");
+    return;
+  }
+
+  try {
+    const res = await fetch('https://aryalegalprocess.onrender.com/api/send-expiry-emails', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ products: filtered })
+    });
+    const data = await res.json();
+    alert(`✅ Emails sent successfully to ${data.message || filtered.length} company(ies)!`);
+  } catch (err) {
+    console.error("Error sending email:", err);
+    alert("❌ Failed to send emails. Try again.");
+  }
 });
 
-  });
 
   // Fetch on load
   window.onload = async function () {
