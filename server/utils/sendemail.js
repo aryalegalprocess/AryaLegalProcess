@@ -1,23 +1,29 @@
-const nodemailer = require("nodemailer");
-require("dotenv").config();
+// utils/sendEmail.js
+const axios = require('axios');
+require('dotenv').config();
 
-const transporter = nodemailer.createTransport({
-  host: process.env.MAIL_HOST,
-  port: process.env.MAIL_PORT,
-  secure: false, // TLS: false for port 587
-  auth: {
-    user: process.env.MAIL_USER,
-    pass: process.env.MAIL_PASS
+async function sendEmail(to, subject, htmlContent) {
+  try {
+    const response = await axios.post(
+      'https://api.brevo.com/v3/smtp/email',
+      {
+        sender: { name: "ARYA LEGAL PROCESS", email: "aryalegalprocess@gmail.com" },
+        to: [{ email: to }],
+        subject: subject,
+        htmlContent: htmlContent
+      },
+      {
+        headers: {
+          'api-key': process.env.BREVO_API_KEY,
+          'Content-Type': 'application/json'
+        }
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error sending email via Brevo API:', error.response?.data || error.message);
+    throw error;
   }
-});
-
-function sendEmail(to, subject, htmlContent) {
-  return transporter.sendMail({
-    from: `"ARYA LEGAL PROCESS" <${process.env.MAIL_USER}>`,
-    to,
-    subject,
-    html: htmlContent
-  });
 }
 
 module.exports = sendEmail;
