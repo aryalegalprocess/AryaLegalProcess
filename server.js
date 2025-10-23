@@ -1,4 +1,3 @@
-
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -23,7 +22,6 @@ app.use(cors({
   credentials: true
 }));
 
-
 app.use(express.json({ limit: '100mb' }));
 app.use(express.urlencoded({ extended: true, limit: '100mb' }));
 
@@ -34,7 +32,6 @@ app.use('/images', (req, res, next) => {
   res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
   next();
 }, express.static(path.join(__dirname, 'images')));
-
 
 // ✅ Serve other static files from root directory
 app.use(express.static(path.join(__dirname)));
@@ -70,9 +67,6 @@ const companyConnection = mongoose.createConnection(process.env.MONGO_URI_COMPAN
 });
 const CompanyModel = require('./models/company')(companyConnection);
 const Company = require('./models/company');
-
-
-
 
 // Default connection for Contact
 mongoose.connect(process.env.MONGO_URI, {
@@ -114,9 +108,12 @@ app.get("/api/contact", async (req, res) => {
   }
 });
 
-// ✅ NEW: Send Expiry Emails Route
+// ✅ NEW: Send Expiry Emails Route with logging & Number conversion
 app.post('/api/send-expiry-emails', async (req, res) => {
   try {
+    console.log("Send-expiry-emails route hit");
+    console.log("Request body:", req.body);
+
     const { products } = req.body;
 
     if (!products || !Array.isArray(products) || products.length === 0) {
@@ -124,86 +121,66 @@ app.post('/api/send-expiry-emails', async (req, res) => {
     }
 
     const companyIds = [...new Set(products.map(p => p.company))];
-for (const companyId of companyIds) {
-  const company = await Company.findOne({ id: companyId }); // ✅ CORRECT
-
+    for (const companyId of companyIds) {
+      const company = await Company.findOne({ id: Number(companyId) }); // ✅ Convert to Number
+      console.log("Company found:", company);
 
       if (!company || !company.cemail) continue;
 
-      const productsForCompany = products.filter(p => p.company === companyId);
+      const productsForCompany = products.filter(p => p.company == companyId); // loose equality for safety
 
-     function formatDate(date) {
-  if (!date) return '-';
-  const d = new Date(date);
-  if (isNaN(d)) return '-';
-  return d.toISOString().split('T')[0];
-}
+      function formatDate(date) {
+        if (!date) return '-';
+        const d = new Date(date);
+        if (isNaN(d)) return '-';
+        return d.toISOString().split('T')[0];
+      }
 
-const productListHtml = productsForCompany.map(p => `
-  <li>
-    <strong>${p.name || '-'}</strong><br/>
-    Barcode: ${p.barcode || '-'}<br/>
-    Weight: ${p.weight || '-'}<br/>
-    Quantity: ${p.quantity || '-'}<br/>
-    Details: ${p.details || '-'}<br/>
-    Description: ${p.description || '-'}<br/>
-    Start Date: ${formatDate(p.startdate || p.startDate)}<br/>
-    End Date: ${formatDate(p.enddate || p.endDate)}<br/>
-    Price: ₹${p.price || '-'}
-  </li>
-`).join("<br/><br/>");
+      const emailContent = `
+        <div style="font-family: 'Segoe UI', sans-serif; color: #333; padding: 20px; line-height: 1.6;">
+          <h2 style="color: #007bff;">Dear ${company.cname || 'Valued Partner'},</h2>
+          <p>This is a reminder that the following product(s) associated with your company have partnership dates that are expiring soon:</p>
+          <table style="width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px;">
+            <thead style="background-color: #f2f2f2;">
+              <tr>
+                <th style="border: 1px solid #ccc; padding: 8px;">Product Name</th>
+                <th style="border: 1px solid #ccc; padding: 8px;">Barcode</th>
+                <th style="border: 1px solid #ccc; padding: 8px;">Weight</th>
+                <th style="border: 1px solid #ccc; padding: 8px;">Quantity</th>
+                <th style="border: 1px solid #ccc; padding: 8px;">Details</th>
+                <th style="border: 1px solid #ccc; padding: 8px;">Description</th>
+                <th style="border: 1px solid #ccc; padding: 8px;">Start Date</th>
+                <th style="border: 1px solid #ccc; padding: 8px;">End Date</th>
+                <th style="border: 1px solid #ccc; padding: 8px;">Price</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${productsForCompany.map(p => `
+                <tr>
+                  <td style="border: 1px solid #ccc; padding: 8px;">${p.name || '-'}</td>
+                  <td style="border: 1px solid #ccc; padding: 8px;">${p.barcode || '-'}</td>
+                  <td style="border: 1px solid #ccc; padding: 8px;">${p.weight || '-'}</td>
+                  <td style="border: 1px solid #ccc; padding: 8px;">${p.quantity || '-'}</td>
+                  <td style="border: 1px solid #ccc; padding: 8px;">${p.details || '-'}</td>
+                  <td style="border: 1px solid #ccc; padding: 8px;">${p.description || '-'}</td>
+                  <td style="border: 1px solid #ccc; padding: 8px;">${formatDate(p.startdate || p.startDate)}</td>
+                  <td style="border: 1px solid #ccc; padding: 8px;">${formatDate(p.enddate || p.endDate)}</td>
+                  <td style="border: 1px solid #ccc; padding: 8px;">₹${p.price || '-'}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+          <p style="margin-top: 20px;">Please take the necessary steps to renew or update your product information to avoid service interruptions.</p>
+          <p style="margin-top: 30px;">Best regards,<br/>
+          <strong>ARYA LEGAL PROCESS</strong><br/>
+          📧 aryalegalprocess@gmail.com<br/>
+          📞 +91-9246411288</p>
+          <hr style="margin-top: 40px;"/>
+          <small style="color: #888;">You are receiving this email because you're registered with ARYA LEGAL PROCESS. Please contact us if you have any questions.</small>
+        </div>
+      `;
 
-const emailContent = `
-  <div style="font-family: 'Segoe UI', sans-serif; color: #333; padding: 20px; line-height: 1.6;">
-    <h2 style="color: #007bff;">Dear ${company.cname || 'Valued Partner'},</h2>
-
-    <p>This is a reminder that the following product(s) associated with your company have partnership dates that are expiring soon:</p>
-
-    <table style="width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 14px;">
-      <thead style="background-color: #f2f2f2;">
-        <tr>
-          <th style="border: 1px solid #ccc; padding: 8px;">Product Name</th>
-          <th style="border: 1px solid #ccc; padding: 8px;">Barcode</th>
-          <th style="border: 1px solid #ccc; padding: 8px;">Weight</th>
-          <th style="border: 1px solid #ccc; padding: 8px;">Quantity</th>
-          <th style="border: 1px solid #ccc; padding: 8px;">Details</th>
-          <th style="border: 1px solid #ccc; padding: 8px;">Description</th>
-          <th style="border: 1px solid #ccc; padding: 8px;">Start Date</th>
-          <th style="border: 1px solid #ccc; padding: 8px;">End Date</th>
-          <th style="border: 1px solid #ccc; padding: 8px;">Price</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${productsForCompany.map(p => `
-          <tr>
-            <td style="border: 1px solid #ccc; padding: 8px;">${p.name || '-'}</td>
-            <td style="border: 1px solid #ccc; padding: 8px;">${p.barcode || '-'}</td>
-            <td style="border: 1px solid #ccc; padding: 8px;">${p.weight || '-'}</td>
-            <td style="border: 1px solid #ccc; padding: 8px;">${p.quantity || '-'}</td>
-            <td style="border: 1px solid #ccc; padding: 8px;">${p.details || '-'}</td>
-            <td style="border: 1px solid #ccc; padding: 8px;">${p.description || '-'}</td>
-            <td style="border: 1px solid #ccc; padding: 8px;">${formatDate(p.startdate || p.startDate)}</td>
-            <td style="border: 1px solid #ccc; padding: 8px;">${formatDate(p.enddate || p.endDate)}</td>
-            <td style="border: 1px solid #ccc; padding: 8px;">₹${p.price || '-'}</td>
-          </tr>
-        `).join('')}
-      </tbody>
-    </table>
-
-    <p style="margin-top: 20px;">Please take the necessary steps to renew or update your product information to avoid service interruptions.</p>
-
-    <p style="margin-top: 30px;">Best regards,<br/>
-    <strong>ARYA LEGAL PROCESS</strong><br/>
-    📧 aryalegalprocess@gmail.com<br/>
-    📞 +91-9246411288</p>
-
-    <hr style="margin-top: 40px;"/>
-    <small style="color: #888;">You are receiving this email because you're registered with ARYA LEGAL PROCESS. Please contact us if you have any questions.</small>
-  </div>
-`;
-
-
-
+      console.log("Sending email to:", company.cemail);
       await sendEmail(company.cemail, '⚠️ Product Partnership Expiry Alert', emailContent);
     }
 
@@ -212,6 +189,17 @@ const emailContent = `
   } catch (error) {
     console.error('Error sending expiry emails:', error);
     res.status(500).json({ message: 'Failed to send emails' });
+  }
+});
+
+// ✅ Test Email Route
+app.get('/api/test-email', async (req, res) => {
+  try {
+    await sendEmail('aryalegalprocess@gmail.com', 'Test Email', '<h1>Test Email</h1>');
+    res.send("✅ Test email sent successfully");
+  } catch (err) {
+    console.error('❌ Test email failed:', err);
+    res.status(500).send("❌ Test email failed");
   }
 });
 
@@ -227,8 +215,6 @@ Promise.all([
   new Promise(resolve => mongoose.connection.once('open', resolve))
 ]).then(async () => {
 
-
-
   // ✅ Custom route for fetching product by barcode (with company name)
   app.get('/api/products/:barcode', async (req, res) => {
     try {
@@ -242,7 +228,7 @@ Promise.all([
         return res.status(404).json({ message: 'Product not found' });
       }
 
-      const company = await Company.findOne({ id: product.company });
+      const company = await Company.findOne({ id: Number(product.company) });
       console.log("Company found:", company);
 
       const responseData = {
@@ -263,7 +249,6 @@ Promise.all([
 }).catch(err => {
   console.error('❌ Error connecting to databases:', err);
 });
-
 
 // 404 API fallback (after all routes)
 app.all('/*splat', (req, res) => {
