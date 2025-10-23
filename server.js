@@ -123,18 +123,18 @@ app.post('/api/send-expiry-emails', async (req, res) => {
       return res.status(400).json({ message: 'No products provided' });
     }
 
-    const companyIds = [...new Set(products.map(p => p.company))];
+// Ensure comparison works regardless of type
+const companyIds = [...new Set(products.map(p => p.company))];
+
 for (const companyId of companyIds) {
-  //const company = await Company.findOne({ id: companyId }); // ✅ CORRECT
-  // Ensure types match (string ↔ number)
-const company = await Company.findOne({ id: Number(companyId) });
+  const company = await Company.findOne({ id: Number(companyId) }); // okay if company.id is number
+  if (!company || !company.cemail) continue;
 
+  // Filter products for this company, convert types to match
+  const productsForCompany = products.filter(p => Number(p.company) === company.id);
 
+  // ... send email
 
-      if (!company || !company.cemail) continue;
-
-      //const productsForCompany = products.filter(p => p.company === companyId);
-      const productsForCompany = products.filter(p => p.company == companyId);
 
 
      function formatDate(date) {
