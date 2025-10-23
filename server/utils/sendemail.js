@@ -1,28 +1,28 @@
-const axios = require('axios');
-require('dotenv').config();
+const nodemailer = require('nodemailer');
+
+// Use Brevo SMTP settings
+const transporter = nodemailer.createTransport({
+    host: 'smtp-relay.sendinblue.com', // Brevo SMTP server
+    port: 587, // TLS port
+    secure: false, // true for 465, false for 587
+    auth: {
+        user: '99ecb4001@smtp-brevo.com', // Brevo SMTP username
+        pass: '5U2rYxmJZ7HdgBhp'          // Brevo SMTP password
+    }
+}));
 
 async function sendEmail(to, subject, htmlContent) {
-  try {
-    const response = await axios.post(
-      'https://api.brevo.com/v3/smtp/email',
-      {
-        sender: { name: "ARYA LEGAL PROCESS", email: "aryalegalprocess@gmail.com" },
-        to: [{ email: to }],
-        subject: subject,
-        htmlContent: htmlContent
-      },
-      {
-        headers: {
-          'api-key': process.env.BREVO_API_KEY,
-          'Content-Type': 'application/json'
-        }
-      }
-    );
-    return response.data;
-  } catch (error) {
-    console.error('Error sending email via Brevo API:', error.response?.data || error.message);
-    throw error;
-  }
+    try {
+        const info = await transporter.sendMail({
+            from: '"ARYA LEGAL PROCESS" <aryalegalprocess@gmail.com>', // Gmail sender
+            to,
+            subject,
+            html: htmlContent
+        });
+        console.log('✅ Email sent:', info.messageId);
+    } catch (err) {
+        console.error('❌ Error sending email:', err);
+    }
 }
 
 module.exports = sendEmail;
