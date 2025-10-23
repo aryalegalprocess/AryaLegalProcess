@@ -125,12 +125,17 @@ app.post('/api/send-expiry-emails', async (req, res) => {
 
     const companyIds = [...new Set(products.map(p => p.company))];
 for (const companyId of companyIds) {
-  const company = await Company.findOne({ id: companyId }); // ✅ CORRECT
+  //const company = await Company.findOne({ id: companyId }); // ✅ CORRECT
+  // Ensure types match (string ↔ number)
+const company = await Company.findOne({ id: Number(companyId) });
+
 
 
       if (!company || !company.cemail) continue;
 
-      const productsForCompany = products.filter(p => p.company === companyId);
+      //const productsForCompany = products.filter(p => p.company === companyId);
+      const productsForCompany = products.filter(p => p.company == companyId);
+
 
      function formatDate(date) {
   if (!date) return '-';
