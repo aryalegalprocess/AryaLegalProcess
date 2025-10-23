@@ -194,8 +194,8 @@ const emailContent = `
 
     <p style="margin-top: 30px;">Best regards,<br/>
     <strong>ARYA LEGAL PROCESS</strong><br/>
-    📧 support@aryalegalprocess.com<br/>
-    📞 +91-XXXXXXXXXX</p>
+    📧 aryalegalprocess@gmail.com<br/>
+    📞 +91-9246411288</p>
 
     <hr style="margin-top: 40px;"/>
     <small style="color: #888;">You are receiving this email because you're registered with ARYA LEGAL PROCESS. Please contact us if you have any questions.</small>
