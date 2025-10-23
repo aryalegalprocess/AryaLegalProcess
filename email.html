@@ -3,12 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Send E-Mail Dashboard</title>
+  <title>Add Product Dashboard</title>
   <link rel="stylesheet" href="style2.css" />
   <link href="https://fonts.googleapis.com/css2?family=Nunito&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="addproduct.css">
-  <link rel="stylesheet" href="email.css">
- <script>
+<script>
   if (sessionStorage.getItem("isLoggedIn") !== "true") {
     window.location.href = "dashboard.html";
   }
@@ -20,210 +19,252 @@
   <div class="sidebar">
     <div class="logo">&#9776; <span class="text">ARYA LEGAL PROCESS</span> </div>
     <ul class="menu">
-        <li><a href="home.html"><span class="icon">🏠</span><span class="text">Home</span></a></li>
-        <li><a href="company.html"><span class="icon">🛠️</span><span class="text">Manage Companies</span></a></li>
-        <li><a href="addproduct.html"><span class="icon">➕</span><span class="text">Add Products</span></a></li>
-        <li><a href="productlist.html"><span class="icon">📦</span><span class="text">Products List</span></a></li>
-        <li><a href="email.html"><span class="icon">📧</span><span class="text">Send E-Mail</span></a></li>
+      <li><a href="home.html"><span class="icon">🏠</span><span class="text">Home</span></a></li>
+      <li><a href="company.html"><span class="icon">🛠️</span><span class="text">Manage Companies</span></a></li>
+      <li><a href="addproduct.html"><span class="icon">➕</span><span class="text">Add Products</span></a></li>
+      <li><a href="productlist.html"><span class="icon">📦</span><span class="text">Products List</span></a></li>
+      <li><a href="email.html"><span class="icon">📧</span><span class="text">Send E-Mail</span></a></li>
     </ul>
   </div>
 
   <div class="main-content">
-
-         <div class="navbar">
-  <div class="admin-dropdown">
-    <div class="admin" onclick="toggleDropdown()">ADMIN</div>
-    <div class="dropdown-menu" id="dropdown">
-      <a href="password.html">Change Password</a>
+    <div class="navbar">
+      <div class="admin-dropdown">
+        <div class="admin" onclick="toggleDropdown()">ADMIN</div>
+        <div class="dropdown-menu" id="dropdown">
+          <a href="password.html">Change Password</a>
 <a href="#" onclick="logout()">Logout</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="heading">
+      <h2>➕ DASHBOARD Add-Product</h2>
+    </div>
+
+    <div class="form-container">
+      <div class="form-header">
+        <h2>ADD PRODUCT</h2>
+      </div>
+      <form id="productForm" novalidate>
+        <label for="barcode">Barcode Number (GTIN):</label>
+        <input type="text" id="barcode" placeholder="Barcode No" />
+
+        <label for="product-name">Product Name:</label>
+        <input type="text" id="product-name" placeholder="Product Name" />
+
+        <label for="product-details">Product Details:</label>
+        <textarea id="product-details" placeholder="Product Details"></textarea>
+
+        <label for="weightage">Product Weightage:</label>
+        <input type="text" id="weightage" placeholder="Product Weightage" />
+
+        <label for="quantity">Product Quantity:</label>
+        <input type="text" id="quantity" placeholder="Product Quantity" />
+
+        <label for="company">Select Company:</label>
+        <select id="company">
+          <option value="">Select a company</option>
+        </select>
+
+        <label for="description">Product Description:</label>
+        <textarea id="description" placeholder="Product Description"></textarea>
+
+        <label for="image">Product Image:</label>
+        <input type="file" id="image" />
+
+        <label for="start-date">Start Date:</label>
+        <input type="date" id="start-date" value="2025-06-02" />
+
+        <label for="end-date">End Date:</label>
+        <input type="date" id="end-date" value="2026-06-02" />
+
+        <label for="price">Price:</label>
+        <input type="text" id="price" placeholder="Price" />
+
+        <button type="submit">Submit</button>
+      </form>
     </div>
   </div>
-</div>
 
-  <div class="heading">
-    <h2>📧 DASHBOARD - Send Email</h2>
-  </div>
-<div class="container">
-  <h2>Send E-Mail</h2>
-
-  <div class="form-row">
-    <div class="form-group">
-      <label for="fromDate">From</label>
-      <input type="date" id="fromDate" />
-    </div>
-    <div class="form-group">
-      <label for="toDate">To</label>
-      <input type="date" id="toDate" />
-    </div>
-    <div class="form-group">
-      <label for="searchInput">Search</label>
-      <input type="text" id="searchInput" placeholder="Search by product or company name" />
-    </div>
-  </div>
-
-  <div class="buttons">
-    <button class="btn btn-search">Search</button>
-    <button class="btn btn-send">Send E-Mail</button>
-  </div>
-
-  <table>
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>BAR CODE</th>
-        <th>NAME</th>
-        <th>DETAILS</th>
-        <th>WEIGHT</th>
-        <th>QUANTITY</th>
-        <th>COMPANY</th>
-        <th>DESCRIPTION</th>
-        <th>START DATE</th>
-        <th>END DATE</th>
-        <th>PRICE</th>
-      </tr>
-    </thead>
-    <tbody>
-      <!-- Dynamic table rows go here -->
-    </tbody>
-  </table>
-</div>
-
-
-  
-  </div>
-
-  
-  
 <script>
-  const sidebar = document.querySelector('.sidebar');
-  sidebar.addEventListener('click', () => sidebar.classList.toggle('expanded'));
+  document.addEventListener("DOMContentLoaded", () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const productId = urlParams.get("id");
 
-  function toggleDropdown() {
-    const dropdown = document.getElementById("dropdown");
-    dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
-  }
-
-  document.addEventListener("click", function (event) {
-    const dropdown = document.getElementById("dropdown");
-    const admin = document.querySelector(".admin");
-    if (!admin.contains(event.target)) {
-      dropdown.style.display = "none";
+    const sidebar = document.querySelector('.sidebar');
+    if (sidebar) {
+      sidebar.addEventListener('click', () => {
+        sidebar.classList.toggle('expanded');
+      });
     }
-  });
 
-  // ---------------- CUSTOM CODE BELOW -------------------
+    window.toggleDropdown = function () {
+      const dropdown = document.getElementById("dropdown");
+      dropdown.style.display = dropdown.style.display === "block" ? "none" : "block";
+    };
 
-  let allProducts = [];
-  let companyMap = {};
-
-  async function fetchCompanies() {
-    const res = await fetch('https://aryalegalprocess.onrender.com/api/companies');
-    const companies = await res.json();
-    companies.forEach(c => {
-      companyMap[c.id] = c.name;
+    document.addEventListener("click", function (event) {
+      const dropdown = document.getElementById("dropdown");
+      const admin = document.querySelector(".admin");
+      if (dropdown && admin && !admin.contains(event.target)) {
+        dropdown.style.display = "none";
+      }
     });
-  }
 
-  async function fetchProducts() {
-    const res = await fetch('https://aryalegalprocess.onrender.com/api/products');
-    allProducts = await res.json();
-  }
+    const companySelect = document.getElementById("company");
 
-  function formatDate(dateStr) {
-    if (!dateStr) return '';
-    return new Date(dateStr).toISOString().split('T')[0];
-  }
+    // Load companies first
+    fetch('https://aryalegalprocess.onrender.com/api/companies')
+      .then(res => res.json())
+      .then(companies => {
+        const uniqueCompanyNames = new Set();
+        companies.forEach(company => {
+          if (!uniqueCompanyNames.has(company.name)) {
+            uniqueCompanyNames.add(company.name);
+            const option = document.createElement("option");
+            option.value = company.id;
+            option.textContent = company.name;
+            companySelect.appendChild(option);
+          }
+        });
 
-  function renderTable(filteredProducts) {
-    const tbody = document.querySelector("table tbody");
-    tbody.innerHTML = '';
+        // After companies are loaded, fetch product details if editing
+        if (productId) {
+          fetch(`https://aryalegalprocess.onrender.com/api/products/id/${productId}`)
+            .then(res => res.json())
+            .then(product => {
+              document.getElementById("barcode").value = product.barcode || '';
+              document.getElementById("product-name").value = product.name || '';
+              document.getElementById("product-details").value = product.details || '';
+              document.getElementById("weightage").value = product.weight || '';
+              document.getElementById("quantity").value = product.quantity || '';
+              document.getElementById("company").value = product.company || '';
+              document.getElementById("description").value = product.description || '';
+              document.getElementById("start-date").value = product.startDate || '';
+              document.getElementById("end-date").value = product.endDate || '';
+              document.getElementById("price").value = product.price || '';
+            })
+            .catch(err => {
+              console.error("Failed to load product:", err);
+              alert("Unable to load product details.");
+            });
+        }
+      })
+      .catch(err => {
+        console.error("Failed to fetch companies:", err);
+      });
 
-    filteredProducts.forEach((p, index) => {
-      const tr = document.createElement('tr');
-      tr.innerHTML = `
-        <td>${index + 1}</td>
-        <td>${p.barcode || '-'}</td>
-        <td>${p.name || '-'}</td>
-        <td>${p.details || '-'}</td>
-        <td>${p.weight || '-'}</td>
-        <td>${p.quantity || '-'}</td>
-        <td>${companyMap[p.company] || 'Unknown'}</td>
-        <td>${p.description || '-'}</td>
-        <td>${formatDate(p.startdate || p.startDate)}</td>
-<td>${formatDate(p.enddate || p.endDate)}</td>
-        <td>₹${p.price || '0'}</td>
-      `;
-      tbody.appendChild(tr);
+    // Handle form submit
+    document.getElementById('productForm').addEventListener('submit', function (e) {
+      e.preventDefault();
+
+      const errorElements = document.querySelectorAll('.error-message');
+      errorElements.forEach(el => el.remove());
+
+      let valid = true;
+
+      function showError(input, message) {
+        valid = false;
+        const error = document.createElement('div');
+        error.className = 'error-message';
+        error.style.color = 'red';
+        error.style.fontSize = '14px';
+        error.style.marginTop = '4px';
+        error.textContent = message;
+        input.parentNode.insertBefore(error, input.nextSibling);
+      }
+
+      const barcode = document.getElementById('barcode');
+      const productName = document.getElementById('product-name');
+      const productDetails = document.getElementById('product-details');
+      const weightage = document.getElementById('weightage');
+      const quantity = document.getElementById('quantity');
+      const company = document.getElementById('company');
+      const description = document.getElementById('description');
+      const imageInput = document.getElementById('image');
+      const startDate = document.getElementById('start-date');
+      const endDate = document.getElementById('end-date');
+      const price = document.getElementById('price');
+
+      if (!barcode.value.trim()) showError(barcode, 'Barcode Number is required.');
+      if (!productName.value.trim()) showError(productName, 'Product Name is required.');
+      if (!productDetails.value.trim()) showError(productDetails, 'Product Details are required.');
+      if (!weightage.value.trim()) showError(weightage, 'Product Weightage is required.');
+      if (!quantity.value.trim()) showError(quantity, 'Product Quantity is required.');
+      if (!company.value) showError(company, 'Please select a company.');
+      if (!description.value.trim()) showError(description, 'Product Description is required.');
+      if (!startDate.value) showError(startDate, 'Start Date is required.');
+      if (!endDate.value) showError(endDate, 'End Date is required.');
+      if (!price.value.trim()) showError(price, 'Price is required.');
+
+      const isEditing = !!productId;
+      const file = imageInput.files[0];
+
+      // Only require image if adding
+      if (!isEditing && !file) {
+        showError(imageInput, 'Please upload a product image.');
+      }
+
+      if (valid) {
+        const submitData = () => {
+          const productData = {
+            barcode: barcode.value.trim(),
+            name: productName.value.trim(),
+            details: productDetails.value.trim(),
+            weight: weightage.value.trim(),
+            quantity: quantity.value.trim(),
+            company: company.value,
+            description: description.value.trim(),
+            startDate: startDate.value,
+            endDate: endDate.value,
+            price: price.value.trim(),
+            image: base64Image // added later
+          };
+
+          const url = isEditing
+            ? `https://aryalegalprocess.onrender.com/api/products/${productId}`
+            : `https://aryalegalprocess.onrender.com/api/products`;
+
+          const method = isEditing ? 'PUT' : 'POST';
+
+          fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(productData)
+          })
+            .then(res => res.json())
+            .then(data => {
+              alert(data.message || (isEditing ? "Product updated!" : "Product added!"));
+              window.location.href = "productlist.html";
+            })
+            .catch(error => {
+              console.error("Error:", error);
+              alert("Failed to save product.");
+            });
+        };
+
+        let base64Image = "";
+
+        if (file) {
+          const reader = new FileReader();
+          reader.onloadend = function () {
+            base64Image = reader.result;
+            submitData();
+          };
+          reader.readAsDataURL(file);
+        } else {
+          base64Image = ""; // send blank if no image change during edit
+          submitData();
+        }
+      }
     });
-  }
-
-function getFilteredProducts() {
-  const from = document.getElementById("fromDate").value;
-  const to = document.getElementById("toDate").value;
-  const searchQuery = document.getElementById("searchInput").value.toLowerCase();
-
-  const fromDate = from ? new Date(from) : null;
-  const toDate = to ? new Date(to) : null;
-
-  return allProducts.filter(p => {
-    const start = new Date(p.startdate || p.startDate);
-    const matchesDate = (!fromDate || start.getTime() >= fromDate.getTime()) &&
-                        (!toDate || start.getTime() <= toDate.getTime());
-
-    const productName = (p.name || "").toLowerCase();
-    const companyName = (companyMap[p.company] || "").toLowerCase();
-    const matchesSearch = productName.includes(searchQuery) || companyName.includes(searchQuery);
-
-    return matchesDate && matchesSearch;
   });
-}
-
-// Existing search button event remains the same
-document.querySelector(".btn-search").addEventListener("click", () => {
-  const filtered = getFilteredProducts();
-  renderTable(filtered);
-});
-
-  document.querySelector(".btn-search").addEventListener("click", () => {
-    const filtered = getFilteredProducts();
-    renderTable(filtered);
-  });
-
-  document.querySelector(".btn-send").addEventListener("click", async () => {
-  const filtered = getFilteredProducts();
-
-  if (!filtered.length) {
-    alert("⚠️ No products match your search criteria!");
-    return;
-  }
-
-  try {
-    const res = await fetch('https://aryalegalprocess.onrender.com/api/send-expiry-emails', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ products: filtered })
-    });
-    const data = await res.json();
-    alert(`✅ Emails sent successfully to ${data.message || filtered.length} company(ies)!`);
-  } catch (err) {
-    console.error("Error sending email:", err);
-    alert("❌ Failed to send emails. Try again.");
-  }
-});
-
-
-  // Fetch on load
-  window.onload = async function () {
-    await fetchCompanies();
-    await fetchProducts();
-  };
   function logout() {
     sessionStorage.clear();
     window.location.href = "dashboard.html";
   }
 </script>
-
-
 
 </body>
 </html>
