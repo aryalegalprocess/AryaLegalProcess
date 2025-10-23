@@ -8,6 +8,13 @@
   <link href="https://fonts.googleapis.com/css2?family=Nunito&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="addproduct.css">
   <link rel="stylesheet" href="email.css">
+ <script>
+  if (sessionStorage.getItem("isLoggedIn") !== "true") {
+    window.location.href = "dashboard.html";
+  }
+</script>
+
+
 </head>
 <body>
   <div class="sidebar">
@@ -28,7 +35,7 @@
     <div class="admin" onclick="toggleDropdown()">ADMIN</div>
     <div class="dropdown-menu" id="dropdown">
       <a href="password.html">Change Password</a>
-      <a href="index.html">Logout</a>
+<a href="#" onclick="logout()">Logout</a>
     </div>
   </div>
 </div>
@@ -36,48 +43,51 @@
   <div class="heading">
     <h2>📧 DASHBOARD - Send Email</h2>
   </div>
+<div class="container">
+  <h2>Send E-Mail</h2>
 
-   <div class="container">
-    <h2>Send E-Mail</h2>
-    <div class="form-row">
-      <div class="form-group">
-        <label for="fromDate">From</label>
-        <input type="date" id="fromDate" />
-      </div>
-      <div class="form-group">
-        <label for="toDate">To</label>
-        <input type="date" id="toDate" />
-      </div>
-     
+  <div class="form-row">
+    <div class="form-group">
+      <label for="fromDate">From</label>
+      <input type="date" id="fromDate" />
     </div>
-
-    <div class="buttons">
-      <button class="btn btn-search">Search</button>
-      <button class="btn btn-send">Send E-Mail</button>
+    <div class="form-group">
+      <label for="toDate">To</label>
+      <input type="date" id="toDate" />
     </div>
-
-    <table>
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>BAR CODE</th>
-          <th>NAME</th>
-          <th>DETAILS</th>
-          <th>WEIGHT</th>
-          <th>QUANTITY</th>
-          <th>COMPANY</th>
-          <th>DESCRIPTION</th>
-          <th>START DATE</th>
-          <th>END DATE</th>
-          <th>PRICE</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!-- Dynamic table rows go here -->
-      </tbody>
-    </table>
+    <div class="form-group">
+      <label for="searchInput">Search</label>
+      <input type="text" id="searchInput" placeholder="Search by product or company name" />
+    </div>
   </div>
-     
+
+  <div class="buttons">
+    <button class="btn btn-search">Search</button>
+    <button class="btn btn-send">Send E-Mail</button>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>BAR CODE</th>
+        <th>NAME</th>
+        <th>DETAILS</th>
+        <th>WEIGHT</th>
+        <th>QUANTITY</th>
+        <th>COMPANY</th>
+        <th>DESCRIPTION</th>
+        <th>START DATE</th>
+        <th>END DATE</th>
+        <th>PRICE</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Dynamic table rows go here -->
+    </tbody>
+  </table>
+</div>
+
 
   
   </div>
@@ -147,20 +157,32 @@
     });
   }
 
-  function getFilteredProducts() {
+function getFilteredProducts() {
   const from = document.getElementById("fromDate").value;
   const to = document.getElementById("toDate").value;
+  const searchQuery = document.getElementById("searchInput").value.toLowerCase();
 
   const fromDate = from ? new Date(from) : null;
   const toDate = to ? new Date(to) : null;
 
   return allProducts.filter(p => {
     const start = new Date(p.startdate || p.startDate);
-    return (!fromDate || start.getTime() >= fromDate.getTime()) &&
-           (!toDate || start.getTime() <= toDate.getTime());
+    const matchesDate = (!fromDate || start.getTime() >= fromDate.getTime()) &&
+                        (!toDate || start.getTime() <= toDate.getTime());
+
+    const productName = (p.name || "").toLowerCase();
+    const companyName = (companyMap[p.company] || "").toLowerCase();
+    const matchesSearch = productName.includes(searchQuery) || companyName.includes(searchQuery);
+
+    return matchesDate && matchesSearch;
   });
 }
 
+// Existing search button event remains the same
+document.querySelector(".btn-search").addEventListener("click", () => {
+  const filtered = getFilteredProducts();
+  renderTable(filtered);
+});
 
   document.querySelector(".btn-search").addEventListener("click", () => {
     const filtered = getFilteredProducts();
@@ -195,6 +217,10 @@
     await fetchCompanies();
     await fetchProducts();
   };
+  function logout() {
+    sessionStorage.clear();
+    window.location.href = "dashboard.html";
+  }
 </script>
 
 
