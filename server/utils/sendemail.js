@@ -1,34 +1,44 @@
 // utils/sendEmail.js
 
-const nodemailer = require("nodemailer");
 require("dotenv").config();
+const SibApiV3Sdk = require("sib-api-v3-sdk");
 
-// Create transporter with Brevo SMTP
-const transporter = nodemailer.createTransport({
-  host: process.env.BREVO_SMTP_HOST,       // smtp-relay.brevo.com
-  port: process.env.BREVO_SMTP_PORT,       // 587 (TLS) or 465 (SSL)
-  secure: false,                            // true if port 465
-  auth: {
-    user: process.env.BREVO_SMTP_USER,     // your Brevo SMTP email
-    pass: process.env.BREVO_SMTP_PASS      // your Brevo SMTP password
-  },
-});
+// Configure the API client
+const defaultClient = SibApiV3Sdk.ApiClient.instance;
+const apiKey = defaultClient.authentications["api-key"];
+apiKey.apiKey = process.env.BREVO_API_KEY;
+
+// Create transactional email API instance
+const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
 
 /**
- * Sends an email using Brevo SMTP via Nodemailer.
- * 
+ * Sends an email using the Brevo API
  * @param {string} to - Recipient email address
- * @param {string} subject - Subject of the email
- * @param {string} htmlContent - HTML body content
- * @returns {Promise} - Resolves on success, rejects on failure
+ * @param {string} subject - Email subject
+ * @param {string} htmlContent - HTML body
+ * @returns {Promise}
  */
-function sendEmail(to, subject, htmlContent) {
-  return transporter.sendMail({
-    from: `"ARYA LEGAL PROCESS" <${process.env.BREVO_SMTP_USER}>`,
-    to,
-    subject,
-    html: htmlContent
-  });
+async function sendEmail(to, subject, htmlContent) {
+  const sender = {
+    name: "ARYA LEGAL PROCESS",
+    email: "aryalegalprocess@gmail.com", // verified sender in Brevo
+  };
+
+  const receivers = [{ email: to }];
+
+  try {
+    const response = await apiInstance.sendTransacEmail({
+      sender,
+      to: receivers,
+      subject,
+      htmlContent,
+    });
+    console.log("✅ Email sent successfully:", response.messageId || response);
+    return response;
+  } catch (error) {
+    console.error("❌ Error sending email:", error.message || error);
+    throw error;
+  }
 }
 
 module.exports = sendEmail;
