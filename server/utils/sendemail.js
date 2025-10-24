@@ -1,42 +1,31 @@
 // utils/sendEmail.js
 
 require("dotenv").config();
-const SibApiV3Sdk = require("sib-api-v3-sdk");
+const { Resend } = require("resend");
 
-// Configure the API client
-const defaultClient = SibApiV3Sdk.ApiClient.instance;
-const apiKey = defaultClient.authentications["api-key"];
-apiKey.apiKey = process.env.BREVO_API_KEY;
-
-// Create transactional email API instance
-const apiInstance = new SibApiV3Sdk.TransactionalEmailsApi();
+// Initialize Resend with your API key
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 /**
- * Sends an email using the Brevo API
+ * Sends an email using Resend API
  * @param {string} to - Recipient email address
  * @param {string} subject - Email subject
  * @param {string} htmlContent - HTML body
  * @returns {Promise}
  */
 async function sendEmail(to, subject, htmlContent) {
-  const sender = {
-    name: "ARYA LEGAL PROCESS",
-    email: "aryalegalprocess@gmail.com", // verified sender in Brevo
-  };
-
-  const receivers = [{ email: to }];
-
   try {
-    const response = await apiInstance.sendTransacEmail({
-      sender,
-      to: receivers,
+    const response = await resend.emails.send({
+      from: "ARYA LEGAL PROCESS <aryalegalprocess@gmail.com>", // you can later replace with your domain email
+      to,
       subject,
-      htmlContent,
+      html: htmlContent,
     });
-    console.log("✅ Email sent successfully:", response.messageId || response);
+
+    console.log("✅ Email sent successfully:", response.id);
     return response;
   } catch (error) {
-    console.error("❌ Error sending email:", error.message || error);
+    console.error("❌ Error sending email:", error);
     throw error;
   }
 }
